@@ -12,13 +12,16 @@ public class PhotoStream.App : Granite.Application
         
         mainWindow.show_all ();
 
-        getResponce("api.instagram.com");
+        stdout.printf("yay");
+        string responce = getResponce("api.instagram.com");
+        print(responce);
+        //stdout.printf("yay");
         Gtk.main ();
 
         //while (Gtk.events_pending ())
                     //Gtk.main_iteration ();
 
-        mainWindow.present ();
+        //mainWindow.present ();
 
        //return;
        
