@@ -4,21 +4,35 @@ public class PhotoStream.App : Granite.Application
 	public static MainWindow mainWindow;
     public static string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
 
+
 	protected override void activate () 
 	{       
+        application_id = "1";
+        program_name = "PhotoStream";
+
+        Thread<int> thread = new Thread<int>.try("aa", (ThreadFunc)this.load);
+
+
         mainWindow = new MainWindow ();
 
         mainWindow.title = "Hello World!";
 
         
+
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
+        mainWindow.set_application(this) ;
 
+        //int result = thread.join ();
+
+    }
+
+    async int load()
+    {
         string responce = getUserFeed();
         print(responce);
-        jsonParse(responce);
-
-        Gtk.main ();     
+        jsonParse(responce); 
+        return 0;       
     }
 
     protected override void shutdown () 
