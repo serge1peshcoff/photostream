@@ -27,7 +27,7 @@ public class PhotoStream.App : Granite.Application
 
     }
 
-    async int load()
+    int load()
     {
         string responce = getUserFeed();
         print(responce);

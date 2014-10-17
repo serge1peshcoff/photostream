@@ -6,7 +6,6 @@ public void jsonParse(string message)
 	var root_object = parser.get_root().get_object();
     var response = root_object.get_array_member ("data");
     int64 count = response.get_length ();
-    //int64 total = response.get_int_member ("numFound");
     stdout.printf ("got %lld results:\n\n", count);
 
     foreach (var geonode in response.get_elements ())
