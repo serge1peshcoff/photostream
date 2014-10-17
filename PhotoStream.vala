@@ -2,6 +2,7 @@ public class PhotoStream.App : Granite.Application
 {
 
 	public static MainWindow mainWindow;
+    public static string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
 
 	protected override void activate () 
 	{       
@@ -11,12 +12,13 @@ public class PhotoStream.App : Granite.Application
 
         
         mainWindow.show_all ();
+        mainWindow.destroy.connect (Gtk.main_quit);
 
-        string responce = getResponce("api.instagram.com");
+        string responce = getResponce("https://api.instagram.com/v1/users/self/media/liked?access_token=" + appToken);
         print(responce);
         //stdout.printf("yay");
         Gtk.main ();
-
+        print("Yaa");
         //while (Gtk.events_pending ())
                     //Gtk.main_iteration ();
 
