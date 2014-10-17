@@ -12,7 +12,6 @@ public class PhotoStream.App : Granite.Application
         
         mainWindow.show_all ();
 
-        stdout.printf("yay");
         string responce = getResponce("api.instagram.com");
         print(responce);
         //stdout.printf("yay");
