@@ -1,8 +1,11 @@
+using PhotoStream.Utils;
+
 public class PhotoStream.App : Granite.Application 
 {
 
 	public static MainWindow mainWindow;
     public static string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
+    public static List<MediaInfo> feedPosts;
 
 
 	protected override void activate () 
@@ -10,15 +13,14 @@ public class PhotoStream.App : Granite.Application
         application_id = "1";
         program_name = "PhotoStream";
 
-        Thread<int> thread = new Thread<int>.try("aa", (ThreadFunc)this.load);
-        //int result = thread.join ();
+        Thread<int> thread = new Thread<int>.try("", (ThreadFunc)this.load);
 
         mainWindow = new MainWindow ();
 
         mainWindow.title = "Hello World!";   
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
-        mainWindow.set_application(this) ;
+        mainWindow.set_application(this);
 
         
 
@@ -27,8 +29,11 @@ public class PhotoStream.App : Granite.Application
     int load()
     {
         string responce = getUserFeed();
-        print(responce);
-        jsonParse(responce); 
+        parseFeed(responce); 
+
+        foreach(MediaInfo post in feedPosts)
+            print(post.title + "1\n");
+
         return 0;       
     }
 
