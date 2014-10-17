@@ -11,19 +11,16 @@ public class PhotoStream.App : Granite.Application
         program_name = "PhotoStream";
 
         Thread<int> thread = new Thread<int>.try("aa", (ThreadFunc)this.load);
-
+        //int result = thread.join ();
 
         mainWindow = new MainWindow ();
 
-        mainWindow.title = "Hello World!";
-
-        
-
+        mainWindow.title = "Hello World!";   
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this) ;
 
-        //int result = thread.join ();
+        
 
     }
 
