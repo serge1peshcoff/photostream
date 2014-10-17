@@ -1,1 +1,1 @@
-valac --pkg gtk+-3.0 --pkg granite --pkg glib-2.0 --pkg gio-2.0 --pkg json-glib-1.0 --pkg webkitgtk-3.0  main.vala PhotoStream.vala  MainWindow.vala LoginWindow.vala Networking.vala
+valac --pkg gtk+-3.0 --pkg granite --pkg glib-2.0 --pkg gio-2.0 --pkg json-glib-1.0 --pkg webkitgtk-3.0  main.vala PhotoStream.vala  MainWindow.vala LoginWindow.vala Networking.vala JsonParse.vala
