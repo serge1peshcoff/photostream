@@ -23,8 +23,32 @@ public void parseFeed(string message)
     	else if (type == "video")
     		info.type = PhotoStream.MediaType.VIDEO;
 
-    		
+    	var locationObject = mediaPostObject.get_member("location"); //location
+    	if (!locationObject.is_null()) //if has location
+    	{
+    		info.location = new Location();
+    		info.location.latitude = locationObject.get_object().get_double_member("latitude");
+    		info.location.longitude = locationObject.get_object().get_double_member("longitude");
+    		info.location.name = (locationObject.get_object().has_member("name")) ? locationObject.get_object().get_string_member("name") : "";
+    		info.location.id = (locationObject.get_object().has_member("id")) ? locationObject.get_object().get_int_member("id") : 0;
+    	}
 
+    	var likeObject = mediaPostObject.get_member("likes").get_object(); //getting likes
+    	info.likesCount = likeObject.get_int_member("count");
+    	if (likeObject.get_int_member("count") != 0) //if there are any
+    		foreach(var like in likeObject.get_array_member("data").get_elements())
+    		{
+    			
+    			User user = new User();
+    			
+    			user.username = like.get_object().get_string_member("username");	
+    			user.profilePicture = like.get_object().get_string_member("profile_picture");
+    			user.id = (int64) like.get_object().get_string_member("id");	
+    			user.fullName = like.get_object().get_string_member("full_name");	
+
+    			info.likes.append(user);
+    		}
+    		
     	var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
     	if (commentObject.get_int_member("count") != 0) //if there are any
     		foreach(var comment in commentObject.get_array_member("data").get_elements())
@@ -45,6 +69,8 @@ public void parseFeed(string message)
     			info.comments.append(infoComment);    			
     		}
     	info.filter = mediaPostObject.get_string_member("filter");
+    	info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
+    	info.link = mediaPostObject.get_string_member("link");
     	//stub likes and images and users in photo
 
 
@@ -54,10 +80,10 @@ public void parseFeed(string message)
 	    else //if no caption
 	    	info.title = "";
     	
-    	info.id = (int64)mediaPostObject.get_string_member("id");
-    	info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
+    	info.id = mediaPostObject.get_string_member("id");
+    	
     	info.didILikeThis = mediaPostObject.get_boolean_member("user_has_liked"); //getting if I liked this or not
-    	info.link = mediaPostObject.get_string_member("link");
+    	
 
     	PhotoStream.App.feedPosts.append(info);
 

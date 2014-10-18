@@ -4,10 +4,29 @@ public void printFeed()
 {
 	foreach(MediaInfo post in PhotoStream.App.feedPosts)
     {
-        print("Type: %s\n", post.type == PhotoStream.MediaType.IMAGE ? "image" : "video");
-        print("Tags: ");
+    	print("Tags: ");
         foreach (string tag in post.tags)
             print("%s ", tag);
+
+        print("Type: %s\n", post.type == PhotoStream.MediaType.IMAGE ? "image" : "video");
+        print("Location: %s\n", post.location == null ? "(null)" : "");
+        if (post.location != null)
+        {
+        	print("\tLatitude: %f\n", post.location.latitude);
+			print("\tlongitude: %f\n", post.location.longitude);
+			print("\tid: %lld\n", post.location.id);
+			print("\tname: %s\n\n", post.location.name);
+        }
+
+        print("Likes: %lld\n ", post.likesCount);
+        foreach (User user in post.likes)
+        {
+			print("\tusername: %s\n", user.username);
+			print("\tprofilePicture: %s\n", user.profilePicture);
+			print("\tid: %lld\n", user.id);
+			print("\tfullName: %s\n\n", user.fullName);
+        }
+        
 
         print("\nComments:\n ");
         foreach (Comment comment in post.comments)
