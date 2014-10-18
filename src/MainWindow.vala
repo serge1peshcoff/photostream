@@ -1,9 +1,8 @@
 public class PhotoStream.MainWindow : Gtk.ApplicationWindow
 {
 	public Gtk.HeaderBar header;
-	public Gtk.ToolButton newButton; 
-	public Gtk.ToolButton newButton2;
-	public Gtk.ToolButton newButton3;
+	public Gtk.ToolButton homeButton;
+	public Gtk.ToolButton photoButton;
 	/*private const string ELEMENTARY_STYLESHEET = """
             .header-bar {
                 padding: 0 6px;
@@ -48,20 +47,28 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         //Granite.Widgets.Utils.set_theming_for_screen (this.get_screen (), ELEMENTARY_STYLESHEET,
                                                //Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-		var newButton = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("go-home", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        newButton.set_tooltip_text ("New Tweet");
-        newButton.set_sensitive (false);
-        this.header.pack_start (newButton);
+        Gtk.Box centered_toolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
-        this.newButton2 = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        newButton2.set_tooltip_text ("New Tweet");
-        newButton2.set_sensitive (false);
-        this.header.pack_start (newButton2);
+        this.homeButton = new Gtk.ToggleToolButton ();
+        var icon = new Gtk.Image();
+        icon.set_from_file("../icons/home24.png");
+        this.homeButton.set_icon_widget (icon);
+        homeButton.set_tooltip_text ("Home");
+        homeButton.set_label ("Home");
+        //this.homeButton.set_sensitive (false);
+        centered_toolbar.add (homeButton);
 
-        this.newButton3 = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        newButton3.set_tooltip_text ("New Tweet");
-        newButton3.set_sensitive (false);
-        this.header.pack_end (newButton3);
+        this.photoButton = new Gtk.ToggleToolButton ();
+        icon = new Gtk.Image();
+        icon.set_from_file("../icons/photo24.png");
+        this.photoButton.set_icon_widget (icon);
+        photoButton.set_tooltip_text ("Home");
+        photoButton.set_label ("Home");
+        //this.photoButton.set_sensitive (false);
+        centered_toolbar.add (photoButton);
+
+        this.header.set_custom_title (centered_toolbar);
+
 	}
 	public override void add (Gtk.Widget w) 
 	{
