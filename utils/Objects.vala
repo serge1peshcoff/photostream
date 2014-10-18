@@ -12,7 +12,7 @@ namespace PhotoStream.Utils
 		public List<Image> images;
 		public List<User> taggedUsers;
 		public string title;
-		public User posteduser;
+		public User postedUser;
 		public int64 id;
 		public bool didILikeThis;
 		

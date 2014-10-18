@@ -33,13 +33,13 @@ public void parseFeed(string message)
     			Comment infoComment = new Comment();
     			infoComment.creationTime = new DateTime.from_unix_utc(comment.get_object().get_int_member("created_time"));
     			infoComment.text = comment.get_object().get_string_member("text");
-    			infoComment.id = comment.get_object().get_int_member("id");
+    			infoComment.id = (int64)comment.get_object().get_string_member("id");
     			
     			var commentedUser = comment.get_object().get_member("from").get_object();
     			infoComment.user = new User();
     			infoComment.user.username = commentedUser.get_string_member("username");
     			infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
-    			infoComment.user.id = commentedUser.get_int_member("id");
+    			infoComment.user.id = (int64)commentedUser.get_string_member("id");
     			infoComment.user.fullName = commentedUser.get_string_member("full_name");
 
     			info.comments.append(infoComment);    			
@@ -54,9 +54,10 @@ public void parseFeed(string message)
 	    else //if no caption
 	    	info.title = "";
     	
-    	info.id = mediaPostObject.get_int_member("id");
+    	info.id = (int64)mediaPostObject.get_string_member("id");
     	info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
     	info.didILikeThis = mediaPostObject.get_boolean_member("user_has_liked"); //getting if I liked this or not
+    	info.link = mediaPostObject.get_string_member("link");
 
     	PhotoStream.App.feedPosts.append(info);
 
