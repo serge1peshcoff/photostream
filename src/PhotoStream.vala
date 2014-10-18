@@ -21,31 +21,6 @@ public class PhotoStream.App : Granite.Application
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this);
 
-        //mainWindow.set_default_size (425, 500);
-        //mainWindow.set_size_request (425, 50);
-
-        this.newButton = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        newButton.set_tooltip_text ("New Tweet");
-        newButton.set_sensitive (false);
-        this.mainWindow.header.pack_start (newButton);
-
-        //this.newButton = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        //newButton.set_tooltip_text ("New Tweet");
-        //newButton.set_sensitive (false);
-        //mainWindow.header.pack_start (newButton);
-
-        //this.newButton = new Gtk.ToolButton (new Gtk.Image.from_icon_name ("folder-new", Gtk.IconSize.LARGE_TOOLBAR), "New Tweet");
-        //newButton.set_tooltip_text ("New Tweet");
-        //newButton.set_sensitive (false);
-        //mainWindow.header.pack_end (newButton);
-
-        //Gtk.Toolbar bar = new Gtk.Toolbar ();
-        //mainWindow.add (bar);
-        //bar.add (newButton);
-
-        mainWindow.header.set_title("PhotoStream");
-        mainWindow.header.set_subtitle("PhotoStream");
-
     }
 
     int load()
@@ -59,6 +34,7 @@ public class PhotoStream.App : Granite.Application
     protected override void shutdown () 
     {
         stdout.printf ("Bye!\n");
+        base.shutdown();
     }
 
 }
