@@ -28,8 +28,10 @@ public class PhotoStream.App : Granite.Application
 
     int load()
     {
-        string responce = getUserFeed();
-        parseFeed(responce); 
+        string responce = getImageWithPeople();
+        print("2\n"); 
+        parseFeed(responce);
+        print("1\n"); 
         printFeed();        
         return 0;       
     }

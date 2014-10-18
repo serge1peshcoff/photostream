@@ -11,3 +11,7 @@ public string getUserFeed()
 {
     return getResponce("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
 }
+public string getImageWithPeople()
+{
+    return getResponce("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
+}

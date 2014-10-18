@@ -33,22 +33,6 @@ public void parseFeed(string message)
     		info.location.id = (locationObject.get_object().has_member("id")) ? locationObject.get_object().get_int_member("id") : 0;
     	}
 
-    	var likeObject = mediaPostObject.get_member("likes").get_object(); //getting likes
-    	info.likesCount = likeObject.get_int_member("count");
-    	if (likeObject.get_int_member("count") != 0) //if there are any
-    		foreach(var like in likeObject.get_array_member("data").get_elements())
-    		{
-    			
-    			User user = new User();
-    			
-    			user.username = like.get_object().get_string_member("username");	
-    			user.profilePicture = like.get_object().get_string_member("profile_picture");
-    			user.id = (int64) like.get_object().get_string_member("id");	
-    			user.fullName = like.get_object().get_string_member("full_name");	
-
-    			info.likes.append(user);
-    		}
-    		
     	var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
     	if (commentObject.get_int_member("count") != 0) //if there are any
     		foreach(var comment in commentObject.get_array_member("data").get_elements())
@@ -63,15 +47,60 @@ public void parseFeed(string message)
     			infoComment.user = new User();
     			infoComment.user.username = commentedUser.get_string_member("username");
     			infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
-    			infoComment.user.id = (int64)commentedUser.get_string_member("id");
+    			infoComment.user.id = commentedUser.get_string_member("id");
     			infoComment.user.fullName = commentedUser.get_string_member("full_name");
 
     			info.comments.append(infoComment);    			
     		}
+
     	info.filter = mediaPostObject.get_string_member("filter");
     	info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
     	info.link = mediaPostObject.get_string_member("link");
-    	//stub likes and images and users in photo
+
+
+    	var likeObject = mediaPostObject.get_member("likes").get_object(); //getting likes
+    	info.likesCount = likeObject.get_int_member("count");
+    	if (likeObject.get_int_member("count") != 0) //if there are any
+    		foreach(var like in likeObject.get_array_member("data").get_elements())
+    		{
+    			
+    			User user = new User();
+    			
+    			user.username = like.get_object().get_string_member("username");	
+    			user.profilePicture = like.get_object().get_string_member("profile_picture");
+    			user.id = like.get_object().get_string_member("id");	
+    			user.fullName = like.get_object().get_string_member("full_name");	
+
+    			info.likes.append(user);
+    		}
+    		
+
+    	var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
+    	var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
+    	info.image = new Image();
+    	info.image.url = imageHiResObject.get_string_member("url");
+    	info.image.width = imageHiResObject.get_int_member("width");
+    	info.image.height = imageHiResObject.get_int_member("height");
+
+
+    	var usersInPhoto = mediaPostObject.get_array_member("users_in_photo");
+    	if (usersInPhoto.get_length() > 0) //if there are any users
+    		foreach (var taggedUser in usersInPhoto.get_elements())
+    		{
+    			TaggedUser tu = new TaggedUser();
+    			tu.x = taggedUser.get_object().get_member("position").get_object().get_double_member("x");
+    			tu.y = taggedUser.get_object().get_member("position").get_object().get_double_member("y");
+    			//stdout.printf("%f %f\n", tu.x, tu.y);
+    			tu.user = new User();
+    			tu.user.username = taggedUser.get_object().get_member("user").get_object().get_string_member("username");
+    			tu.user.profilePicture = taggedUser.get_object().get_member("user").get_object().get_string_member("profile_picture");
+    			tu.user.id = taggedUser.get_object().get_member("user").get_object().get_string_member("id");
+    			tu.user.fullName = taggedUser.get_object().get_member("user").get_object().get_string_member("full_name");
+
+    			info.taggedUsers.append(tu);
+    		}
+
+
 
 
     	var captionObject = mediaPostObject.get_member("caption");
@@ -80,10 +109,17 @@ public void parseFeed(string message)
 	    else //if no caption
 	    	info.title = "";
     	
+    	info.didILikeThis = mediaPostObject.get_boolean_member("user_has_liked"); //getting if I liked this or not
     	info.id = mediaPostObject.get_string_member("id");
     	
-    	info.didILikeThis = mediaPostObject.get_boolean_member("user_has_liked"); //getting if I liked this or not
-    	
+    	var userObject = mediaPostObject.get_member("user").get_object(); //getting user data
+    	info.postedUser = new User();
+    	info.postedUser.username = userObject.get_string_member("username");
+    	info.postedUser.website = userObject.get_string_member("website");
+    	info.postedUser.profilePicture = userObject.get_string_member("profile_picture");
+    	info.postedUser.fullName = userObject.get_string_member("full_name");
+    	info.postedUser.bio = userObject.get_string_member("bio");
+    	info.postedUser.id = userObject.get_string_member("id");
 
     	PhotoStream.App.feedPosts.append(info);
 

@@ -26,6 +26,22 @@ public void printFeed()
 			print("\tid: %lld\n", user.id);
 			print("\tfullName: %s\n\n", user.fullName);
         }
+
+        print("Image: \n");
+        print("\turl: %s\n", post.image.url);
+        print("\twidth: %lld\n", post.image.width);
+        print("\theight: %lld\n", post.image.height);
+
+        print("Users in photo: \n");
+        foreach (TaggedUser user in post.taggedUsers)
+        {
+        	print("\tPosition: %f %f\n", user.x, user.y);
+        	print("\tUser: \n");
+        	print("\t\tusername: %s\n", user.user.username);
+			print("\t\tprofilePicture: %s\n", user.user.profilePicture);
+			print("\t\tid: %lld\n", user.user.id);
+			print("\t\tfullName: %s\n\n", user.user.fullName);
+        }
         
 
         print("\nComments:\n ");
@@ -40,18 +56,19 @@ public void printFeed()
 			print("\t\tid: %lld\n", comment.user.id);
 			print("\t\tfullName: %s\n\n", comment.user.fullName);
         }
-        print("\nFilter: %s\n", post.filter);
+        print("Filter: %s\n", post.filter);
         print("Creation time: %lld\n", post.creationTime);
-        print("Likes: \n");
-        print("Images: \n");
         print("Tagged users: \n");
         print("Title: %s\n", post.title == "" ? "<no title>" : post.title);
         print("User: \n");
 
-        /*print("\tusername: %s\n", post.postedUser.username);
+        print("\tusername: %s\n", post.postedUser.username);
 		print("\tprofilePicture: %s\n", post.postedUser.profilePicture);
-		print("\tid: %lld\n", post.postedUser.id);
-		print("\tfullName: %s\n\n", post.postedUser.fullName);*/
+		print("\tid: %s\n", post.postedUser.id);
+		print("\tfullName: %s\n\n", post.postedUser.fullName);
+		print("\tbio: %s\n", post.postedUser.bio);
+		print("\twebsite: %s\n\n", post.postedUser.website);
+
 		print("id: %lld\n", post.id);
 		print("didILikeThis: %s\n\n", post.didILikeThis ? "true" : "false");
 

@@ -12,7 +12,7 @@ namespace PhotoStream.Utils
 		public List<User> likes;
 		public int64 likesCount;
 		public Image image;
-		public List<User> taggedUsers;
+		public List<TaggedUser> taggedUsers;
 		public string title;
 		public User postedUser;
 		public string id;
@@ -24,7 +24,7 @@ namespace PhotoStream.Utils
 			comments = new List<Comment>();
 			likes = new List<User>();
 			image = new Image();
-			taggedUsers = new List<User>();
+			taggedUsers = new List<TaggedUser>();
 		}
 	}
 	public class Comment
@@ -38,15 +38,15 @@ namespace PhotoStream.Utils
 	public class Image
 	{
 		public string url;
-		public int width;
-		public int height;
+		public int64 width;
+		public int64 height;
 	}
 	public class User
 	{
 		public string username;
 		public string profilePicture;
 		public string fullName;
-		public int64 id;
+		public string id;
 		public string website = ""; //this is not in all requests
 		public string bio = ""; //this is too;
 		public int64 mediaCount = 0;
@@ -59,6 +59,12 @@ namespace PhotoStream.Utils
 		public double longitude;
 		public int64 id;
 		public string name;
+	}
+	public class TaggedUser
+	{
+		public double x;
+		public double y;
+		public User user;
 	}
 }
 
