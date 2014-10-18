@@ -32,7 +32,22 @@ public class PhotoStream.App : Granite.Application
         parseFeed(responce); 
 
         foreach(MediaInfo post in feedPosts)
-            print(post.title + "1\n");
+        {
+            print("Type: %s\n", post.type == PhotoStream.MediaType.IMAGE ? "image" : "video");
+            print("Tags: ");
+            foreach (string tag in post.tags)
+                print("%s ", tag);
+
+            print("\nComments:\n ");
+            foreach (Comment comment in post.comments)
+            {
+                print("\tCreation time: %lld\n", comment.creationTime);
+                print("\tText: %s\n", comment.text);
+                print("\tAuthor: %s\n", comment.user.username);
+                print("\tComment ID: %lld\n\n", comment.id);
+            }
+            print("\n");
+        }
 
         return 0;       
     }
