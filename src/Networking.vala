@@ -9,6 +9,7 @@ public string getResponce (string host)
 
 public string getUserFeed()
 {
+	stdout.printf("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken + "\n");
     return getResponce("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
 }
 public string getImageWithPeople()

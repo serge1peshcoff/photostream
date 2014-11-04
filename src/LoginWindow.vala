@@ -11,14 +11,41 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 											 + "&redirect_uri="
 											 + PhotoStream.App.REDIRECT_URI
 											 + "&response_type=code";
+	private string HOST;
 
 	public LoginWindow () 
 	{
+		HOST = getHost(PhotoStream.App.REDIRECT_URI);
+
 		this.web_view = new WebKit.WebView ();
 		this.title = "Hello World!";
-		stdout.printf ("Hi!\n");
+		stdout.printf (INSTAGRAM_AUTH + "\n");
 
-		Thread<int> thread = new Thread<int>.try("", (ThreadFunc)this.load);		
+		stdout.printf("%d %d %d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
+
+
+		this.web_view.load_finished.connect ((source, frame) => {
+            var uri = web_view.get_uri ();
+            var host = getHost(uri);
+            
+            if (host == this.HOST)
+            {
+            	stdout.printf(uri + "\n");
+            	stdout.printf(getToken(uri) + "\n");
+
+            	//JavascriptResult results = web_view.run_javascript("window.location.hash", null);
+
+            	var settings = new GLib.Settings ("tk.itprogramming1.photostream");
+            	settings.set_string("token", getToken(uri));
+
+            	this.close();
+            }
+        });		
+
+        this.show.connect (() => {
+            this.web_view.open(INSTAGRAM_AUTH);
+            stdout.printf ("Hi2!\n");
+        });			
 
 		var scrolled_window = new ScrolledWindow (null, null);
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
@@ -26,20 +53,18 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
         var vbox = new VBox (false, 0);
         vbox.add (scrolled_window);
-        add (vbox);        
-
-        
-
-        this.web_view.open(INSTAGRAM_AUTH);
-
+        add (vbox);  
+	}
+	public string getHost(string uri)
+	{
+		var indexStart = uri.index_of("//") + 2;
+		var indexEnd = uri.index_of("/", 8);
+		return uri.substring(indexStart, indexEnd - indexStart);
 	}
 
-	int load()
+	public string getToken(string uri)
 	{
-		this.web_view.load_committed.connect ((source, frame) => {
-            stdout.printf(frame.get_uri ());
-        });		
-
-		return 0;
+		var indexStart = uri.index_of("=") + 1;
+		return uri.substring(indexStart, uri.length - indexStart);
 	}
 }
