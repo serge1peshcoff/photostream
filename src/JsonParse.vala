@@ -125,3 +125,14 @@ public void parseFeed(string message)
 
     }
 }
+
+public string parseToken(string responce)
+{
+    var parser = new Json.Parser ();
+    parser.load_from_data (responce);
+
+    var root_object = parser.get_root().get_object();
+    var token = root_object.get_string_member ("access_token");
+
+    return token;
+}

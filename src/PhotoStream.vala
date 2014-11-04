@@ -8,7 +8,8 @@ public class PhotoStream.App : Granite.Application
     //public string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
     public static string appToken = "";
     public const string REDIRECT_URI = "http://itprogramming1.tk/photostream";
-    public const string CLIENT_ID = "6e7283f612c645a5a22846d79cab54c3";
+    public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
+    public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
     public static List<MediaInfo> feedPosts;
     public Gtk.ToolButton newButton;
 

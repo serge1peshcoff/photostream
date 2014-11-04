@@ -21,7 +21,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		this.title = "Hello World!";
 		stdout.printf (INSTAGRAM_AUTH + "\n");
 
-		stdout.printf("%d %d %d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
+		stdout.printf("WebKit %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
 
 
 		this.web_view.load_finished.connect ((source, frame) => {
@@ -31,12 +31,28 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
             if (host == this.HOST)
             {
             	stdout.printf(uri + "\n");
-            	stdout.printf(getToken(uri) + "\n");
+            	stdout.printf(getCode(uri) + "\n");
 
-            	//JavascriptResult results = web_view.run_javascript("window.location.hash", null);
+            	var session = new Soup.Session ();
+			    var message = new Soup.Message ("POST", "https://api.instagram.com/oauth/access_token");
+
+			    uint8[] requestString = ("client_id=" + PhotoStream.App.CLIENT_ID 
+			    						 + "&client_secret=" + PhotoStream.App.CLIENT_SECRET
+			    						 + "&grant_type=authorization_code"
+			    						 + "&redirect_uri=" + PhotoStream.App.REDIRECT_URI
+			    						 + "&code=" + getCode(uri)).data;
+
+			    message.request_body.append_take(requestString);
+
+
+			    session.send_message (message);
+			    print((string) message.response_body.data);
+
+			    var token = parseToken((string)message.response_body.data);
+			    
 
             	var settings = new GLib.Settings ("tk.itprogramming1.photostream");
-            	settings.set_string("token", getToken(uri));
+            	settings.set_string("token", token);
 
             	this.close();
             }
@@ -44,7 +60,6 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
         this.show.connect (() => {
             this.web_view.open(INSTAGRAM_AUTH);
-            stdout.printf ("Hi2!\n");
         });			
 
 		var scrolled_window = new ScrolledWindow (null, null);
@@ -62,7 +77,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		return uri.substring(indexStart, indexEnd - indexStart);
 	}
 
-	public string getToken(string uri)
+	public string getCode(string uri)
 	{
 		var indexStart = uri.index_of("=") + 1;
 		return uri.substring(indexStart, uri.length - indexStart);
