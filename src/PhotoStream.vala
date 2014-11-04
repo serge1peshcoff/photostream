@@ -4,7 +4,10 @@ public class PhotoStream.App : Granite.Application
 {
 
 	public static MainWindow mainWindow;
-    public static string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
+    public static LoginWindow loginWindow;
+    public const string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
+    public const string REDIRECT_URI = "http://localhost/photostream";
+    public const string CLIENT_ID = "6e7283f612c645a5a22846d79cab54c3";
     public static List<MediaInfo> feedPosts;
     public Gtk.ToolButton newButton;
 
@@ -20,6 +23,11 @@ public class PhotoStream.App : Granite.Application
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this);
+
+        loginWindow = new LoginWindow ();
+  
+        loginWindow.show_all ();
+        loginWindow.set_application(this);
 
     }
 
