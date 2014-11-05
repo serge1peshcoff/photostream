@@ -53,11 +53,23 @@ public class PhotoStream.App : Granite.Application
         }  
 
         mainWindow = new MainWindow ();
-        this.setHeader();       
+        this.setHeader();
+
+        bar = new Gtk.InfoBar();         
 
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
         mainWindow.add(box);
 
+        tryLogin();
+
+        mainWindow.show_all ();
+        mainWindow.destroy.connect (Gtk.main_quit);
+        mainWindow.set_application(this); 
+
+    }
+
+    public void tryLogin()
+    {   
         appToken = loadToken();  
         print(appToken);
         if (appToken == "") //something went wrong. need to re-login
@@ -68,11 +80,6 @@ public class PhotoStream.App : Granite.Application
         {
             loadFeed();
         }   
-
-        mainWindow.show_all ();
-        mainWindow.destroy.connect (Gtk.main_quit);
-        mainWindow.set_application(this); 
-
     }
 
     int load()
@@ -85,7 +92,7 @@ public class PhotoStream.App : Granite.Application
         this.loginWindow = new LoginWindow ();
 
         this.loginWindow.show_all ();
-        this.loginWindow.destroy.connect(loadFeed);
+        this.loginWindow.destroy.connect(tryLogin);
         this.loginWindow.set_application(this);
     }  
 
@@ -108,13 +115,17 @@ public class PhotoStream.App : Granite.Application
         catch (Error e)
         {
             setErrorWidgets("wrong-login");
+            return;
         }
-        //printFeed(); 
+        // if we got here then we've got no errors, yay!
+        print("no errors\n");
+        box.remove(bar);
+        setFeedWidgets();
     }   
 
     public void setErrorWidgets(string reason)
-    { 
-        bar = new Gtk.InfoBar();       
+    {   
+        bar = new Gtk.InfoBar();           
         bar.message_type = Gtk.MessageType.ERROR;
         Gtk.Container content = bar.get_content_area ();
        
@@ -123,10 +134,12 @@ public class PhotoStream.App : Granite.Application
             case "not-logged-in":
                 content.add (new Gtk.Label ("You are not logged in."));
                 bar.add_button("Log in", 1);
+                print("Not logged in\n");
                 break;
             case "wrong-login":
                 content.add (new Gtk.Label ("Need to re-login."));
                 bar.add_button("Relogin", 2);
+                print("Need to re-login.\n");
                 break;
             default:
                 break;
