@@ -10,8 +10,11 @@ public class PhotoStream.App : Granite.Application
     public const string REDIRECT_URI = "http://itprogramming1.tk/photostream";
     public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
+    public const string SCHEMA_URI = "tk.itprogramming1.photostream";
+    public const string SCHEMA_TOKEN = "token";
     public static List<MediaInfo> feedPosts;
     public Gtk.ToolButton newButton;
+    public GLib.Settings settings;
 
 	protected override void activate () 
 	{      
@@ -50,18 +53,14 @@ public class PhotoStream.App : Granite.Application
 
         appToken = loadToken();  
         //print(appToken);
-        if (appToken == "") //something went wrong. need to re-login
-        {
-            loginWindow = new LoginWindow ();
-  
-            loginWindow.show_all ();
-            loginWindow.destroy.connect(loadFeed);
-            loginWindow.set_application(this);
-        }
-        else
-        {
-            loadFeed();
-        }
+        //if (appToken == "") //something went wrong. need to re-login
+        //{
+            login();            
+        //}
+        //else
+        //{
+            //loadFeed();
+        //}
 
         
     }
@@ -78,24 +77,38 @@ public class PhotoStream.App : Granite.Application
         
         responce = getUserFeed();
         parseFeed(responce);
-        printFeed(); 
+        //printFeed(); 
     }
 
     public string loadToken()
     {
-        GLib.Settings settings;
-        string token = "";
-        //try 
-        //{
-            settings = new GLib.Settings ("tk.itprogramming1.photostream");
-            token = settings.get_string("token");
-        //}
-        //catch (Error e) // if key is not found, do nothing and return an empty string
-        //{
-            //print("error");
-            //token = "";
-        //}
+        
+        string token;
+
+        var source = SettingsSchemaSource.get_default();
+        var lookup = source.lookup(SCHEMA_URI, true);
+
+        if (lookup == null) //schema doesn't exist
+            createSchema();
+        
+        settings = new GLib.Settings (SCHEMA_URI);
+        token = settings.get_string(SCHEMA_TOKEN);
+
         return token;
+    }
+
+    public void createSchema()
+    {
+        print("Schema doesn't exist, creating one...\n");
+    }
+
+    public void login()
+    {
+        loginWindow = new LoginWindow ();
+  
+        loginWindow.show_all ();
+        loginWindow.destroy.connect(loadFeed);
+        loginWindow.set_application(this);
     }
 
     protected override void shutdown () 

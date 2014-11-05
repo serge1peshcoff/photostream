@@ -15,11 +15,14 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
 	public LoginWindow () 
 	{
+		this.set_default_size (800, 700);
+        this.set_size_request (800, 700);
+		this.resizable = false;
+
 		HOST = getHost(PhotoStream.App.REDIRECT_URI);
 
 		this.web_view = new WebKit.WebView ();
-		this.title = "Hello World!";
-		stdout.printf (INSTAGRAM_AUTH + "\n");
+		this.title = "Login to Instagram";
 
 		stdout.printf("WebKit %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
 
@@ -65,8 +68,8 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
         scrolled_window.add (this.web_view);
 
-        var box = new Box (Gtk.Orientation.VERTICAL, 0);
-        box.add (scrolled_window);
+        var box = new Box (Gtk.Orientation.HORIZONTAL, 0);
+        box.pack_start (scrolled_window, true, true);
         add (box);  
 	}
 	public string getHost(string uri)
