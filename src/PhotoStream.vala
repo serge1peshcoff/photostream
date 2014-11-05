@@ -3,19 +3,27 @@ using PhotoStream.Utils;
 public class PhotoStream.App : Granite.Application 
 {
 
-	public static MainWindow mainWindow;
-    public static LoginWindow loginWindow;
-    //public string appToken = "1528631860.1fb234f.e72be2d22ad444d594026ac9e4012cf7";
+	public MainWindow mainWindow;
+    public LoginWindow loginWindow;
     public static string appToken = "";
-    public const string REDIRECT_URI = "http://itprogramming1.tk/photostream";
+    public const string REDIRECT_URI = "http://www.google.com/photostream";
     public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
     public const string SCHEMA_URI = "tk.itprogramming1.photostream";
     public const string SCHEMA_TOKEN = "token";
     public static List<MediaInfo> feedPosts;
-    public Gtk.ToolButton newButton;
-    public GLib.Settings settings;
+    
+    public Gtk.HeaderBar header;
 
+    public Gtk.ToggleToolButton feedButton;
+    public Gtk.ToggleToolButton exploreButton;
+    public Gtk.ToggleToolButton photoButton;
+    public Gtk.ToggleToolButton newsButton; 
+    public Gtk.ToggleToolButton userButton;
+
+    public Gtk.InfoBar bar;
+    public Gtk.Box box;
+    
 	protected override void activate () 
 	{      
         program_name        = "PhotoStream";
@@ -38,7 +46,6 @@ public class PhotoStream.App : Granite.Application
         try 
         {
             Thread<int> thread = new Thread<int>.try("", (ThreadFunc)this.load);
-
         }
         catch (Error e)
         {
@@ -46,70 +53,41 @@ public class PhotoStream.App : Granite.Application
         }  
 
         mainWindow = new MainWindow ();
-  
-        mainWindow.show_all ();
-        mainWindow.destroy.connect (Gtk.main_quit);
-        mainWindow.set_application(this);
+        this.setHeader();       
+
+        box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+        mainWindow.add(box);
 
         appToken = loadToken();  
-        //print(appToken);
-        //if (appToken == "") //something went wrong. need to re-login
-        //{
-            login();            
-        //}
-        //else
-        //{
-            //loadFeed();
-        //}
+        print(appToken);
+        if (appToken == "") //something went wrong. need to re-login
+        {
+            this.setErrorWidgets("not-logged-in");           
+        }
+        else
+        {
+            loadFeed();
+        }   
 
-        
+        mainWindow.show_all ();
+        mainWindow.destroy.connect (Gtk.main_quit);
+        mainWindow.set_application(this); 
+
     }
 
     int load()
     {              
         return 0;       
-    }
+    }   
 
-    void loadFeed()
+    public void setLoginWindow()
     {
-        string responce = ""; 
-             
-        
-        responce = getUserFeed();
-        parseFeed(responce);
-        //printFeed(); 
-    }
+        this.loginWindow = new LoginWindow ();
 
-    public string loadToken()
-    {
-        
-        string token;
-
-        var source = SettingsSchemaSource.get_default();
-        var lookup = source.lookup(SCHEMA_URI, true);
-
-        if (lookup == null) //schema doesn't exist
-            createSchema();
-        
-        settings = new GLib.Settings (SCHEMA_URI);
-        token = settings.get_string(SCHEMA_TOKEN);
-
-        return token;
-    }
-
-    public void createSchema()
-    {
-        print("Schema doesn't exist, creating one...\n");
-    }
-
-    public void login()
-    {
-        loginWindow = new LoginWindow ();
-  
-        loginWindow.show_all ();
-        loginWindow.destroy.connect(loadFeed);
-        loginWindow.set_application(this);
-    }
+        this.loginWindow.show_all ();
+        this.loginWindow.destroy.connect(loadFeed);
+        this.loginWindow.set_application(this);
+    }  
 
     protected override void shutdown () 
     {
@@ -117,4 +95,96 @@ public class PhotoStream.App : Granite.Application
         base.shutdown();
     }
 
+    public void loadFeed()
+    {
+        string responce = "";              
+        
+        responce = getUserFeed();
+        parseFeed(responce);
+        //printFeed(); 
+    }   
+
+    public void setErrorWidgets(string reason)
+    { 
+        bar = new Gtk.InfoBar();       
+        bar.message_type = Gtk.MessageType.ERROR;
+        Gtk.Container content = bar.get_content_area ();
+       
+        switch(reason)
+        {
+            case "not-logged-in":
+                content.add (new Gtk.Label ("You are not logged in."));
+                bar.add_button("Log in", 1);
+                break;
+            case "wrong-login":
+                content.add (new Gtk.Label ("Need to re-login."));
+                bar.add_button("Relogin", 2);
+                break;
+            default:
+                break;
+        }
+        print("aaa112\n'");
+        box.add(bar);
+        bar.response.connect(this.response);
+    }
+    public void setHeader()
+    {
+        header = new Gtk.HeaderBar ();
+        header.set_show_close_button (true);
+        this.mainWindow.set_titlebar (header);
+
+        Gtk.Box centered_toolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+
+        feedButton = new Gtk.ToggleToolButton ();
+        feedButton.set_icon_widget (new Gtk.Image.from_icon_name ("go-home", Gtk.IconSize.LARGE_TOOLBAR));
+        feedButton.set_tooltip_text ("Home");
+        feedButton.set_label ("Home");
+        //this.mainWindow.feedButton.set_sensitive (false);
+        centered_toolbar.add (feedButton);
+
+        exploreButton = new Gtk.ToggleToolButton ();
+        exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
+        exploreButton.set_tooltip_text ("Home");
+        exploreButton.set_label ("Home");
+        //this.mainWindow.exploreButton.set_sensitive (false);
+        centered_toolbar.add (exploreButton);
+
+        photoButton = new Gtk.ToggleToolButton ();
+        photoButton.set_icon_widget (new Gtk.Image.from_icon_name ("camera", Gtk.IconSize.LARGE_TOOLBAR));
+        photoButton.set_tooltip_text ("Home");
+        photoButton.set_label ("Home");
+        //this.mainWindow.photoButton.set_sensitive (false);
+        centered_toolbar.add (photoButton);
+
+        newsButton = new Gtk.ToggleToolButton ();
+        newsButton.set_icon_widget (new Gtk.Image.from_icon_name ("emblem-synchronizing", Gtk.IconSize.LARGE_TOOLBAR));
+        newsButton.set_tooltip_text ("Home");
+        newsButton.set_label ("Home");
+        //this.mainWindow.newsButton.set_sensitive (false);
+        centered_toolbar.add (newsButton);
+
+        userButton = new Gtk.ToggleToolButton ();
+        userButton.set_icon_widget (new Gtk.Image.from_icon_name ("system-users", Gtk.IconSize.LARGE_TOOLBAR));
+        userButton.set_tooltip_text ("Home");
+        userButton.set_label ("Home");
+        //this.mainWindow.userButton.set_sensitive (false);
+        centered_toolbar.add (userButton);
+
+        header.set_custom_title (centered_toolbar);
+    }
+
+    public void setFeedWidgets()
+    {
+
+    }
+    public void response (int response_id)
+    {
+        print("aaa\n");
+        switch (response_id)
+        {
+            case 1: //not logged in
+            setLoginWindow();
+            break;
+        }        
+    }   
 }

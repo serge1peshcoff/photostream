@@ -30,6 +30,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		this.web_view.load_finished.connect ((source, frame) => {
             var uri = web_view.get_uri ();
             var host = getHost(uri);
+            stdout.printf(host + "\n");
             
             if (host == this.HOST)
             {
@@ -68,9 +69,9 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
         scrolled_window.add (this.web_view);
 
-        var box = new Box (Gtk.Orientation.HORIZONTAL, 0);
-        box.pack_start (scrolled_window, true, true);
-        add (box);  
+        var box = new Box (Gtk.Orientation.VERTICAL, 0);       
+		box.pack_start (scrolled_window, true, true);
+        add (box); 
 	}
 	public string getHost(string uri)
 	{

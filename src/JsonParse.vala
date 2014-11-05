@@ -1,6 +1,6 @@
 using PhotoStream.Utils;
 
-public void parseFeed(string message) 
+public void parseFeed(string message)
 {
 	var parser = new Json.Parser ();
     try 
