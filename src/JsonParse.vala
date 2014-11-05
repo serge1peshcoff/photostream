@@ -3,8 +3,15 @@ using PhotoStream.Utils;
 public void parseFeed(string message) 
 {
 	var parser = new Json.Parser ();
+    try 
+    {
+        parser.load_from_data (message);
+    }
+    catch (Error e)
+    {
 
-	parser.load_from_data (message);
+    }   
+    
 	var root_object = parser.get_root().get_object();
     var response = root_object.get_array_member ("data");
 
@@ -129,7 +136,14 @@ public void parseFeed(string message)
 public string parseToken(string responce)
 {
     var parser = new Json.Parser ();
-    parser.load_from_data (responce);
+    try 
+    {
+        parser.load_from_data (responce);
+    }
+    catch (Error e)
+    {
+
+    }    
 
     var root_object = parser.get_root().get_object();
     var token = root_object.get_string_member ("access_token");

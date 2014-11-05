@@ -14,11 +14,33 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ToolButton newButton;
 
 	protected override void activate () 
-	{       
-        application_id = "1";
-        program_name = "PhotoStream";
+	{      
+        program_name        = "PhotoStream";
+        exec_name           = "photostream";
+        build_version       = "0.1";
+        app_years           = "2014";
+        app_icon            = "photostream";
+        app_launcher        = "photostream.desktop";
+        application_id      = "tk.itprogramming1.photostream";
+        main_url            = "http://itprogramming1.tk/photostream";
+        //bug_url             = "https://github.com/birdieapp/birdie/issues";
+        //help_url            = "https://github.com/birdieapp/birdie/wiki";
+        //translate_url       = "http://www.transifex.com/projects/p/birdie/";
+        about_authors       = {"Sergey Peshkov"};
+        about_comments      = null;
+        about_documenters   = {};
+        about_translators   = null;
+        about_license_type  = Gtk.License.GPL_3_0;
 
-        Thread<int> thread = new Thread<int>.try("", (ThreadFunc)this.load);
+        try 
+        {
+            Thread<int> thread = new Thread<int>.try("", (ThreadFunc)this.load);
+
+        }
+        catch (Error e)
+        {
+
+        }  
 
         mainWindow = new MainWindow ();
   
@@ -26,51 +48,54 @@ public class PhotoStream.App : Granite.Application
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this);
 
-        loginWindow = new LoginWindow ();
+        appToken = loadToken();  
+        //print(appToken);
+        if (appToken == "") //something went wrong. need to re-login
+        {
+            loginWindow = new LoginWindow ();
   
-        loginWindow.show_all ();
-        loginWindow.destroy.connect(loadFeed);
-        loginWindow.set_application(this);
+            loginWindow.show_all ();
+            loginWindow.destroy.connect(loadFeed);
+            loginWindow.set_application(this);
+        }
+        else
+        {
+            loadFeed();
+        }
+
+        
     }
 
     int load()
-    {
-        string responce = ""; 
-
-        /*loginWindow.destroy.connect(() => {     
-            stdout.printf("1\n") ;      
-            appToken = loadToken();
-            stdout.printf(appToken + " 2\n") ;    
-            responce = getUserFeed();
-            stdout.printf(responce + "\n") ;    
-            parseFeed(responce);
-            stdout.printf("4\n") ;    
-            printFeed(); 
-        });*/
-
-        //parseFeed(responce);
-        //printFeed();        
+    {              
         return 0;       
     }
 
     void loadFeed()
     {
         string responce = ""; 
+             
         
-        stdout.printf("1\n") ;      
-        appToken = loadToken();
-        stdout.printf(appToken + " 2\n") ;    
         responce = getUserFeed();
-        stdout.printf(responce + "\n") ;    
         parseFeed(responce);
-        stdout.printf("4\n") ;    
         printFeed(); 
     }
 
     public string loadToken()
     {
-        var settings = new GLib.Settings ("tk.itprogramming1.photostream");
-        return settings.get_string("token");
+        GLib.Settings settings;
+        string token = "";
+        //try 
+        //{
+            settings = new GLib.Settings ("tk.itprogramming1.photostream");
+            token = settings.get_string("token");
+        //}
+        //catch (Error e) // if key is not found, do nothing and return an empty string
+        //{
+            //print("error");
+            //token = "";
+        //}
+        return token;
     }
 
     protected override void shutdown () 
@@ -80,4 +105,3 @@ public class PhotoStream.App : Granite.Application
     }
 
 }
-//https://api.instagram.com/oauth/authorize/?client_id=6e7283f612c645a5a22846d79cab54c3&redirect_uri=http://itprogramming1.tk/photostream&response_type=token

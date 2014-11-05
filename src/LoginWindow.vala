@@ -48,8 +48,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 			    session.send_message (message);
 			    print((string) message.response_body.data);
 
-			    var token = parseToken((string)message.response_body.data);
-			    
+			    var token = parseToken((string)message.response_body.data);			    
 
             	var settings = new GLib.Settings ("tk.itprogramming1.photostream");
             	settings.set_string("token", token);
@@ -66,9 +65,9 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
         scrolled_window.add (this.web_view);
 
-        var vbox = new VBox (false, 0);
-        vbox.add (scrolled_window);
-        add (vbox);  
+        var box = new Box (Gtk.Orientation.VERTICAL, 0);
+        box.add (scrolled_window);
+        add (box);  
 	}
 	public string getHost(string uri)
 	{

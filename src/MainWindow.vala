@@ -116,6 +116,12 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
         box.pack_start(stack, true, true);
         this.add(box);
+
+        Gtk.InfoBar bar = new Gtk.InfoBar ();
+        this.add (bar);
+
+        bar.add_button ("Yes", 1);
+        bar.add_button ("No", 2);
 	}
     public void switchWindow(string window)
     {

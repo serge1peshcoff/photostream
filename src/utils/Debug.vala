@@ -14,23 +14,23 @@ public void printFeed()
         {
         	print("\tLatitude: %f\n", post.location.latitude);
 			print("\tlongitude: %f\n", post.location.longitude);
-			print("\tid: %lld\n", post.location.id);
+			print("\tid: %" + uint64.FORMAT_MODIFIER + "d\n", post.location.id);
 			print("\tname: %s\n\n", post.location.name);
         }
 
-        print("Likes: %lld\n ", post.likesCount);
+        print("Likes: %" + uint64.FORMAT_MODIFIER + "d\n ", post.likesCount);
         foreach (User user in post.likes)
         {
 			print("\tusername: %s\n", user.username);
 			print("\tprofilePicture: %s\n", user.profilePicture);
-			print("\tid: %lld\n", user.id);
+			print("\tid: %" + uint64.FORMAT_MODIFIER + "d\n", user.id);
 			print("\tfullName: %s\n\n", user.fullName);
         }
 
         print("Image: \n");
         print("\turl: %s\n", post.image.url);
-        print("\twidth: %lld\n", post.image.width);
-        print("\theight: %lld\n", post.image.height);
+        print("\twidth: %" + uint64.FORMAT_MODIFIER + "d\n", post.image.width);
+        print("\theight: %" + uint64.FORMAT_MODIFIER + "d\n", post.image.height);
 
         print("Users in photo: \n");
         foreach (TaggedUser user in post.taggedUsers)
@@ -47,17 +47,17 @@ public void printFeed()
         print("\nComments:\n ");
         foreach (Comment comment in post.comments)
         {
-            print("\tCreation time: %lld\n", comment.creationTime);
+            print("\tCreation time: %" + uint64.FORMAT_MODIFIER + "d\n", comment.creationTime);
             print("\tText: %s\n", comment.text);      
-			print("\tComment ID: %lld\n", comment.id);
+			print("\tComment ID: %" + uint64.FORMAT_MODIFIER + "d\n", comment.id);
 			print("\tUser:\n");
 			print("\t\tusername: %s\n", comment.user.username);
 			print("\t\tprofilePicture: %s\n", comment.user.profilePicture);
-			print("\t\tid: %lld\n", comment.user.id);
+			print("\t\tid: %" + uint64.FORMAT_MODIFIER + "d\n", comment.user.id);
 			print("\t\tfullName: %s\n\n", comment.user.fullName);
         }
         print("Filter: %s\n", post.filter);
-        print("Creation time: %lld\n", post.creationTime);
+        print("Creation time: %" + uint64.FORMAT_MODIFIER + "d\n", post.creationTime);
         print("Tagged users: \n");
         print("Title: %s\n", post.title == "" ? "<no title>" : post.title);
         print("User: \n");
