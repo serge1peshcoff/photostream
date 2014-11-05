@@ -1,6 +1,6 @@
 using PhotoStream.Utils;
 
-public void parseFeed(string message)
+public void parseFeed(string message) throws Error
 {
 	var parser = new Json.Parser ();
     try 
@@ -10,9 +10,19 @@ public void parseFeed(string message)
     catch (Error e)
     {
 
-    }   
-    
+    }
+
 	var root_object = parser.get_root().get_object();
+
+    //parsing errors, if any
+    var metaObject = root_object.get_member ("meta").get_object();
+    if (metaObject.get_int_member("code") != 200)
+    {
+        string errorMessage = metaObject.get_string_member("error_message");
+        throw new Error(Quark.from_string(errorMessage), (int)metaObject.get_int_member("code"), errorMessage);
+    }
+
+
     var response = root_object.get_array_member ("data");
 
     foreach (var mediaPost in response.get_elements ())

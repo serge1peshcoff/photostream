@@ -97,10 +97,18 @@ public class PhotoStream.App : Granite.Application
 
     public void loadFeed()
     {
-        string responce = "";              
+        string response = "";              
         
-        responce = getUserFeed();
-        parseFeed(responce);
+        response = getUserFeed();
+        print(response);
+        try 
+        {
+            parseFeed(response);
+        }
+        catch (Error e)
+        {
+            setErrorWidgets("wrong-login");
+        }
         //printFeed(); 
     }   
 
@@ -185,6 +193,10 @@ public class PhotoStream.App : Granite.Application
             case 1: //not logged in
             setLoginWindow();
             break;
+            case 2:
+            setLoginWindow();
+            break;
+
         }        
     }   
 }
