@@ -10,6 +10,7 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	public Gtk.Image avatar;
 	public Gtk.Image image;
 	public const int AVATAR_SIZE = 70;
+	public const int IMAGE_SIZE = 400;
 
 	public PostBox(MediaInfo post)
 	{
@@ -38,8 +39,12 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
 		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
 		downloadFile(post.image.url, imageFileName);
+
+		Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
+		imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+
 		image = new Gtk.Image();
-		image.set_from_file(imageFileName);
+		image.set_from_pixbuf(imagePixbuf);
 
 		box.add(image);
 

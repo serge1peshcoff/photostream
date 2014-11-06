@@ -32,6 +32,6 @@ public string downloadFile(string url, string filename)
 
     FileOutputStream os = stream.output_stream as FileOutputStream;
 
-    os.write_all(message.response_body.data, out bytes);    
+    os.write_all(message.response_body.data, out bytes);   
     return (string) message.response_body.data;
 }
