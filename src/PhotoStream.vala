@@ -11,6 +11,8 @@ public class PhotoStream.App : Granite.Application
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
     public const string SCHEMA_URI = "tk.itprogramming1.photostream";
     public const string SCHEMA_TOKEN = "token";
+    public static string CACHE_URL;
+    public static string CACHE_AVATARS;
     public static List<MediaInfo> feedPosts;
     
     public Gtk.HeaderBar header;
@@ -48,6 +50,9 @@ public class PhotoStream.App : Granite.Application
         about_documenters   = {};
         about_translators   = null;
         about_license_type  = Gtk.License.GPL_3_0;
+
+        CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";
+        CACHE_AVATARS = CACHE_URL + "avatars/";
 
         try 
         {
@@ -122,8 +127,8 @@ public class PhotoStream.App : Granite.Application
             setErrorWidgets("wrong-login");
             return;
         }
+
         // if we got here then we've got no errors, yay!
-        print("no errors\n");
         box.remove(bar);
         setFeedWidgets();
         printFeed();
@@ -208,10 +213,24 @@ public class PhotoStream.App : Granite.Application
         this.feedWindow = new Gtk.ScrolledWindow (null, null);
         stack.add_named(feedWindow, "feed");
 
+        try {
+            File file = File.new_for_path(CACHE_URL);
+            if (!file.query_exists())
+                file.make_directory_with_parents ();
+
+            file = File.new_for_path(CACHE_AVATARS);
+            if (!file.query_exists())
+                file.make_directory_with_parents ();
+
+            print(CACHE_AVATARS);
+        } catch (Error e) {
+            stdout.printf ("Error: %s\n", e.message);
+        }
+
         this.feedList = new PostList();
         foreach(MediaInfo post in feedPosts)
-        {
-            feedList.append(post);
+        {            
+            feedList.prepend(post);
         }
 
         this.feedWindow.add_with_viewport (feedList);
