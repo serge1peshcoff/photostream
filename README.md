@@ -12,8 +12,9 @@ Used libraries:
 * webkitgtk-3.0 - for logging in
 * libxml-2.0 - for parsing user news
 
-* **Installation**  
+## Installation  
 Building:
+
 '''shell
 mkdir build
 cd build
