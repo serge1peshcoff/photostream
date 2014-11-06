@@ -113,7 +113,6 @@ public class PhotoStream.App : Granite.Application
         string response = "";              
         
         response = getUserFeed();
-        print(response);
         try 
         {
             parseFeed(response);
@@ -127,6 +126,7 @@ public class PhotoStream.App : Granite.Application
         print("no errors\n");
         box.remove(bar);
         setFeedWidgets();
+        printFeed();
     }   
 
     public void setErrorWidgets(string reason)

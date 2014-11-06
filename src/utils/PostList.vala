@@ -6,11 +6,13 @@ public class PhotoStream.PostList : Gtk.ListBox
 	public PostList()
 	{
 		//boxes = new GLib.List<PostBox>;
+
 	}
 	public void append(MediaInfo post)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 		base.prepend(separator);
-		base.prepend(new Gtk.Label(post.title));
+		PostBox box = new PostBox(post);
+		base.prepend(box);		
 	}
 }
