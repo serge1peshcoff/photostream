@@ -1,8 +1,6 @@
 public class PhotoStream.MainWindow : Gtk.ApplicationWindow
 {  
-    public PhotoStream.PhotoStack stack;
-    public Gtk.ScrolledWindow feedWindow;
-    public Gtk.ScrolledWindow userWindow;    
+      
 
 	private const string ELEMENTARY_STYLESHEET = """
             .header-bar {
@@ -45,12 +43,6 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         this.set_default_size (425, 500);
         this.set_size_request (425, 50);        
              
-        //this.setErrorWidgets("not-logged-in");
-
         //box.add (stack);
-	}
-    public void switchWindow(string window)
-    {
-        stack.set_visible_child_name(window);
-    } 
+	}    
 }

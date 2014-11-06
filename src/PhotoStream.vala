@@ -23,6 +23,10 @@ public class PhotoStream.App : Granite.Application
 
     public Gtk.InfoBar bar;
     public Gtk.Box box;
+
+    public PhotoStream.PhotoStack stack;
+    public Gtk.ScrolledWindow feedWindow;
+    public Gtk.ScrolledWindow userWindow;  
     
 	protected override void activate () 
 	{      
@@ -74,7 +78,7 @@ public class PhotoStream.App : Granite.Application
         print(appToken);
         if (appToken == "") //something went wrong. need to re-login
         {
-            this.setErrorWidgets("not-logged-in");           
+            this.setErrorWidgets("not-logged-in");          
         }
         else
         {
@@ -124,8 +128,10 @@ public class PhotoStream.App : Granite.Application
     }   
 
     public void setErrorWidgets(string reason)
-    {   
-        bar = new Gtk.InfoBar();           
+    { 
+        box.remove(bar);
+        bar = new Gtk.InfoBar();     
+            
         bar.message_type = Gtk.MessageType.ERROR;
         Gtk.Container content = bar.get_content_area ();
        
@@ -144,9 +150,9 @@ public class PhotoStream.App : Granite.Application
             default:
                 break;
         }
-        print("aaa112\n'");
         box.add(bar);
         bar.response.connect(this.response);
+        mainWindow.show_all ();
     }
     public void setHeader()
     {
@@ -196,8 +202,17 @@ public class PhotoStream.App : Granite.Application
 
     public void setFeedWidgets()
     {
-
+        this.stack = new PhotoStack();
+        this.feedWindow = new Gtk.ScrolledWindow (null, null);
+        feedWindow.add(new Gtk.Label("aaaaa"));
+        stack.add_named(feedWindow, "feed");
+        box.add(stack);
+        mainWindow.show_all ();
     }
+    public void switchWindow(string window)
+    {
+        stack.set_visible_child_name(window);
+    } 
     public void response (int response_id)
     {
         print("aaa\n");
