@@ -11,6 +11,8 @@ set(CLIENT_SOURCE
     utils/Objects.vala
     utils/PhotoStack.vala
     utils/Settings.vala   
+    utils/PostList.vala
+    utils/PostBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

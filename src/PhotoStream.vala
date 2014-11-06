@@ -26,7 +26,9 @@ public class PhotoStream.App : Granite.Application
 
     public PhotoStream.PhotoStack stack;
     public Gtk.ScrolledWindow feedWindow;
-    public Gtk.ScrolledWindow userWindow;  
+    public Gtk.ScrolledWindow userWindow; 
+
+    public PhotoStream.PostList feedList; 
     
 	protected override void activate () 
 	{      
@@ -204,9 +206,17 @@ public class PhotoStream.App : Granite.Application
     {
         this.stack = new PhotoStack();
         this.feedWindow = new Gtk.ScrolledWindow (null, null);
-        feedWindow.add(new Gtk.Label("aaaaa"));
         stack.add_named(feedWindow, "feed");
-        box.add(stack);
+
+        this.feedList = new PostList();
+        foreach(MediaInfo post in feedPosts)
+        {
+            feedList.append(post);
+        }
+
+        this.feedWindow.add_with_viewport (feedList);
+
+        box.pack_start(stack, true, true);
         mainWindow.show_all ();
     }
     public void switchWindow(string window)
