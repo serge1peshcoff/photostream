@@ -252,8 +252,15 @@ public class PhotoStream.App : Granite.Application
                     imageLoop.quit();
                 });
             imageLoop.run();*/
-            box.loadAvatar();
-            box.loadImage();
+            Idle.add(() => {
+                box.loadAvatar();
+                return false;
+            });
+            Idle.add(() => {
+                box.loadImage();
+                return false;
+            });
+            //box.loadImage();
             //feedList.show_all ();
         }        
     }    
