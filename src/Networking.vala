@@ -16,7 +16,7 @@ public string getImageWithPeople()
     return getResponce("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
 }
 
-public string downloadFile(string url, string filename)
+public async string downloadFile(string url, string filename)
 {
 	var session = new Soup.Session ();
     var message = new Soup.Message ("GET", url);

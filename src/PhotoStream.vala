@@ -122,7 +122,7 @@ public class PhotoStream.App : Granite.Application
         {
             parseFeed(response);
         }
-        catch (Error e)
+        catch (Error e) // wrokg token
         {
             setErrorWidgets("wrong-login");
             return;
@@ -131,7 +131,6 @@ public class PhotoStream.App : Granite.Application
         // if we got here then we've got no errors, yay!
         box.remove(bar);
         setFeedWidgets();
-        printFeed();
     }   
 
     public void setErrorWidgets(string reason)
@@ -228,23 +227,43 @@ public class PhotoStream.App : Granite.Application
         }
 
         this.feedList = new PostList();
-        foreach(MediaInfo post in feedPosts)
-        {            
-            feedList.prepend(post);
-        }
-
         this.feedWindow.add_with_viewport (feedList);
-
         box.pack_start(stack, true, true);
+
         mainWindow.show_all ();
-    }
+
+        foreach (MediaInfo post in feedPosts) 
+        {   
+            feedList.prepend(post);
+            feedList.show_all ();
+        }
+        foreach (PostBox box in feedList.boxes)
+        {            
+            /*var avatarLoop = new MainLoop();
+            box.loadAvatar.begin((obj, res) => {
+                    box.loadAvatar.end(res);
+                    avatarLoop.quit();
+                });
+            avatarLoop.run();*/
+
+            /*var imageLoop = new MainLoop();
+            box.loadImage.begin((obj, res) => {
+                    box.loadImage.end(res);
+                    imageLoop.quit();
+                });
+            imageLoop.run();*/
+            box.loadAvatar();
+            box.loadImage();
+            //feedList.show_all ();
+        }        
+    }    
+
     public void switchWindow(string window)
     {
         stack.set_visible_child_name(window);
     } 
     public void response (int response_id)
     {
-        print("aaa\n");
         switch (response_id)
         {
             case 1: //not logged in

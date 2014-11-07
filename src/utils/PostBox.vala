@@ -12,50 +12,81 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
 
+	public MediaInfo post;
+
 	public PostBox(MediaInfo post)
 	{
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(box);
 
-		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
-		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
-		downloadFile(post.postedUser.profilePicture, avatarFileName);
+		this.post = post;
 
-		Pixbuf avatarPixbuf = new Pixbuf.from_file(avatarFileName);	
-		avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);	
+		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
 		avatar = new Gtk.Image();
-		avatar.set_from_pixbuf(avatarPixbuf);
+		userToolbar.pack_start(avatar, false, true);		
 
-		userNameLabel = new Gtk.Label("@" + post.postedUser.username);
-		this.userNameLabel.set_markup(
+		userNameLabel = new Gtk.Label("");
+		userNameLabel.set_markup(
                 "<span underline='none' font_weight='bold' size='large'>" +
                 post.postedUser.username + "</span>"
                 );
 
-		userToolbar.add(avatar);
+		
 		userToolbar.add(userNameLabel);
-		box.pack_start(userToolbar, false, true);
-
-		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
-		downloadFile(post.image.url, imageFileName);
-
-		Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
-		imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+		box.pack_start(userToolbar, false, true);	
 
 		image = new Gtk.Image();
-		image.set_from_pixbuf(imagePixbuf);
-
-		box.add(image);
-
+		box.add(image);	
 
 		box.add(new Gtk.Label(post.title));
 		box.add(new Gtk.Label( post.likesCount.to_string() + " likes."));
+		print("finished.\n");
+
+		return;
+	}	
+	public void loadAvatar()
+	{
+		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
+        downloadFile(post.postedUser.profilePicture, avatarFileName);
+
+        Pixbuf avatarPixbuf = new Pixbuf.from_file(avatarFileName);	
+		avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
+
+		avatar.set_from_pixbuf(avatarPixbuf);		
+		print("finished avatar.\n");
+	}
+
+	public void loadImage()
+	{
+		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
+		var imageLoop = new MainLoop();
+        downloadFile.begin(post.image.url, imageFileName, (obj, res) => {
+                downloadFile.end(res);
+
+                Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
+				imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+				image.set_from_pixbuf(imagePixbuf);
+
+				print("finished image.\n");
+
+                imageLoop.quit();
+            });
+        imageLoop.run();
+        //downloadFile(post.image.url, imageFileName);
+
+        //Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
+		//imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+
+		
+		//image.set_from_pixbuf(imagePixbuf);
+
+				
 	}
 
 	public string getFileName(string url)
-	{
-		var indexStart = url.last_index_of("/") + 1;
-		return url.substring(indexStart, url.length - indexStart);
-	}
+    {
+        var indexStart = url.last_index_of("/") + 1;
+        return url.substring(indexStart, url.length - indexStart);
+    }
 }

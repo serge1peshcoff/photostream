@@ -2,7 +2,7 @@
 
 An unofficial Instagram client for elementary OS.
 
-Used libraries:
+Uses libraries:
 * gtk+-3.0
 * glib-2.0
 * gio-2.0
@@ -11,6 +11,8 @@ Used libraries:
 * json-glib - for parsing JSON data received through API
 * webkitgtk-3.0 - for logging in
 * libxml-2.0 - for parsing user news
+
+Thanks a lot to the Birdie developers, because I learned to program in Vala by looking in Birdie's source code.
 
 ## Installation  
 Building:
