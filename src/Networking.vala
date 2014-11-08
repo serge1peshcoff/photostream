@@ -31,7 +31,7 @@ public string getImageWithPeople()
     return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
 }
 
-public async string downloadFile(string url, string filename)
+public async void downloadFile(string url, string filename)
 {
 	var session = new Soup.Session ();
     var message = new Soup.Message ("GET", url);
@@ -39,14 +39,27 @@ public async string downloadFile(string url, string filename)
 
     size_t bytes;
 
-    var file = File.new_for_path(filename);
-    if (file.query_exists())  
-    	file.delete();  
+    File file;
+    FileIOStream stream;
+
+    try 
+    {
+	    file = File.new_for_path(filename);
+	    if (file.query_exists())  
+	    	file.delete();  
+
+	    stream = file.create_readwrite(FileCreateFlags.PRIVATE);
+
+	    FileOutputStream os = stream.output_stream as FileOutputStream;
+
+    	os.write_all(message.response_body.data, out bytes);
+	}
+	catch (Error e)
+	{
+		GLib.error("Something wrong with file writing. Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n");
+    }
     	
-    var stream = file.create_readwrite(FileCreateFlags.PRIVATE);
+     
 
-    FileOutputStream os = stream.output_stream as FileOutputStream;
-
-    os.write_all(message.response_body.data, out bytes);   
-    return (string) message.response_body.data;
+      
 }

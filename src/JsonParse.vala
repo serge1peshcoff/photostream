@@ -2,28 +2,13 @@ using PhotoStream.Utils;
 
 public List<MediaInfo> parseFeed(string message) throws Error
 {
-	var parser = new Json.Parser ();
-    try 
-    {
-        parser.load_from_data (message);
-    }
-    catch (Error e)
-    {
-
-    }
     List<MediaInfo> list = new List<MediaInfo>();
 
-	var root_object = parser.get_root().get_object();
+	var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
 
-    //parsing errors, if any
-    var metaObject = root_object.get_member ("meta").get_object();
-    if (metaObject.get_int_member("code") != 200)
-    {
-        string errorMessage = metaObject.get_string_member("error_message");
-        throw new Error(Quark.from_string(errorMessage), (int)metaObject.get_int_member("code"), errorMessage);
-    }
-
-
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
     var response = root_object.get_array_member ("data");
 
     foreach (var mediaPost in response.get_elements ())  	
@@ -174,30 +159,35 @@ public string parseToken(string responce)
     return token;
 }
 
-public MediaInfo parseImage(string message)
+public MediaInfo parseImage(string message) throws Error
 {
     var parser = new Json.Parser ();
-    try 
-    {
-        parser.load_from_data (message);
-    }
-    catch (Error e)
-    {
-
-    }
+    tryLoadMessage(parser, message);
 
     var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_member ("data");
+    return parseMediaPost(response);
+}
 
+public void checkErrors(Json.Object root_object) throws Error
+{   
     //parsing errors, if any
     var metaObject = root_object.get_member ("meta").get_object();
     if (metaObject.get_int_member("code") != 200)
     {
         string errorMessage = metaObject.get_string_member("error_message");
         throw new Error(Quark.from_string(errorMessage), (int)metaObject.get_int_member("code"), errorMessage);
+    }    
+}
+public void tryLoadMessage(Json.Parser parser, string message)
+{
+    try 
+    {
+        parser.load_from_data (message);
     }
-
-
-    var response = root_object.get_member ("data");
-    
-    return parseMediaPost(response);
+    catch (Error e)
+    {
+        GLib.error("Something wrong with JSON parsing.\n");
+    }
 }

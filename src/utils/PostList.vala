@@ -17,7 +17,7 @@ public class PhotoStream.PostList : Gtk.ListBox
 		boxes.append(box);		
 	}
 
-	public void prepend(MediaInfo post)
+	public new void prepend(MediaInfo post)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 		base.insert (separator, (int) base.get_children ().length () - 1);

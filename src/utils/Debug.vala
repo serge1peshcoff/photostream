@@ -69,7 +69,7 @@ public void printFeed(List<MediaInfo> list)
 		print("\tbio: %s\n", post.postedUser.bio);
 		print("\twebsite: %s\n\n", post.postedUser.website);
 
-		print("id: %lld\n", post.id);
+		print("id: %s\n", post.id);
 		print("didILikeThis: %s\n\n", post.didILikeThis ? "true" : "false");
 
     }

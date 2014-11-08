@@ -55,7 +55,15 @@ public class PhotoStream.PostBox : Gtk.EventBox
         downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
                 downloadFile.end(res);
 
-                Pixbuf avatarPixbuf = new Pixbuf.from_file(avatarFileName);	
+                Pixbuf avatarPixbuf; 
+                try 
+                {
+                	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
+                }	
+                catch (Error e)
+                {
+                	GLib.error("Something wrong with file loading.\n");
+                }
 				avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 				avatar.set_from_pixbuf(avatarPixbuf);
 
@@ -81,7 +89,15 @@ public class PhotoStream.PostBox : Gtk.EventBox
         downloadFile.begin(post.image.url, imageFileName, (obj, res) => {
                 downloadFile.end(res);
 
-                Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
+                Pixbuf imagePixbuf; 
+                try 
+                {
+                	imagePixbuf = new Pixbuf.from_file(imageFileName);
+                }	
+                catch (Error e)
+                {
+                	GLib.error("Something wrong with file loading.\n");
+                }
 				imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
 				image.set_from_pixbuf(imagePixbuf);
 
