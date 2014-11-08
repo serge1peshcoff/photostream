@@ -1,4 +1,4 @@
-public string getResponce (string host) 
+public string getResponse (string host) 
 {
     var session = new Soup.Session ();
     var message = new Soup.Message ("GET", host);
@@ -9,11 +9,26 @@ public string getResponce (string host)
 
 public string getUserFeed()
 {
-    return getResponce("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
 }
+public string getOlderUserFeed()
+{
+	return getResponse(PhotoStream.App.olderFeedLink);
+}
+
+public string getImageData(string id)
+{
+	print("https://api.instagram.com/v1/media/");
+	print(id);
+	print("?access_token=");
+	print(PhotoStream.App.appToken + " 11\n");
+	return getResponse("https://api.instagram.com/v1/media/" + id + "?access_token=" + PhotoStream.App.appToken);
+}
+
+
 public string getImageWithPeople()
 {
-    return getResponce("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
 }
 
 public async string downloadFile(string url, string filename)

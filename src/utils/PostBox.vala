@@ -43,6 +43,8 @@ public class PhotoStream.PostBox : Gtk.EventBox
 		box.add(new Gtk.Label( post.likesCount.to_string() + " likes."));
 		print("finished.\n");
 
+		this.set_sensitive (false);
+
 		return;
 	}	
 	public void loadAvatar()

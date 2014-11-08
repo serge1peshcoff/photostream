@@ -6,6 +6,7 @@ public class PhotoStream.App : Granite.Application
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
     public static string appToken = "";
+    public static string olderFeedLink = "";
     public const string REDIRECT_URI = "http://www.google.com/photostream";
     public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
@@ -82,7 +83,6 @@ public class PhotoStream.App : Granite.Application
     public void tryLogin()
     {   
         appToken = loadToken();  
-        print(appToken);
         if (appToken == "") //something went wrong. need to re-login
         {
             this.setErrorWidgets("not-logged-in");          
@@ -120,13 +120,15 @@ public class PhotoStream.App : Granite.Application
         response = getUserFeed();
         try 
         {
-            parseFeed(response);
+            feedPosts = parseFeed(response);
+            //feedPosts.append(parseImage(response));
         }
         catch (Error e) // wrokg token
         {
             setErrorWidgets("wrong-login");
             return;
         }
+        printFeed();
 
         // if we got here then we've got no errors, yay!
         box.remove(bar);
@@ -221,7 +223,6 @@ public class PhotoStream.App : Granite.Application
             if (!file.query_exists())
                 file.make_directory_with_parents ();
 
-            print(CACHE_AVATARS);
         } catch (Error e) {
             stdout.printf ("Error: %s\n", e.message);
         }
@@ -237,6 +238,11 @@ public class PhotoStream.App : Granite.Application
             feedList.prepend(post);
             feedList.show_all ();
         }
+
+        mainWindow.show_all ();
+
+        //Idle.add((SourceFunc)loadImage(feedList.boxes, 0));
+        //Idle.add((SourceFunc)loadAvatar(feedList.boxes, 0));
         foreach (PostBox box in feedList.boxes)
         {            
             /*var avatarLoop = new MainLoop();
@@ -252,17 +258,41 @@ public class PhotoStream.App : Granite.Application
                     imageLoop.quit();
                 });
             imageLoop.run();*/
-            Idle.add(() => {
+            /*Idle.add(() => {
                 box.loadAvatar();
                 return false;
             });
             Idle.add(() => {
                 box.loadImage();
                 return false;
-            });
-            //box.loadImage();
+            });*/
+            box.loadAvatar();
+            box.loadImage();
             //feedList.show_all ();
         }        
+    } 
+    public bool loadImage(List<PostBox> boxes, int index)
+    {
+        if (index == boxes.length()) 
+            return false;
+
+        boxes.nth_data(index).loadImage();
+        Idle.add((SourceFunc)loadImage(feedList.boxes, index + 1));
+
+        return false;
+
+    }  
+
+    public bool loadAvatar(List<PostBox> boxes, int index)
+    {
+        if (index == boxes.length()) 
+            return false;
+
+        boxes.nth_data(index).loadAvatar();
+        Idle.add((SourceFunc)loadAvatar(feedList.boxes, index + 1));
+
+        return false;
+
     }    
 
     public void switchWindow(string window)
