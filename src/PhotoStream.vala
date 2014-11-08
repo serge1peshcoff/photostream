@@ -118,6 +118,9 @@ public class PhotoStream.App : Granite.Application
         string response = "";              
         
         response = getUserFeed();
+        //print("aaaa\n");
+        //response = getImageData("12880416");
+        //print(response);
         try 
         {
             feedPosts = parseFeed(response);
@@ -128,7 +131,18 @@ public class PhotoStream.App : Granite.Application
             setErrorWidgets("wrong-login");
             return;
         }
-        printFeed();
+        /*try 
+        {
+            response = getImageData(feedPosts.nth(7).data.id);
+            feedPosts.append(parseImage(response));
+        }
+        catch (Error e) // wrokg token
+        {
+            setErrorWidgets("wrong-login");
+            return;
+        }
+        printFeed(feedPosts.last());*/
+        printFeed(feedPosts);
 
         // if we got here then we've got no errors, yay!
         box.remove(bar);

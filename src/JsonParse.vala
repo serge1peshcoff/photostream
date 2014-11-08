@@ -59,23 +59,8 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
 
     var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
     if (commentObject.get_int_member("count") != 0) //if there are any
-        foreach(var comment in commentObject.get_array_member("data").get_elements())
-        {
-            
-            Comment infoComment = new Comment();
-            infoComment.creationTime = new DateTime.from_unix_utc(comment.get_object().get_int_member("created_time"));
-            infoComment.text = comment.get_object().get_string_member("text");
-            infoComment.id = (int64)comment.get_object().get_string_member("id");
-            
-            var commentedUser = comment.get_object().get_member("from").get_object();
-            infoComment.user = new User();
-            infoComment.user.username = commentedUser.get_string_member("username");
-            infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
-            infoComment.user.id = commentedUser.get_string_member("id");
-            infoComment.user.fullName = commentedUser.get_string_member("full_name");
-
-            info.comments.append(infoComment);              
-        }
+        info.comments = parseComments(commentObject);
+        
 
     info.filter = mediaPostObject.get_string_member("filter");
     info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
@@ -147,6 +132,29 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
 
     return info;
 }   
+
+public List<Comment> parseComments(Json.Object commentObject)
+{
+    List<Comment> commentsList = new List<Comment>();
+    foreach(var comment in commentObject.get_array_member("data").get_elements())
+    {
+        
+        Comment infoComment = new Comment();
+        infoComment.creationTime = new DateTime.from_unix_utc(comment.get_object().get_int_member("created_time"));
+        infoComment.text = comment.get_object().get_string_member("text");
+        infoComment.id = (int64)comment.get_object().get_string_member("id");
+        
+        var commentedUser = comment.get_object().get_member("from").get_object();
+        infoComment.user = new User();
+        infoComment.user.username = commentedUser.get_string_member("username");
+        infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
+        infoComment.user.id = commentedUser.get_string_member("id");
+        infoComment.user.fullName = commentedUser.get_string_member("full_name");
+
+        commentsList.append(infoComment);              
+    }
+    return commentsList;
+}
 
 public string parseToken(string responce)
 {

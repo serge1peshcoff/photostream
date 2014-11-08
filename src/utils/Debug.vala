@@ -1,8 +1,8 @@
 using PhotoStream.Utils;
 
-public void printFeed()
+public void printFeed(List<MediaInfo> list)
 {
-	foreach(MediaInfo post in PhotoStream.App.feedPosts)
+	foreach(MediaInfo post in list)
     {
     	print("Tags: ");
         foreach (string tag in post.tags)
