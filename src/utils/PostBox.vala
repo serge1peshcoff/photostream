@@ -52,7 +52,7 @@ public class PhotoStream.PostBox : Gtk.EventBox
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
 
 		var avatarLoop = new MainLoop();
-        downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
+        /*downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
                 downloadFile.end(res);
 
                 Pixbuf avatarPixbuf; 
@@ -71,21 +71,21 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
                 avatarLoop.quit();
             });
-        avatarLoop.run();
+        avatarLoop.run();*/
 
-        /*downloadFile(post.postedUser.profilePicture, avatarFileName);
+        downloadFile(post.postedUser.profilePicture, avatarFileName);
 
         Pixbuf avatarPixbuf = new Pixbuf.from_file(avatarFileName);	
 		avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
 		avatar.set_from_pixbuf(avatarPixbuf);		
-		print("finished avatar.\n");*/
+		print("finished avatar.\n");
 	}
 
 	public void loadImage()
 	{
 		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
-		var imageLoop = new MainLoop();
+		/*var imageLoop = new MainLoop();
         downloadFile.begin(post.image.url, imageFileName, (obj, res) => {
                 downloadFile.end(res);
 
@@ -105,14 +105,15 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
                 imageLoop.quit();
             });
-        imageLoop.run();
-        /*downloadFile(post.image.url, imageFileName);
+        imageLoop.run();*/
+        downloadFile(post.image.url, imageFileName);
 
         Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
 		imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
 
 		
-		image.set_from_pixbuf(imagePixbuf);*/
+		image.set_from_pixbuf(imagePixbuf);
+		print("finished image.\n");
 
 				
 	}

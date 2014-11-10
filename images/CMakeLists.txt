@@ -1,0 +1,5 @@
+set(GENERIC_IMAGES
+    loading.gif
+)
+
+install (FILES ${GENERIC_IMAGES} DESTINATION ${IMAGES_DIR})
