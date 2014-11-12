@@ -32,12 +32,13 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
     else if (type == "video")
         info.type = PhotoStream.MediaType.VIDEO;
 
+
     var locationObject = mediaPostObject.get_member("location"); //location
     if (!locationObject.is_null()) //if has location
     {
         info.location = new Location();
-        info.location.latitude = locationObject.get_object().get_double_member("latitude");
-        info.location.longitude = locationObject.get_object().get_double_member("longitude");
+        info.location.latitude = (locationObject.get_object().has_member("latitude")) ? locationObject.get_object().get_double_member("latitude") : 0;
+        info.location.longitude = (locationObject.get_object().has_member("longitude")) ? locationObject.get_object().get_double_member("longitude") : 0;
         info.location.name = (locationObject.get_object().has_member("name")) ? locationObject.get_object().get_string_member("name") : "";
         info.location.id = (locationObject.get_object().has_member("id")) ? locationObject.get_object().get_int_member("id") : 0;
     }
@@ -66,8 +67,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
             user.fullName = like.get_object().get_string_member("full_name");   
 
             info.likes.append(user);
-        }
-        
+        }        
 
     var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
     var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
@@ -93,9 +93,6 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
 
             info.taggedUsers.append(tu);
         }
-
-
-
 
     var captionObject = mediaPostObject.get_member("caption");
     if (!captionObject.is_null()) //if there's a caption            

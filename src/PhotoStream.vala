@@ -64,6 +64,7 @@ public class PhotoStream.App : Granite.Application
 
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
         mainWindow.add(box);
+        box.add(bar);
 
         PixbufAnimation loadingPixbuf;
 
@@ -135,7 +136,6 @@ public class PhotoStream.App : Granite.Application
             try 
             {
                 feedPosts = parseFeed(response);
-                //feedPosts.append(parseImage(response));
             }
             catch (Error e) // wrokg token
             {
@@ -143,11 +143,15 @@ public class PhotoStream.App : Granite.Application
                 return;
             }
 
+            print("no errors, setting widgets.\n"); 
+
             // if we got here then we've got no errors, yay!
-            box.remove(bar);        
+            box.remove(bar);   
+
+            print("remove bar.\n");      
 
             setFeedWidgets.begin((obj, res) => {
-                setFeedWidgets.end(res);
+                //setFeedWidgets.end(res);
             });
             print("loadFeed end\n"); 
         });
@@ -248,8 +252,6 @@ public class PhotoStream.App : Granite.Application
             stdout.printf ("Error: %s\n", e.message);
         }
 
-
-
         this.feedList = new PostList();
         this.feedWindow.add_with_viewport (feedList);
 
@@ -258,38 +260,17 @@ public class PhotoStream.App : Granite.Application
         foreach (MediaInfo post in feedPosts)   
             feedList.prepend(post);
 
-        //Idle.add((SourceFunc)loadImage(feedList.boxes, 0));
-        //Idle.add((SourceFunc)loadAvatar(feedList.boxes, 0));
         foreach (PostBox box in feedList.boxes)
-        {            
-            /*var avatarLoop = new MainLoop();
-            box.loadAvatar.begin((obj, res) => {
-                    box.loadAvatar.end(res);
-                    avatarLoop.quit();
-                });
-            avatarLoop.run();*/
-
-            /*var imageLoop = new MainLoop();
-            box.loadImage.begin((obj, res) => {
-                    box.loadImage.end(res);
-                    imageLoop.quit();
-                });
-            imageLoop.run();*/
-            /*Idle.add(() => {
-                box.loadAvatar();
-                return false;
-            });
-            Idle.add(() => {
-                box.loadImage();
-                return false;
-            });*/
+        {        
             box.loadAvatar();
             box.loadImage();
-            //feedList.show_all ();
-        }   
+        }
 
         box.remove(loadingImage);
         box.pack_start(stack, true, true);
+
+        mainWindow.show_all();
+
         print("setFeedWidgets end\n");
     } 
 
