@@ -7,7 +7,7 @@ public string getResponse (string host)
     return (string) message.response_body.data;
 }
 
-public string getUserFeed()
+public async string getUserFeed()
 {
     return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
 }
@@ -18,10 +18,6 @@ public string getOlderUserFeed()
 
 public string getImageData(string id)
 {
-	print("https://api.instagram.com/v1/media/");
-	print(id);
-	print("?access_token=");
-	print(PhotoStream.App.appToken + " 11\n");
 	return getResponse("https://api.instagram.com/v1/media/" + id + "?access_token=" + PhotoStream.App.appToken);
 }
 
@@ -31,7 +27,7 @@ public string getImageWithPeople()
     return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
 }
 
-public async void downloadFile(string url, string filename)
+public void downloadFile(string url, string filename)
 {
 	var session = new Soup.Session ();
     var message = new Soup.Message ("GET", url);
@@ -58,8 +54,4 @@ public async void downloadFile(string url, string filename)
 	{
 		GLib.error("Something wrong with file writing. Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n");
     }
-    	
-     
-
-      
 }

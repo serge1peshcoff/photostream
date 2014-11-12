@@ -67,9 +67,9 @@ public class PhotoStream.App : Granite.Application
 
         PixbufAnimation loadingPixbuf;
 
-        try {   
-            loadingPixbuf = new PixbufAnimation.from_file("/usr/share/photostream/images/loading.gif");
-            
+        try 
+        {   
+            loadingPixbuf = new PixbufAnimation.from_file("/usr/share/photostream/images/loading.gif");            
         }
         catch (Error e)
         {
@@ -79,16 +79,23 @@ public class PhotoStream.App : Granite.Application
         loadingImage = new Gtk.Image.from_animation(loadingPixbuf);
         box.pack_start(loadingImage, true, true);
 
-        tryLogin();
-
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this); 
 
+        var loop = new MainLoop();
+        tryLogin.begin((obj, res) => {
+            loop.quit();
+        });
+        loop.run();
+
+        
+        print("activate() finished.\n");
     }
 
-    public void tryLogin()
+    public async void tryLogin()
     {   
+        print("tryLogin start\n");        
         appToken = loadToken();  
         if (appToken == "") //something went wrong. need to re-login
         {
@@ -96,16 +103,11 @@ public class PhotoStream.App : Granite.Application
         }
         else
         {
-            try 
-            {
-                new Thread<int>.try("", (ThreadFunc)this.loadFeed);
-            }
-            catch (Error e)
-            {
-
-            }  
-            loadFeed();
-        }   
+            loadFeed.begin((obj, res) => {
+                //loadFeed.end(res);
+            });
+        }  
+        print("tryLogin end\n");  
     }
 
     public void setLoginWindow()
@@ -122,47 +124,33 @@ public class PhotoStream.App : Granite.Application
         base.shutdown();
     }
 
-    public int loadFeed()
+    public async void loadFeed()
     {
-        string response = "";              
-        
-        response = getUserFeed();
-        try 
-        {
-            feedPosts = parseFeed(response);
-            //feedPosts.append(parseImage(response));
-        }
-        catch (Error e) // wrokg token
-        {
-            setErrorWidgets("wrong-login");
-            return 0;
-        }
-        /*try 
-        {
-            response = getImageData(feedPosts.nth(7).data.id);
-            feedPosts.append(parseImage(response));
-        }
-        catch (Error e) // wrokg token
-        {
-            setErrorWidgets("wrong-login");
-            return;
-        }
-        printFeed(feedPosts.last());*/
-        //printFeed(feedPosts);
+        //string response = "";// = getUserFeed();
+        print("loadFeed start\n"); 
+        getUserFeed.begin((obj, res) => {
+            string response = getUserFeed.end(res);
+            print("load finished.\n"); 
 
-        // if we got here then we've got no errors, yay!
-        box.remove(bar);        
-        try 
-        {
-            new Thread<int>.try("", (ThreadFunc)this.setFeedWidgets);
-        }
-        catch (Error e)
-        {
+            try 
+            {
+                feedPosts = parseFeed(response);
+                //feedPosts.append(parseImage(response));
+            }
+            catch (Error e) // wrokg token
+            {
+                setErrorWidgets("wrong-login");
+                return;
+            }
 
-        }  
+            // if we got here then we've got no errors, yay!
+            box.remove(bar);        
 
-        //setFeedWidgets();
-        return 0;
+            setFeedWidgets.begin((obj, res) => {
+                setFeedWidgets.end(res);
+            });
+            print("loadFeed end\n"); 
+        });
     }   
 
     public void setErrorWidgets(string reason)
@@ -238,14 +226,14 @@ public class PhotoStream.App : Granite.Application
         header.set_custom_title (centered_toolbar);
     }
 
-    public int setFeedWidgets()
-    {
-        
+    public async void setFeedWidgets()
+    {        
+        print("setFeedWidgets start\n"); 
         this.stack = new PhotoStack();
         this.feedWindow = new Gtk.ScrolledWindow (null, null);
         stack.add_named(feedWindow, "feed");
 
-        print("loding images...\n");
+        print("loading images...\n");
 
         try {
             File file = File.new_for_path(CACHE_URL);
@@ -302,10 +290,7 @@ public class PhotoStream.App : Granite.Application
 
         box.remove(loadingImage);
         box.pack_start(stack, true, true);
-
-        mainWindow.show_all ();
-
-        return 0;     
+        print("setFeedWidgets end\n");
     } 
 
     public void switchWindow(string window)
