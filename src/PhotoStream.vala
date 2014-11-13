@@ -16,6 +16,7 @@ public class PhotoStream.App : Granite.Application
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public static List<MediaInfo> feedPosts;
+    public bool isFeedLoaded = false;
     
     public Gtk.HeaderBar header;
 
@@ -126,7 +127,10 @@ public class PhotoStream.App : Granite.Application
             return 0;
         }
         // if we got here then we've got no errors, yay!
-        box.remove(bar);   
+        print("1\n");
+        if(box.get_children().find(bar) != null)
+            box.remove(bar);  
+        print("2\n");
 
         new Thread<int>("", setFeedWidgets);
         return 0;
@@ -155,7 +159,8 @@ public class PhotoStream.App : Granite.Application
 
     public void setErrorWidgets(string reason)
     { 
-        box.remove(bar);
+        if(box.get_children().find(bar) != null)
+            box.remove(bar);
         bar = new Gtk.InfoBar();     
             
         bar.message_type = Gtk.MessageType.ERROR;
@@ -230,7 +235,36 @@ public class PhotoStream.App : Granite.Application
     public int setFeedWidgets()
     {        
         print("setFeedWidgets start\n"); 
-        this.stack = new PhotoStack();
+
+        if (!isFeedLoaded)
+        {
+            this.stack = new PhotoStack();
+            this.feedWindow = new Gtk.ScrolledWindow (null, null);
+            stack.add_named(feedWindow, "feed");
+
+            print("loading images...\n");
+
+            try {
+                File file = File.new_for_path(CACHE_URL);
+                if (!file.query_exists())
+                    file.make_directory_with_parents ();
+
+                file = File.new_for_path(CACHE_AVATARS);
+                if (!file.query_exists())
+                    file.make_directory_with_parents ();
+
+            } catch (Error e) {
+                error("Error: %s\n", e.message);
+            }
+
+            this.feedList = new PostList();       
+            this.feedList.moreButton.clicked.connect(() => {
+                new Thread<int>("", loadOlderFeed);
+            });
+            this.feedWindow.add_with_viewport (feedList);
+        } 
+
+        /*this.stack = new PhotoStack();
         this.feedWindow = new Gtk.ScrolledWindow (null, null);
         stack.add_named(feedWindow, "feed");
 
@@ -249,29 +283,40 @@ public class PhotoStream.App : Granite.Application
             error("Error: %s\n", e.message);
         }
 
-        this.feedList = new PostList();       
-        this.feedList.moreButton.clicked.connect(() => {
-            new Thread<int>("", loadOlderFeed);
-        });
-        this.feedWindow.add_with_viewport (feedList);        
+        if (feedWindow.get_children().find(feedList) == null)
+        {
+            this.feedList = new PostList();       
+            this.feedList.moreButton.clicked.connect(() => {
+                new Thread<int>("", loadOlderFeed);
+            });
+            this.feedWindow.add_with_viewport (feedList);
+        } */       
 
         foreach (MediaInfo post in feedPosts)
-            if (!feedList.contains(post))   
+            if (!feedList.contains(post)) 
+            {  
+                print(post.title + "  by " + post.postedUser.username + "\n");
                 feedList.prepend(post);
-
-        foreach (PostBox box in feedList.boxes)
-            if (feedList.get_children().find(box) == null)
-            {        
-                box.loadAvatar();
-                box.loadImage();
             }
 
-        box.remove(loadingImage);
-        box.pack_start(stack, true, true);
+        print("finished loading.\n");
+
+        foreach (PostBox postBox in feedList.boxes)
+            if (feedList.get_children().find(postBox) == null)
+            {        
+                postBox.loadAvatar();
+                postBox.loadImage();
+            }
+
+        if (!isFeedLoaded)
+        {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true);
+        }
 
         mainWindow.show_all();
-
         print("setFeedWidgets end\n");
+        isFeedLoaded = true;
         return 0;
     } 
 
