@@ -4,7 +4,7 @@ using WebKit;
 public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 {
 
-	private WebView web_view;
+	private WebView webView;
 	private const string INSTAGRAM_LOGIN = "https://instagram.com/accounts/login/";
 	private const string INSTAGRAM_AUTH = "https://api.instagram.com/oauth/authorize/?client_id="
 											 + PhotoStream.App.CLIENT_ID 
@@ -21,14 +21,30 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
 		HOST = getHost(PhotoStream.App.REDIRECT_URI);
 
-		this.web_view = new WebKit.WebView ();
+		this.webView = new WebKit.WebView ();
 		this.title = "Login to Instagram";
 
-		stdout.printf("WebKit %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
+		try // making folder for cookies
+		{
+            File file = File.new_for_path(PhotoStream.App.CACHE_URL);
+            if (!file.query_exists())
+                file.make_directory_with_parents ();
 
+            file = File.new_for_path(PhotoStream.App.CACHE_URL + "cookies/");
+            if (!file.query_exists())
+                file.make_directory_with_parents ();  
+        } 
+        catch (Error e) 
+        {
+            error("Error: %s\n", e.message);
+        }
 
-		this.web_view.load_finished.connect ((source, frame) => {
-            var uri = web_view.get_uri ();
+        //WebKit.WebContext webContext = webView.get_context();
+        //var cookieManager = webContext.get_cookie_manager();
+        //cookieManager.set_persistent_storage(PhotoStream.App.CACHE_URL + "cookies/cookie.txt", WebKit.CookiePersistentStorage.TEXT);
+
+		this.webView.load_finished.connect ((source, frame) => {
+            var uri = webView.get_uri ();
             var host = getHost(uri);
             stdout.printf(host + "\n");
             
@@ -62,12 +78,12 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
         });		
 
         this.show.connect (() => {
-            this.web_view.open(INSTAGRAM_AUTH);
+            this.webView.open(INSTAGRAM_AUTH);
         });			
 
 		var scrolled_window = new ScrolledWindow (null, null);
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
-        scrolled_window.add (this.web_view);
+        scrolled_window.add (this.webView);
 
         var box = new Box (Gtk.Orientation.VERTICAL, 0);       
 		box.pack_start (scrolled_window, true, true);

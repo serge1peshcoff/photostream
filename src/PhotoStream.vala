@@ -99,15 +99,10 @@ public class PhotoStream.App : Granite.Application
         print("tryLogin start\n");        
         appToken = loadToken();  
         if (appToken == "") //something went wrong. need to re-login
-        {
             this.setErrorWidgets("not-logged-in");          
-        }
         else
-        {
-            loadFeed.begin((obj, res) => {
-                //loadFeed.end(res);
-            });
-        }  
+            new Thread<int>("", loadFeed);
+
         print("tryLogin end\n");  
     }
 
@@ -125,7 +120,7 @@ public class PhotoStream.App : Granite.Application
         base.shutdown();
     }
 
-    public async void loadFeed()
+    public int loadFeed()
     {
         //string response = "";// = getUserFeed();
         print("loadFeed start\n"); 
@@ -137,7 +132,7 @@ public class PhotoStream.App : Granite.Application
             {
                 feedPosts = parseFeed(response);
             }
-            catch (Error e) // wrokg token
+            catch (Error e) // wrong token
             {
                 setErrorWidgets("wrong-login");
                 return;
@@ -148,13 +143,11 @@ public class PhotoStream.App : Granite.Application
             // if we got here then we've got no errors, yay!
             box.remove(bar);   
 
-            print("remove bar.\n");      
+            new Thread<int>("", setFeedWidgets);
 
-            setFeedWidgets.begin((obj, res) => {
-                //setFeedWidgets.end(res);
-            });
             print("loadFeed end\n"); 
         });
+        return 0;
     }   
 
     public void setErrorWidgets(string reason)
@@ -230,7 +223,7 @@ public class PhotoStream.App : Granite.Application
         header.set_custom_title (centered_toolbar);
     }
 
-    public async void setFeedWidgets()
+    public int setFeedWidgets()
     {        
         print("setFeedWidgets start\n"); 
         this.stack = new PhotoStack();
@@ -249,13 +242,11 @@ public class PhotoStream.App : Granite.Application
                 file.make_directory_with_parents ();
 
         } catch (Error e) {
-            stdout.printf ("Error: %s\n", e.message);
+            error("Error: %s\n", e.message);
         }
 
         this.feedList = new PostList();
-        this.feedWindow.add_with_viewport (feedList);
-
-        
+        this.feedWindow.add_with_viewport (feedList);        
 
         foreach (MediaInfo post in feedPosts)   
             feedList.prepend(post);
@@ -272,6 +263,7 @@ public class PhotoStream.App : Granite.Application
         mainWindow.show_all();
 
         print("setFeedWidgets end\n");
+        return 0;
     } 
 
     public void switchWindow(string window)

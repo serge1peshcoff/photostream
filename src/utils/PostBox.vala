@@ -51,8 +51,8 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	{
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
 
-		var avatarLoop = new MainLoop();
-        /*downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
+		/*var avatarLoop = new MainLoop();
+        downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
                 downloadFile.end(res);
 
                 Pixbuf avatarPixbuf; 
