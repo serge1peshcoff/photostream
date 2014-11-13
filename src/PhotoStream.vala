@@ -66,8 +66,17 @@ public class PhotoStream.App : Granite.Application
         mainWindow.add(box);
         box.add(bar);
 
-        PixbufAnimation loadingPixbuf;
+        mainWindow.show_all ();
+        mainWindow.destroy.connect (Gtk.main_quit);
+        mainWindow.set_application(this); 
 
+        tryLogin();
+    }
+
+    public void tryLogin()
+    {   
+        box.remove(bar);
+        PixbufAnimation loadingPixbuf;
         try 
         {   
             loadingPixbuf = new PixbufAnimation.from_file("/usr/share/photostream/images/loading.gif");            
@@ -79,31 +88,14 @@ public class PhotoStream.App : Granite.Application
 
         loadingImage = new Gtk.Image.from_animation(loadingPixbuf);
         box.pack_start(loadingImage, true, true);
-
         mainWindow.show_all ();
-        mainWindow.destroy.connect (Gtk.main_quit);
-        mainWindow.set_application(this); 
 
-        var loop = new MainLoop();
-        tryLogin.begin((obj, res) => {
-            loop.quit();
-        });
-        loop.run();
 
-        
-        print("activate() finished.\n");
-    }
-
-    public async void tryLogin()
-    {   
-        print("tryLogin start\n");        
         appToken = loadToken();  
         if (appToken == "") //something went wrong. need to re-login
             this.setErrorWidgets("not-logged-in");          
         else
             new Thread<int>("", loadFeed);
-
-        print("tryLogin end\n");  
     }
 
     public void setLoginWindow()
@@ -122,33 +114,44 @@ public class PhotoStream.App : Granite.Application
 
     public int loadFeed()
     {
-        //string response = "";// = getUserFeed();
-        print("loadFeed start\n"); 
-        getUserFeed.begin((obj, res) => {
-            string response = getUserFeed.end(res);
-            print("load finished.\n"); 
+        string response = getUserFeed();
+        try 
+        {
+            feedPosts = parseFeed(response);
+            olderFeedLink = parsePagination(response);
+        }
+        catch (Error e) // wrong token
+        {
+            setErrorWidgets("wrong-login");
+            return 0;
+        }
+        // if we got here then we've got no errors, yay!
+        box.remove(bar);   
 
-            try 
-            {
-                feedPosts = parseFeed(response);
-            }
-            catch (Error e) // wrong token
-            {
-                setErrorWidgets("wrong-login");
-                return;
-            }
-
-            print("no errors, setting widgets.\n"); 
-
-            // if we got here then we've got no errors, yay!
-            box.remove(bar);   
-
-            new Thread<int>("", setFeedWidgets);
-
-            print("loadFeed end\n"); 
-        });
+        new Thread<int>("", setFeedWidgets);
         return 0;
     }   
+
+    public int loadOlderFeed()
+    {
+        string response = getOlderUserFeed();
+        try 
+        {
+            var oldFeedPosts = parseFeed(response);
+            olderFeedLink = parsePagination(response);
+            foreach (MediaInfo post in oldFeedPosts)
+                feedPosts.append(post);
+        }
+        catch (Error e) // wrong token
+        {
+            setErrorWidgets("wrong-login");
+            return 0;
+        }
+        // if we got here then we've got no errors, yay!   
+
+        new Thread<int>("", setFeedWidgets);
+        return 0;
+    }
 
     public void setErrorWidgets(string reason)
     { 
@@ -173,7 +176,8 @@ public class PhotoStream.App : Granite.Application
             default:
                 break;
         }
-        box.add(bar);
+        box.remove(loadingImage);
+        box.pack_start(bar, false, true);
         bar.response.connect(this.response);
         mainWindow.show_all ();
     }
@@ -245,17 +249,22 @@ public class PhotoStream.App : Granite.Application
             error("Error: %s\n", e.message);
         }
 
-        this.feedList = new PostList();
+        this.feedList = new PostList();       
+        this.feedList.moreButton.clicked.connect(() => {
+            new Thread<int>("", loadOlderFeed);
+        });
         this.feedWindow.add_with_viewport (feedList);        
 
-        foreach (MediaInfo post in feedPosts)   
-            feedList.prepend(post);
+        foreach (MediaInfo post in feedPosts)
+            if (!feedList.contains(post))   
+                feedList.prepend(post);
 
         foreach (PostBox box in feedList.boxes)
-        {        
-            box.loadAvatar();
-            box.loadImage();
-        }
+            if (feedList.get_children().find(box) == null)
+            {        
+                box.loadAvatar();
+                box.loadImage();
+            }
 
         box.remove(loadingImage);
         box.pack_start(stack, true, true);

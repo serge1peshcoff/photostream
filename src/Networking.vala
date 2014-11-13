@@ -7,7 +7,7 @@ public string getResponse (string host)
     return (string) message.response_body.data;
 }
 
-public async string getUserFeed()
+public string getUserFeed()
 {
     return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
 }

@@ -24,35 +24,12 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		this.webView = new WebKit.WebView ();
 		this.title = "Login to Instagram";
 
-		try // making folder for cookies
-		{
-            File file = File.new_for_path(PhotoStream.App.CACHE_URL);
-            if (!file.query_exists())
-                file.make_directory_with_parents ();
-
-            file = File.new_for_path(PhotoStream.App.CACHE_URL + "cookies/");
-            if (!file.query_exists())
-                file.make_directory_with_parents ();  
-        } 
-        catch (Error e) 
-        {
-            error("Error: %s\n", e.message);
-        }
-
-        //WebKit.WebContext webContext = webView.get_context();
-        //var cookieManager = webContext.get_cookie_manager();
-        //cookieManager.set_persistent_storage(PhotoStream.App.CACHE_URL + "cookies/cookie.txt", WebKit.CookiePersistentStorage.TEXT);
-
 		this.webView.load_finished.connect ((source, frame) => {
             var uri = webView.get_uri ();
             var host = getHost(uri);
-            stdout.printf(host + "\n");
             
             if (host == this.HOST)
             {
-            	stdout.printf(uri + "\n");
-            	stdout.printf(getCode(uri) + "\n");
-
             	var session = new Soup.Session ();
 			    var message = new Soup.Message ("POST", "https://api.instagram.com/oauth/access_token");
 
@@ -66,7 +43,6 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
 
 			    session.send_message (message);
-			    print((string) message.response_body.data);
 
 			    var token = parseToken((string)message.response_body.data);			    
 

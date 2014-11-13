@@ -188,3 +188,15 @@ public void tryLoadMessage(Json.Parser parser, string message)
         GLib.error("Something wrong with JSON parsing.\n");
     }
 }
+
+public string parsePagination(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+
+    var paginationObject = root_object.get_member("pagination") .get_object();
+    return paginationObject.get_string_member("next_url");  
+} 

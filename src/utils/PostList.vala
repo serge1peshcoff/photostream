@@ -3,10 +3,20 @@ using PhotoStream.Utils;
 public class PhotoStream.PostList : Gtk.ListBox
 {
 	public GLib.List<PostBox> boxes;
+	public Gtk.Button moreButton;
 	public PostList()
 	{
-		//boxes = new GLib.List<PostBox>;
+		boxes = new GLib.List<PostBox>();
+		this.moreButton = new Gtk.Button.with_label("Load more...");
+		base.prepend(this.moreButton);
+	}
+	public bool contains(MediaInfo post)
+	{
+		foreach(PostBox box in boxes)
+			if(box.post.id == post.id)
+				return true;
 
+		return false;
 	}
 	public void append(MediaInfo post)
 	{

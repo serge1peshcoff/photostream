@@ -50,32 +50,17 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	public void loadAvatar()
 	{
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
-
-		/*var avatarLoop = new MainLoop();
-        downloadFile.begin(post.postedUser.profilePicture, avatarFileName, (obj, res) => {
-                downloadFile.end(res);
-
-                Pixbuf avatarPixbuf; 
-                try 
-                {
-                	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-                }	
-                catch (Error e)
-                {
-                	GLib.error("Something wrong with file loading.\n");
-                }
-				avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-				avatar.set_from_pixbuf(avatarPixbuf);
-
-				print("finished image.\n");
-
-                avatarLoop.quit();
-            });
-        avatarLoop.run();*/
-
         downloadFile(post.postedUser.profilePicture, avatarFileName);
 
-        Pixbuf avatarPixbuf = new Pixbuf.from_file(avatarFileName);	
+        Pixbuf avatarPixbuf; 
+        try 
+        {
+        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }
 		avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
 		avatar.set_from_pixbuf(avatarPixbuf);		
@@ -85,30 +70,17 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	public void loadImage()
 	{
 		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
-		/*var imageLoop = new MainLoop();
-        downloadFile.begin(post.image.url, imageFileName, (obj, res) => {
-                downloadFile.end(res);
-
-                Pixbuf imagePixbuf; 
-                try 
-                {
-                	imagePixbuf = new Pixbuf.from_file(imageFileName);
-                }	
-                catch (Error e)
-                {
-                	GLib.error("Something wrong with file loading.\n");
-                }
-				imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-				image.set_from_pixbuf(imagePixbuf);
-
-				print("finished image.\n");
-
-                imageLoop.quit();
-            });
-        imageLoop.run();*/
         downloadFile(post.image.url, imageFileName);
 
-        Pixbuf imagePixbuf = new Pixbuf.from_file(imageFileName);	
+        Pixbuf imagePixbuf; 
+        try 
+        {
+        	imagePixbuf = new Pixbuf.from_file(imageFileName);
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }	
 		imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
 
 		
