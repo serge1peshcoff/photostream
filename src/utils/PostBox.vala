@@ -31,17 +31,12 @@ public class PhotoStream.PostBox : Gtk.EventBox
                 "<span underline='none' font_weight='bold' size='large'>" +
                 post.postedUser.username + "</span>"
                 );
-
-		print("aaa2\n");
-
 		
 		userToolbar.add(userNameLabel);
 		box.pack_start(userToolbar, false, true);	
 
 		image = new Gtk.Image();
 		box.add(image);	
-
-		print("aaa1\n");
 
 		box.add(new Gtk.Label(post.title));
 		box.add(new Gtk.Label( post.likesCount.to_string() + " likes."));
@@ -88,7 +83,6 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	        	GLib.error("Something wrong with file loading.\n");
 	        }	
 			imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-
 			
 			image.set_from_pixbuf(imagePixbuf);
 			print("finished image.\n");

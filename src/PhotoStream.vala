@@ -97,12 +97,6 @@ public class PhotoStream.App : Granite.Application
             this.setErrorWidgets("not-logged-in");          
         else
             new Thread<int>("", loadFeed);
-            //new Thread<int>("", setFeedWidgets);
-            /*Idle.add(() => {
-                loadFeed();
-                //setFeedWidgets();
-                return false;
-            });*/
     }
 
     public void setLoginWindow()
@@ -137,10 +131,6 @@ public class PhotoStream.App : Granite.Application
             box.remove(bar);  
 
         new Thread<int>("", setFeedWidgets);
-        /*Idle.add(() => {
-            setFeedWidgets();
-            return false;
-        });*/
         return 0;
     }   
 
@@ -162,11 +152,6 @@ public class PhotoStream.App : Granite.Application
         // if we got here then we've got no errors, yay!   
 
         new Thread<int>("", setFeedWidgets);
-        //setFeedWidgets();
-        /*Idle.add(() => {
-            setFeedWidgets();
-            return false;
-        });*/
         return 0;
     }
 
@@ -274,9 +259,6 @@ public class PhotoStream.App : Granite.Application
                 this.feedList = new PostList();       
                 this.feedList.moreButton.clicked.connect(() => {
                     new Thread<int>("", loadOlderFeed);
-                    //new Thread<int>("", setFeedWidgets);
-                    //setFeedWidgets();
-                    //loadOlderFeed();
                 });
                 this.feedWindow.add_with_viewport (feedList);
             } 
@@ -286,15 +268,6 @@ public class PhotoStream.App : Granite.Application
                     feedList.prepend(post);
 
             print("finished loading.\n");
-
-            /*foreach (PostBox postBox in feedList.boxes)
-            {
-                //if (feedList.get_children().find(postBox) == null)
-                //{        
-                    postBox.loadAvatar();
-                    postBox.loadImage();
-                //}
-            }*/
 
             new Thread<int>("", loadImages);
 
@@ -318,11 +291,14 @@ public class PhotoStream.App : Granite.Application
     {
         foreach (PostBox postBox in feedList.boxes)
         {
-            //if (feedList.get_children().find(postBox) == null)
-            //{        
+            //print(postBox.avatar.file + " 111\n");
+            if (postBox.avatar.pixbuf == null) //avatar not loaded, that means image was not added to PostList
+            {        
                 postBox.loadAvatar();
                 postBox.loadImage();
-            //}
+            }
+            else
+                print("already loaded.\n");
         }
         return 0;
     }
