@@ -239,6 +239,7 @@ public class PhotoStream.App : Granite.Application
             {
                 this.stack = new PhotoStack();
                 this.feedWindow = new Gtk.ScrolledWindow (null, null);
+                this.feedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
                 stack.add_named(feedWindow, "feed");
 
                 print("loading images...\n");
