@@ -97,6 +97,12 @@ public class PhotoStream.App : Granite.Application
             this.setErrorWidgets("not-logged-in");          
         else
             new Thread<int>("", loadFeed);
+            //new Thread<int>("", setFeedWidgets);
+            /*Idle.add(() => {
+                loadFeed();
+                //setFeedWidgets();
+                return false;
+            });*/
     }
 
     public void setLoginWindow()
@@ -127,12 +133,14 @@ public class PhotoStream.App : Granite.Application
             return 0;
         }
         // if we got here then we've got no errors, yay!
-        print("1\n");
         if(box.get_children().find(bar) != null)
             box.remove(bar);  
-        print("2\n");
 
         new Thread<int>("", setFeedWidgets);
+        /*Idle.add(() => {
+            setFeedWidgets();
+            return false;
+        });*/
         return 0;
     }   
 
@@ -154,6 +162,11 @@ public class PhotoStream.App : Granite.Application
         // if we got here then we've got no errors, yay!   
 
         new Thread<int>("", setFeedWidgets);
+        //setFeedWidgets();
+        /*Idle.add(() => {
+            setFeedWidgets();
+            return false;
+        });*/
         return 0;
     }
 
@@ -236,89 +249,83 @@ public class PhotoStream.App : Granite.Application
     {        
         print("setFeedWidgets start\n"); 
 
-        if (!isFeedLoaded)
-        {
-            this.stack = new PhotoStack();
-            this.feedWindow = new Gtk.ScrolledWindow (null, null);
-            stack.add_named(feedWindow, "feed");
+        Idle.add(() => {
+            if (!isFeedLoaded)
+            {
+                this.stack = new PhotoStack();
+                this.feedWindow = new Gtk.ScrolledWindow (null, null);
+                stack.add_named(feedWindow, "feed");
 
-            print("loading images...\n");
+                print("loading images...\n");
 
-            try {
-                File file = File.new_for_path(CACHE_URL);
-                if (!file.query_exists())
-                    file.make_directory_with_parents ();
+                try {
+                    File file = File.new_for_path(CACHE_URL);
+                    if (!file.query_exists())
+                        file.make_directory_with_parents ();
 
-                file = File.new_for_path(CACHE_AVATARS);
-                if (!file.query_exists())
-                    file.make_directory_with_parents ();
+                    file = File.new_for_path(CACHE_AVATARS);
+                    if (!file.query_exists())
+                        file.make_directory_with_parents ();
 
-            } catch (Error e) {
-                error("Error: %s\n", e.message);
+                } catch (Error e) {
+                    error("Error: %s\n", e.message);
+                }
+
+                this.feedList = new PostList();       
+                this.feedList.moreButton.clicked.connect(() => {
+                    new Thread<int>("", loadOlderFeed);
+                    //new Thread<int>("", setFeedWidgets);
+                    //setFeedWidgets();
+                    //loadOlderFeed();
+                });
+                this.feedWindow.add_with_viewport (feedList);
+            } 
+
+            foreach (MediaInfo post in feedPosts)
+                if (!feedList.contains(post)) 
+                    feedList.prepend(post);
+
+            print("finished loading.\n");
+
+            /*foreach (PostBox postBox in feedList.boxes)
+            {
+                //if (feedList.get_children().find(postBox) == null)
+                //{        
+                    postBox.loadAvatar();
+                    postBox.loadImage();
+                //}
+            }*/
+
+            new Thread<int>("", loadImages);
+
+            if (!isFeedLoaded)
+            {
+                box.remove(loadingImage);
+                box.pack_start(stack, true, true);
             }
 
-            this.feedList = new PostList();       
-            this.feedList.moreButton.clicked.connect(() => {
-                new Thread<int>("", loadOlderFeed);
-            });
-            this.feedWindow.add_with_viewport (feedList);
-        } 
+            mainWindow.show_all();
+            print("setFeedWidgets end\n");
+            isFeedLoaded = true;
+            return false;
+        });
 
-        /*this.stack = new PhotoStack();
-        this.feedWindow = new Gtk.ScrolledWindow (null, null);
-        stack.add_named(feedWindow, "feed");
-
-        print("loading images...\n");
-
-        try {
-            File file = File.new_for_path(CACHE_URL);
-            if (!file.query_exists())
-                file.make_directory_with_parents ();
-
-            file = File.new_for_path(CACHE_AVATARS);
-            if (!file.query_exists())
-                file.make_directory_with_parents ();
-
-        } catch (Error e) {
-            error("Error: %s\n", e.message);
-        }
-
-        if (feedWindow.get_children().find(feedList) == null)
-        {
-            this.feedList = new PostList();       
-            this.feedList.moreButton.clicked.connect(() => {
-                new Thread<int>("", loadOlderFeed);
-            });
-            this.feedWindow.add_with_viewport (feedList);
-        } */       
-
-        foreach (MediaInfo post in feedPosts)
-            if (!feedList.contains(post)) 
-            {  
-                print(post.title + "  by " + post.postedUser.username + "\n");
-                feedList.prepend(post);
-            }
-
-        print("finished loading.\n");
-
-        foreach (PostBox postBox in feedList.boxes)
-            if (feedList.get_children().find(postBox) == null)
-            {        
-                postBox.loadAvatar();
-                postBox.loadImage();
-            }
-
-        if (!isFeedLoaded)
-        {
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true);
-        }
-
-        mainWindow.show_all();
-        print("setFeedWidgets end\n");
-        isFeedLoaded = true;
+        
         return 0;
     } 
+
+    public int loadImages()
+    {
+        foreach (PostBox postBox in feedList.boxes)
+        {
+            //if (feedList.get_children().find(postBox) == null)
+            //{        
+                postBox.loadAvatar();
+                postBox.loadImage();
+            //}
+        }
+        return 0;
+    }
 
     public void switchWindow(string window)
     {
