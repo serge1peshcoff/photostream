@@ -7,6 +7,8 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
+	public Gtk.Label titleLabel;
+	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
 	public Gtk.Image image;
 	public const int AVATAR_SIZE = 70;
@@ -31,6 +33,7 @@ public class PhotoStream.PostBox : Gtk.EventBox
                 "<span underline='none' font_weight='bold' size='large'>" +
                 post.postedUser.username + "</span>"
                 );
+		userNameLabel.set_line_wrap(true);
 		
 		userToolbar.add(userNameLabel);
 		box.pack_start(userToolbar, false, true);	
@@ -38,8 +41,12 @@ public class PhotoStream.PostBox : Gtk.EventBox
 		image = new Gtk.Image();
 		box.add(image);	
 
-		box.add(new Gtk.Label(post.title));
-		box.add(new Gtk.Label( post.likesCount.to_string() + " likes."));
+		titleLabel = new Gtk.Label(post.title);
+		titleLabel.set_line_wrap(true);
+		box.add(titleLabel);
+
+		likesLabel = new Gtk.Label( post.likesCount.to_string() + " likes.");
+		box.add(likesLabel);
 		print("finished.\n");
 
 		this.set_sensitive (false);
