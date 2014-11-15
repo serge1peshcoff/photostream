@@ -124,9 +124,10 @@ public class PhotoStream.App : Granite.Application
             //printFeed(feedPosts);
 
             //var id = "767823614";
-            var response2 = getLikedPosts();
-            var feed2 = parseFeed(response2);
-            printFeed(feed2);
+            //var response2 = searchUser("jack");
+            var feed2 = parseUserList(response2);
+            foreach(User user in feed2)
+                print(user.username  + " (" + user.fullName + ")\n");
         }
         catch (Error e) // wrong token
         {

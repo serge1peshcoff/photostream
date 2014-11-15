@@ -222,3 +222,19 @@ public string parsePagination(string message) throws Error
     var paginationObject = root_object.get_member("pagination") .get_object();
     return paginationObject.get_string_member("next_url");  
 } 
+
+public List<User> parseUserList(string message) throws Error
+{
+    List<User> userList = new List<User>();
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_array_member ("data");
+
+    foreach(var userNode in response.get_elements())
+        userList.append(parseUserFromNode(userNode.get_object()));        
+
+    return userList;
+}

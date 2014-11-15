@@ -30,8 +30,7 @@ public string getOlderUserFeed()
 }
 public string searchUser(string user)
 {
-    //stub, to do when Apigee will load.
-    return "";
+    return getResponse("https://api.instagram.com/v1/users/search?q=" + user + "&access_token=" + PhotoStream.App.appToken);
 }
 
 public string getImageData(string id)
@@ -43,11 +42,6 @@ public string getImageData(string id)
 public string getImageWithPeople()
 {
     return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
-}
-
-public void likePost(string id)
-{
-
 }
 
 public void downloadFile(string url, string filename)
