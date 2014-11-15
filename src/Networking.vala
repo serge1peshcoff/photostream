@@ -42,6 +42,26 @@ public string getUserFollowers(string user)
 {
     return getResponse("https://api.instagram.com/v1/users/" + user + "/followed-by?access_token=" + PhotoStream.App.appToken);
 }
+public string getRequestedUsers()
+{
+    return getResponse("https://api.instagram.com/v1/users/self/requested-by?access_token=" + PhotoStream.App.appToken);
+}
+public string getUsersRelationship(string user)
+{
+    return getResponse("https://api.instagram.com/v1/users/" + user + "/relationship?access_token=" + PhotoStream.App.appToken);
+}
+public string relationshipAction(string user, string action) // action - one of "follow/unfollow/block/unblock/approve/ignore"
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("POST", "https://api.instagram.com/v1/users/" + user + "/relationship?access_token="  + PhotoStream.App.appToken);
+
+    uint8[] requestString = ("action=" + action).data;
+
+    message.request_body.append_take(requestString);
+    session.send_message (message);
+
+    return (string)message.response_body.data;
+}
 
 public string getImageData(string id)
 {
