@@ -7,7 +7,7 @@ public string getResponse (string host)
     return (string) message.response_body.data;
 }
 
-//users
+// users
 public string getUserInfo(string id)
 {
     return getResponse("https://api.instagram.com/v1/users/" + id + "?access_token=" + PhotoStream.App.appToken);
@@ -33,16 +33,21 @@ public string searchUser(string user)
     return getResponse("https://api.instagram.com/v1/users/search?q=" + user + "&access_token=" + PhotoStream.App.appToken);
 }
 
+// relationships
+public string getUserFollows(string user)
+{
+    return getResponse("https://api.instagram.com/v1/users/" + user + "/follows?access_token=" + PhotoStream.App.appToken);
+}
+public string getUserFollowers(string user)
+{
+    return getResponse("https://api.instagram.com/v1/users/" + user + "/followed-by?access_token=" + PhotoStream.App.appToken);
+}
+
 public string getImageData(string id)
 {
 	return getResponse("https://api.instagram.com/v1/media/" + id + "?access_token=" + PhotoStream.App.appToken);
 }
 
-
-public string getImageWithPeople()
-{
-    return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
-}
 
 public void downloadFile(string url, string filename)
 {

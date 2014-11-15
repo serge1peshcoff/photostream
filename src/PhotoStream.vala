@@ -123,8 +123,8 @@ public class PhotoStream.App : Granite.Application
             olderFeedLink = parsePagination(response);
             //printFeed(feedPosts);
 
-            //var id = "767823614";
-            //var response2 = searchUser("jack");
+            var id = "767823614";
+            var response2 = getUserFollowers(id);
             var feed2 = parseUserList(response2);
             foreach(User user in feed2)
                 print(user.username  + " (" + user.fullName + ")\n");
