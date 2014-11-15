@@ -101,6 +101,35 @@ public string deleteComment(string mediaId, string commentId)
     return (string) message.response_body.data;
 }
 
+// likes
+
+public string getMediaLikes(string id)
+{
+    return getResponse("https://api.instagram.com/v1/media/" + id + "/likes?access_token=" + PhotoStream.App.appToken);
+}
+public string likeMedia(string id)
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("POST", "https://api.instagram.com/v1/media/" + id + "/likes");
+
+    uint8[] requestString = ("access_token="  + PhotoStream.App.appToken).data;
+
+    message.request_body.append_take(requestString);
+    session.send_message (message);
+
+    return (string)message.response_body.data;
+}
+public string dislikeMedia(string id)
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
+                    + id + "/likes?access_token=" + PhotoStream.App.appToken);
+
+    session.send_message (message);
+
+    return (string)message.response_body.data;
+}
+
 
 
 public void downloadFile(string url, string filename)
