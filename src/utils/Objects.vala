@@ -66,6 +66,11 @@ namespace PhotoStream.Utils
 		public double y;
 		public User user;
 	}
+	public class Tag
+	{
+		public string tag;
+		public int64 mediaCount;
+	}
 }
 
 class PhotoStream.MediaType

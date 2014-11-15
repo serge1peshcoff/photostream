@@ -124,11 +124,11 @@ public class PhotoStream.App : Granite.Application
             //printFeed(feedPosts);
 
             //var id = "832335671029732796_1528631860";
-            //var response2 = dislikeMedia(id);
+            //var response2 = searchTag("hello");
             //print(response2);
-            //var feed2 = parseUserList(response2);
-            //foreach(User user in feed2)
-            //    print(user.fullName + "\n");
+            //var feed2 = parseTagList(response2);
+            //foreach(Tag tag in feed2)
+            //    print(tag.tag + ": " + tag.mediaCount.to_string() + "\n");
         }
         catch (Error e) // wrong token
         {

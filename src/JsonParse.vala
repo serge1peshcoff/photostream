@@ -249,3 +249,39 @@ public List<User> parseUserList(string message) throws Error
 
     return userList;
 }
+
+public List<Tag> parseTagList(string message)
+{
+    List<Tag> tagList = new List<Tag>();
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_array_member ("data");
+
+    foreach(var tagNode in response.get_elements())
+        tagList.append(parseTagFromObject(tagNode.get_object()));
+
+    return tagList;
+}
+
+public Tag parseTag(string message)
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_member ("data");
+
+    return parseTagFromObject(response.get_object());
+}
+
+public Tag parseTagFromObject(Json.Object tagObject)
+{
+    Tag tag = new Tag();
+    tag.tag = tagObject.get_string_member("name");
+    tag.mediaCount = tagObject.get_int_member("media_count");
+    return tag;
+}

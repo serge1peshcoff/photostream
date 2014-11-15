@@ -130,6 +130,20 @@ public string dislikeMedia(string id)
     return (string)message.response_body.data;
 }
 
+// tags
+public string getTagInfo(string tag)
+{
+    return getResponse("https://api.instagram.com/v1/tags/" + tag + "?access_token=" + PhotoStream.App.appToken);
+}
+public string getTagRecent(string tag)
+{
+    return getResponse("https://api.instagram.com/v1/tags/" + tag + "/media/recent?access_token=" + PhotoStream.App.appToken);
+}
+public string searchTag(string tag)
+{
+    return getResponse("https://api.instagram.com/v1/tags/search?q=" + tag + "&access_token=" + PhotoStream.App.appToken);
+}
+
 
 
 public void downloadFile(string url, string filename)
