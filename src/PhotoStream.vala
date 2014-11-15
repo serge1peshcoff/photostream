@@ -33,7 +33,12 @@ public class PhotoStream.App : Granite.Application
 
     public PhotoStream.PhotoStack stack;
     public Gtk.ScrolledWindow feedWindow;
-    public Gtk.ScrolledWindow userWindow; 
+    public Gtk.ScrolledWindow userWindow;
+    public Gtk.ScrolledWindow postWindow;
+    public Gtk.ScrolledWindow likesWindow;
+    public Gtk.ScrolledWindow followersWindow;
+    public Gtk.ScrolledWindow followedWindow;
+    public Gtk.ScrolledWindow searchWindow; 
 
     public PhotoStream.PostList feedList; 
     
@@ -73,6 +78,11 @@ public class PhotoStream.App : Granite.Application
         mainWindow.set_application(this); 
 
         tryLogin();
+
+        Idle.add(() => {
+            preloadWindows();
+            return false;
+        });
     }
 
     public void tryLogin()
@@ -98,6 +108,33 @@ public class PhotoStream.App : Granite.Application
             this.setErrorWidgets("not-logged-in");          
         else
             new Thread<int>("", loadFeed);
+    }
+
+    public void preloadWindows()
+    {
+        this.stack = new PhotoStack();
+        this.feedWindow = new Gtk.ScrolledWindow (null, null);
+        this.feedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+        stack.add_named(feedWindow, "feed");
+
+        try {
+            File file = File.new_for_path(CACHE_URL);
+            if (!file.query_exists())
+                file.make_directory_with_parents ();
+
+            file = File.new_for_path(CACHE_AVATARS);
+            if (!file.query_exists())
+                file.make_directory_with_parents ();
+
+        } catch (Error e) {
+            error("Error: %s\n", e.message);
+        }
+
+        this.feedList = new PostList();
+        this.feedList.moreButton.clicked.connect(() => {
+            new Thread<int>("", loadOlderFeed);
+        });       
+        this.feedWindow.add_with_viewport (feedList);
     }
 
     public void setLoginWindow()
@@ -203,36 +240,36 @@ public class PhotoStream.App : Granite.Application
 
         feedButton = new Gtk.ToggleToolButton ();
         feedButton.set_icon_widget (new Gtk.Image.from_icon_name ("go-home", Gtk.IconSize.LARGE_TOOLBAR));
-        feedButton.set_tooltip_text ("Home");
-        feedButton.set_label ("Home");
+        feedButton.set_tooltip_text ("Feed");
+        feedButton.set_label ("Feed");
         //this.mainWindow.feedButton.set_sensitive (false);
         centered_toolbar.add (feedButton);
 
         exploreButton = new Gtk.ToggleToolButton ();
         exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
-        exploreButton.set_tooltip_text ("Home");
-        exploreButton.set_label ("Home");
+        exploreButton.set_tooltip_text ("Explore");
+        exploreButton.set_label ("Explore");
         //this.mainWindow.exploreButton.set_sensitive (false);
         centered_toolbar.add (exploreButton);
 
         photoButton = new Gtk.ToggleToolButton ();
         photoButton.set_icon_widget (new Gtk.Image.from_icon_name ("camera", Gtk.IconSize.LARGE_TOOLBAR));
-        photoButton.set_tooltip_text ("Home");
-        photoButton.set_label ("Home");
+        photoButton.set_tooltip_text ("Take a picture");
+        photoButton.set_label ("Take a picture");
         //this.mainWindow.photoButton.set_sensitive (false);
         centered_toolbar.add (photoButton);
 
         newsButton = new Gtk.ToggleToolButton ();
         newsButton.set_icon_widget (new Gtk.Image.from_icon_name ("emblem-synchronizing", Gtk.IconSize.LARGE_TOOLBAR));
-        newsButton.set_tooltip_text ("Home");
-        newsButton.set_label ("Home");
+        newsButton.set_tooltip_text ("News");
+        newsButton.set_label ("News");
         //this.mainWindow.newsButton.set_sensitive (false);
         centered_toolbar.add (newsButton);
 
         userButton = new Gtk.ToggleToolButton ();
         userButton.set_icon_widget (new Gtk.Image.from_icon_name ("system-users", Gtk.IconSize.LARGE_TOOLBAR));
-        userButton.set_tooltip_text ("Home");
-        userButton.set_label ("Home");
+        userButton.set_tooltip_text ("You");
+        userButton.set_label ("You");
         //this.mainWindow.userButton.set_sensitive (false);
         centered_toolbar.add (userButton);
 
@@ -243,35 +280,7 @@ public class PhotoStream.App : Granite.Application
     {        
         print("setFeedWidgets start\n"); 
 
-        Idle.add(() => {
-            if (!isFeedLoaded)
-            {
-                this.stack = new PhotoStack();
-                this.feedWindow = new Gtk.ScrolledWindow (null, null);
-                this.feedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
-                stack.add_named(feedWindow, "feed");
-
-                print("loading images...\n");
-
-                try {
-                    File file = File.new_for_path(CACHE_URL);
-                    if (!file.query_exists())
-                        file.make_directory_with_parents ();
-
-                    file = File.new_for_path(CACHE_AVATARS);
-                    if (!file.query_exists())
-                        file.make_directory_with_parents ();
-
-                } catch (Error e) {
-                    error("Error: %s\n", e.message);
-                }
-
-                this.feedList = new PostList();       
-                this.feedList.moreButton.clicked.connect(() => {
-                    new Thread<int>("", loadOlderFeed);
-                });
-                this.feedWindow.add_with_viewport (feedList);
-            } 
+        Idle.add(() => {          
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
