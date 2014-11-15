@@ -123,12 +123,12 @@ public class PhotoStream.App : Granite.Application
             olderFeedLink = parsePagination(response);
             //printFeed(feedPosts);
 
-            //var id = "832335671029732796_1528631860";
-            //var response2 = searchTag("hello");
+            //var id = "4271597";
+            //var response2 = searchLocation(51.6971754, 39.1325322);
             //print(response2);
-            //var feed2 = parseTagList(response2);
-            //foreach(Tag tag in feed2)
-            //    print(tag.tag + ": " + tag.mediaCount.to_string() + "\n");
+            //var feed2 = parseLocationList(response2);
+            //foreach(var location in feed2)
+            //    print(location.name + "\n");
         }
         catch (Error e) // wrong token
         {

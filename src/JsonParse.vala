@@ -32,32 +32,24 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
     else if (type == "video")
         info.type = PhotoStream.MediaType.VIDEO;
 
-
     var locationObject = mediaPostObject.get_member("location"); //location
     if (!locationObject.is_null()) //if has location
-    {
-        info.location = new Location();
-        info.location.latitude = (locationObject.get_object().has_member("latitude")) ? locationObject.get_object().get_double_member("latitude") : 0;
-        info.location.longitude = (locationObject.get_object().has_member("longitude")) ? locationObject.get_object().get_double_member("longitude") : 0;
-        info.location.name = (locationObject.get_object().has_member("name")) ? locationObject.get_object().get_string_member("name") : "";
-        info.location.id = (locationObject.get_object().has_member("id")) ? locationObject.get_object().get_int_member("id") : 0;
-    }
+        info.location = parseLocationFromObject(locationObject.get_object());        
 
     var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
     if (commentObject.get_int_member("count") != 0) //if there are any
         info.comments = parseCommentsFromObject(commentObject);
-        
+
 
     info.filter = mediaPostObject.get_string_member("filter");
     info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
     info.link = mediaPostObject.get_string_member("link");
 
-
     var likeObject = mediaPostObject.get_member("likes").get_object(); //getting likes
     info.likesCount = likeObject.get_int_member("count");
     if (likeObject.get_int_member("count") != 0) //if there are any
         foreach(var like in likeObject.get_array_member("data").get_elements())
-            info.likes.append(parseUserFromNode(like.get_object()));
+            info.likes.append(parseUserFromObject(like.get_object()));
 
     var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
     var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
@@ -74,13 +66,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
             TaggedUser tu = new TaggedUser();
             tu.x = taggedUser.get_object().get_member("position").get_object().get_double_member("x");
             tu.y = taggedUser.get_object().get_member("position").get_object().get_double_member("y");
-            //stdout.printf("%f %f\n", tu.x, tu.y);
-            tu.user = new User();
-            tu.user.username = taggedUser.get_object().get_member("user").get_object().get_string_member("username");
-            tu.user.profilePicture = taggedUser.get_object().get_member("user").get_object().get_string_member("profile_picture");
-            tu.user.id = taggedUser.get_object().get_member("user").get_object().get_string_member("id");
-            tu.user.fullName = taggedUser.get_object().get_member("user").get_object().get_string_member("full_name");
-
+            tu.user = parseUserFromObject(taggedUser.get_object().get_member("user").get_object());
             info.taggedUsers.append(tu);
         }
 
@@ -93,24 +79,26 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
     info.didILikeThis = mediaPostObject.get_boolean_member("user_has_liked"); //getting if I liked this or not
     info.id = mediaPostObject.get_string_member("id");
     
-    var userObject = mediaPostObject.get_member("user").get_object(); //getting user data
-    info.postedUser = new User();
-    info.postedUser.username = userObject.get_string_member("username");
-    info.postedUser.website = userObject.get_string_member("website");
-    info.postedUser.profilePicture = userObject.get_string_member("profile_picture");
-    info.postedUser.fullName = userObject.get_string_member("full_name");
-    info.postedUser.bio = userObject.get_string_member("bio");
-    info.postedUser.id = userObject.get_string_member("id");
+    info.postedUser = parseUserFromObject(mediaPostObject.get_member("user").get_object()); //getting user data
 
     return info;
-}   
+}  
+
+public Location parseLocationFromObject(Json.Object locationObject)
+{
+    var location = new Location();
+    location.latitude = (locationObject.has_member("latitude")) ? locationObject.get_double_member("latitude") : 0;
+    location.longitude = (locationObject.has_member("longitude")) ? locationObject.get_double_member("longitude") : 0;
+    location.name = (locationObject.has_member("name")) ? locationObject.get_string_member("name") : "";
+    location.id = (locationObject.has_member("id")) ? locationObject.get_int_member("id") : 0;
+    return location;
+} 
 
 public List<Comment> parseCommentsFromObject(Json.Object commentObject) throws Error 
 {
     List<Comment> commentsList = new List<Comment>();
     foreach(var comment in commentObject.get_array_member("data").get_elements())
-    {
-        
+    {        
         Comment infoComment = new Comment();
         infoComment.creationTime = new DateTime.from_unix_utc(comment.get_object().get_int_member("created_time"));
         infoComment.text = comment.get_object().get_string_member("text");
@@ -139,7 +127,7 @@ public List<Comment> parseComments(string message) throws Error
     return parseCommentsFromObject(root_object);  
 }
 
-public User parseUserFromNode(Json.Object userObject) throws Error
+public User parseUserFromObject(Json.Object userObject) throws Error
 {
     User user = new User();
             
@@ -168,7 +156,7 @@ public User parseUser(string message) throws Error
     var root_object = parser.get_root().get_object();
     checkErrors(root_object);
     var response = root_object.get_member ("data");
-    return parseUserFromNode(response.get_object());
+    return parseUserFromObject(response.get_object());
 }
 
 public string parseToken(string responce)
@@ -210,7 +198,7 @@ public void checkErrors(Json.Object root_object) throws Error
         throw new Error(Quark.from_string(errorMessage), (int)metaObject.get_int_member("code"), errorMessage);
     }    
 }
-public void tryLoadMessage(Json.Parser parser, string message)
+public void tryLoadMessage(Json.Parser parser, string message) throws Error
 {
     try 
     {
@@ -245,12 +233,12 @@ public List<User> parseUserList(string message) throws Error
     var response = root_object.get_array_member ("data");
 
     foreach(var userNode in response.get_elements())
-        userList.append(parseUserFromNode(userNode.get_object()));        
+        userList.append(parseUserFromObject(userNode.get_object()));        
 
     return userList;
 }
 
-public List<Tag> parseTagList(string message)
+public List<Tag> parseTagList(string message) throws Error
 {
     List<Tag> tagList = new List<Tag>();
     var parser = new Json.Parser ();
@@ -266,7 +254,7 @@ public List<Tag> parseTagList(string message)
     return tagList;
 }
 
-public Tag parseTag(string message)
+public Tag parseTag(string message) throws Error
 {
     var parser = new Json.Parser ();
     tryLoadMessage(parser, message);
@@ -278,10 +266,36 @@ public Tag parseTag(string message)
     return parseTagFromObject(response.get_object());
 }
 
-public Tag parseTagFromObject(Json.Object tagObject)
+public Tag parseTagFromObject(Json.Object tagObject) throws Error
 {
     Tag tag = new Tag();
     tag.tag = tagObject.get_string_member("name");
     tag.mediaCount = tagObject.get_int_member("media_count");
     return tag;
+}
+
+public Location parseLocation(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_member ("data");
+
+    return parseLocationFromObject(response.get_object());
+}
+public List<Location> parseLocationList(string message) throws Error
+{
+    List<Location> locationList = new List<Location>();
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_array_member ("data");
+    foreach(var locationNode in response.get_elements())
+        locationList.append(parseLocationFromObject(locationNode.get_object()));
+
+    return locationList;
 }

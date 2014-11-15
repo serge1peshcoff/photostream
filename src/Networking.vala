@@ -144,6 +144,23 @@ public string searchTag(string tag)
     return getResponse("https://api.instagram.com/v1/tags/search?q=" + tag + "&access_token=" + PhotoStream.App.appToken);
 }
 
+// locations
+public string getLocationInfo(string id)
+{
+    return getResponse("https://api.instagram.com/v1/locations/" + id + "?access_token=" + PhotoStream.App.appToken);
+}
+public string getLocationRecent(string id)
+{
+    return getResponse("https://api.instagram.com/v1/locations/" + id + "/media/recent?access_token=" + PhotoStream.App.appToken);
+}
+public string searchLocation(double latitude, double longitude, int distance = 1000)
+{
+    return getResponse("https://api.instagram.com/v1/locations/search"
+                                                    + "?lat=" + latitude.to_string() 
+                                                    + "&lng=" + longitude.to_string() 
+                                                    + "&distance=" + distance.to_string() 
+                                                    + "&access_token=" + PhotoStream.App.appToken);
+}
 
 
 public void downloadFile(string url, string filename)
