@@ -63,9 +63,18 @@ public string relationshipAction(string user, string action) // action - one of 
     return (string)message.response_body.data;
 }
 
-public string getImageData(string id)
+// media
+public string getMediaData(string id)
 {
 	return getResponse("https://api.instagram.com/v1/media/" + id + "?access_token=" + PhotoStream.App.appToken);
+}
+public string mediaSearch(double latitude, double longitude, int distance = 1000)
+{
+    return getResponse("https://api.instagram.com/v1/media/search"
+                                                    + "?lat=" + latitude.to_string() 
+                                                    + "&lng=" + longitude.to_string() 
+                                                    + "&distance=" + distance.to_string() 
+                                                    + "&access_token=" + PhotoStream.App.appToken);
 }
 
 
