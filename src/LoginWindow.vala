@@ -10,6 +10,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 											 + PhotoStream.App.CLIENT_ID 
 											 + "&redirect_uri="
 											 + PhotoStream.App.REDIRECT_URI
+											 + "&scope=basic+comments+relationships+likes"
 											 + "&response_type=code";
 	private string HOST;
 
