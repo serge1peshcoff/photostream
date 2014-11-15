@@ -7,6 +7,10 @@ public string getResponse (string host)
     return (string) message.response_body.data;
 }
 
+public string getUserInfo(string id)
+{
+    return getResponse("https://api.instagram.com/v1/users/" + id + "?access_token=" + PhotoStream.App.appToken);
+}
 public string getUserFeed()
 {
     return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
@@ -15,6 +19,8 @@ public string getOlderUserFeed()
 {
 	return getResponse(PhotoStream.App.olderFeedLink);
 }
+
+
 
 public string getImageData(string id)
 {
@@ -25,6 +31,11 @@ public string getImageData(string id)
 public string getImageWithPeople()
 {
     return getResponse("https://api.instagram.com/v1/users/self/media/recent?access_token=" + PhotoStream.App.appToken);
+}
+
+public void likePost(string id)
+{
+
 }
 
 public void downloadFile(string url, string filename)

@@ -121,6 +121,12 @@ public class PhotoStream.App : Granite.Application
         {
             feedPosts = parseFeed(response);
             olderFeedLink = parsePagination(response);
+            //printFeed(feedPosts);
+
+            var id = "767823614";
+            var response2 = getUserInfo(id);
+            var user = parseUser(response2);
+            print(user.username + " " + user.id + " " + user.mediaCount.to_string() + " followers.\n");
         }
         catch (Error e) // wrong token
         {

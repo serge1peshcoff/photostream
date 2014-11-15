@@ -23,7 +23,7 @@ public void printFeed(List<MediaInfo> list)
         {
 			print("\tusername: %s\n", user.username);
 			print("\tprofilePicture: %s\n", user.profilePicture);
-			print("\tid: %" + uint64.FORMAT_MODIFIER + "d\n", user.id);
+			print("\tid: %s\n", user.id);
 			print("\tfullName: %s\n\n", user.fullName);
         }
 
@@ -39,7 +39,7 @@ public void printFeed(List<MediaInfo> list)
         	print("\tUser: \n");
         	print("\t\tusername: %s\n", user.user.username);
 			print("\t\tprofilePicture: %s\n", user.user.profilePicture);
-			print("\t\tid: %lld\n", user.user.id);
+			print("\t\tid: %s\n", user.user.id);
 			print("\t\tfullName: %s\n\n", user.user.fullName);
         }
         

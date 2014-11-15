@@ -17,7 +17,7 @@ public List<MediaInfo> parseFeed(string message) throws Error
     return list;
 }
 
-public MediaInfo parseMediaPost(Json.Node mediaPost)
+public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
 {
     MediaInfo info = new MediaInfo();
     var mediaPostObject = mediaPost.get_object();
@@ -57,17 +57,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost)
     info.likesCount = likeObject.get_int_member("count");
     if (likeObject.get_int_member("count") != 0) //if there are any
         foreach(var like in likeObject.get_array_member("data").get_elements())
-        {
-            
-            User user = new User();
-            
-            user.username = like.get_object().get_string_member("username");    
-            user.profilePicture = like.get_object().get_string_member("profile_picture");
-            user.id = like.get_object().get_string_member("id");    
-            user.fullName = like.get_object().get_string_member("full_name");   
-
-            info.likes.append(user);
-        }        
+            info.likes.append(parseUserFromNode(like.get_object()));
 
     var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
     var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
@@ -136,6 +126,38 @@ public List<Comment> parseComments(Json.Object commentObject)
         commentsList.append(infoComment);              
     }
     return commentsList;
+}
+
+public User parseUserFromNode(Json.Object userObject) throws Error
+{
+    User user = new User();
+            
+    user.username = userObject.get_string_member("username");    
+    user.profilePicture = userObject.get_string_member("profile_picture");
+    user.id = userObject.get_string_member("id");    
+    user.fullName = userObject.get_string_member("full_name");
+    user.website = (userObject.has_member("website")) ? userObject.get_string_member("website") : "";
+    user.bio = (userObject.has_member("bio")) ? userObject.get_string_member("bio") : "";
+    if (userObject.has_member("counts"))
+    {
+        Json.Object countsObject = userObject.get_member("counts").get_object();
+        user.mediaCount = countsObject.get_int_member("media");
+        user.followers = countsObject.get_int_member("followed_by");
+        user.followed = countsObject.get_int_member("follows");
+    }
+
+    return user;
+}
+
+public User parseUser(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_member ("data");
+    return parseUserFromNode(response.get_object());
 }
 
 public string parseToken(string responce)
