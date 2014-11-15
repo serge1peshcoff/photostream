@@ -19,6 +19,10 @@ public string getUserMedia(string id)
 {
     return getResponse("https://api.instagram.com/v1/users/" + id + "/media/recent/?access_token=" + PhotoStream.App.appToken);
 }
+public string getLikedPosts()
+{
+    return getResponse("https://api.instagram.com/v1/users/self/media/liked?access_token=" + PhotoStream.App.appToken);
+}
 public string getOlderUserFeed()
 {
 	return getResponse(PhotoStream.App.olderFeedLink);
