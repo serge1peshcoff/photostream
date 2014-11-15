@@ -11,8 +11,12 @@ public class PhotoStream.PostBox : Gtk.EventBox
 	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
 	public Gtk.Image image;
+	public Gtk.Box likeToolbar;
+	public Gtk.Button likeButton;
+	public Gtk.Image likeImage;
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
+	public const int LIKE_SIZE = 20;
 
 	public MediaInfo post;
 
@@ -43,10 +47,33 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
 		titleLabel = new Gtk.Label(post.title);
 		titleLabel.set_line_wrap(true);
+		titleLabel.set_justify(Gtk.Justification.LEFT);
 		box.add(titleLabel);
 
+		likeToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
+
+		Pixbuf likePixbuf;
+		try 
+        {
+        	likePixbuf = new Pixbuf.from_file(post.didILikeThis ? PhotoStream.App.CACHE_IMAGES + "like.jpg" : PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }
+
+        likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
+
+        likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
+
+		//likeButton = new Gtk.Button();
+		//likeButton.set_image(likeImage);
+		likeToolbar.pack_start(likeImage, false, true);
+
 		likesLabel = new Gtk.Label( post.likesCount.to_string() + " likes.");
-		box.add(likesLabel);
+		likeToolbar.add(likesLabel);
+
+		box.add(likeToolbar);
 		print("finished.\n");
 
 		this.set_sensitive (false);

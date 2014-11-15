@@ -15,6 +15,7 @@ public class PhotoStream.App : Granite.Application
     public const string SCHEMA_TOKEN = "token";
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
+    public const string CACHE_IMAGES = "/usr/share/photostream/images/";
     public static List<MediaInfo> feedPosts;
     public bool isFeedLoaded = false;
     
@@ -80,7 +81,7 @@ public class PhotoStream.App : Granite.Application
         PixbufAnimation loadingPixbuf;
         try 
         {   
-            loadingPixbuf = new PixbufAnimation.from_file("/usr/share/photostream/images/loading.gif");            
+            loadingPixbuf = new PixbufAnimation.from_file(CACHE_IMAGES + "loading.gif");            
         }
         catch (Error e)
         {
