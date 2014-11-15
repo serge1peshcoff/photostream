@@ -7,6 +7,7 @@ public string getResponse (string host)
     return (string) message.response_body.data;
 }
 
+//users
 public string getUserInfo(string id)
 {
     return getResponse("https://api.instagram.com/v1/users/" + id + "?access_token=" + PhotoStream.App.appToken);
@@ -27,8 +28,11 @@ public string getOlderUserFeed()
 {
 	return getResponse(PhotoStream.App.olderFeedLink);
 }
-
-
+public string searchUser(string user)
+{
+    //stub, to do when Apigee will load.
+    return "";
+}
 
 public string getImageData(string id)
 {
