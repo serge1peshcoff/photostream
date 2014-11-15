@@ -78,7 +78,7 @@ public string mediaSearch(double latitude, double longitude, int distance = 1000
 }
 public string getPopular()
 {
-    return getResponse("ttps://api.instagram.com/v1/media/popular?access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/media/popular?access_token=" + PhotoStream.App.appToken);
 }
 
 // comments
@@ -86,6 +86,21 @@ public string getComments(string id)
 {
     return getResponse("https://api.instagram.com/v1/media/" + id + "/comments?access_token=" + PhotoStream.App.appToken);
 }
+public string postComment(string id, string comment)
+{
+    // stub, waiting for Instagram to allow me to use this endpoint.
+    return "";
+}
+public string deleteComment(string mediaId, string commentId)
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
+                    + mediaId + "/comments/" + commentId + "?access_token=" + PhotoStream.App.appToken);
+
+    session.send_message (message);
+    return (string) message.response_body.data;
+}
+
 
 
 public void downloadFile(string url, string filename)

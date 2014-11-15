@@ -32,7 +32,7 @@ namespace PhotoStream.Utils
 		public DateTime creationTime;
 		public string text;
 		public User user;
-		public int64 id;
+		public string id;
 	}
 
 	public class Image
