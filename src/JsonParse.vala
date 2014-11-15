@@ -45,7 +45,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
 
     var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
     if (commentObject.get_int_member("count") != 0) //if there are any
-        info.comments = parseComments(commentObject);
+        info.comments = parseCommentsFromObject(commentObject);
         
 
     info.filter = mediaPostObject.get_string_member("filter");
@@ -105,7 +105,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
     return info;
 }   
 
-public List<Comment> parseComments(Json.Object commentObject)
+public List<Comment> parseCommentsFromObject(Json.Object commentObject) throws Error 
 {
     List<Comment> commentsList = new List<Comment>();
     foreach(var comment in commentObject.get_array_member("data").get_elements())
@@ -126,6 +126,17 @@ public List<Comment> parseComments(Json.Object commentObject)
         commentsList.append(infoComment);              
     }
     return commentsList;
+}
+
+public List<Comment> parseComments(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+
+    return parseCommentsFromObject(root_object);  
 }
 
 public User parseUserFromNode(Json.Object userObject) throws Error

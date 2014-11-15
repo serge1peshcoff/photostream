@@ -76,6 +76,16 @@ public string mediaSearch(double latitude, double longitude, int distance = 1000
                                                     + "&distance=" + distance.to_string() 
                                                     + "&access_token=" + PhotoStream.App.appToken);
 }
+public string getPopular()
+{
+    return getResponse("ttps://api.instagram.com/v1/media/popular?access_token=" + PhotoStream.App.appToken);
+}
+
+// comments
+public string getComments(string id)
+{
+    return getResponse("https://api.instagram.com/v1/media/" + id + "/comments?access_token=" + PhotoStream.App.appToken);
+}
 
 
 public void downloadFile(string url, string filename)

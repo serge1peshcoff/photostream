@@ -123,10 +123,11 @@ public class PhotoStream.App : Granite.Application
             olderFeedLink = parsePagination(response);
             //printFeed(feedPosts);
 
-            //var id = "42984742";
-            //var response2 = getUserMedia(id);
-            //var feed2 = parseUserList(response2);
-            //print(response2);
+            //var id = "854281608840954131_409471871";
+            //var response2 = getComments(id);
+            //var feed2 = parseComments(response2);
+            //foreach(Comment comment in feed2)
+                //print(comment.user.fullName + ": " + comment.text + "\n");
         }
         catch (Error e) // wrong token
         {
