@@ -24,9 +24,9 @@ public string getLikedPosts()
 {
     return getResponse("https://api.instagram.com/v1/users/self/media/liked?access_token=" + PhotoStream.App.appToken);
 }
-public string getOlderUserFeed()
+public string getOlderUserFeed(string olderFeedLink)
 {
-	return getResponse(PhotoStream.App.olderFeedLink);
+	return getResponse(olderFeedLink);
 }
 public string searchUser(string user)
 {

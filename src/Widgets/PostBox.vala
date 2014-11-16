@@ -29,13 +29,17 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 
 		this.post = post;
+		print("aaa1\n");
 
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
 		avatarBox = new Gtk.EventBox();
 		avatar = new Gtk.Image();
 		avatarBox.add(avatar);
-		userToolbar.pack_start(avatarBox, false, true);		
+		userToolbar.pack_start(avatarBox, false, true);	
+
+		print("aaa2\n");	
+		//printPost(post);
 
 		userNameLabel = new Gtk.Label("");
 		userNameLabel.set_markup(
@@ -43,6 +47,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
                 post.postedUser.username + "</span>"
                 );
 		userNameLabel.set_line_wrap(true);
+
+		print("aaa3\n");
 		
 		userToolbar.add(userNameLabel);
 		box.pack_start(userToolbar, false, true);	
@@ -54,6 +60,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
 		box.add(titleLabel);
+
+		print("aaa4\n");
 
 		likeToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
@@ -69,6 +77,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         	GLib.error("Something wrong with file loading.\n");
         }
 
+
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
 
         likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
@@ -78,13 +87,16 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		likesLabel = new Gtk.Label( post.likesCount.to_string() + " likes.");
 		likeToolbar.add(likesLabel);
 
+
 		box.add(likeToolbar);
 		print("finished.\n");
 	}	
 	public void loadAvatar()
 	{
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
-        downloadFile(post.postedUser.profilePicture, avatarFileName);
+		File file = File.new_for_path(avatarFileName);
+        if (!file.query_exists()) // avatar not downloaded, download
+        	downloadFile(post.postedUser.profilePicture, avatarFileName);
 
         Idle.add(() => {
         	Pixbuf avatarPixbuf; 
@@ -106,10 +118,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public void loadImage()
 	{
-		var imageFileName = PhotoStream.App.CACHE_URL + "image" + getFileName(post.type == PhotoStream.MediaType.VIDEO 
+		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
 																		? post.media.previewUrl 
 																		: post.media.url);
-        downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
+
+		File file = File.new_for_path(imageFileName);
+        if (!file.query_exists()) // avatar not downloaded, download
+        	downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
 
         Idle.add(() => {
         	Pixbuf imagePixbuf; 

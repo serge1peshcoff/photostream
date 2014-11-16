@@ -8,7 +8,6 @@ public class PhotoStream.App : Granite.Application
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
     public static string appToken = "";
-    public static string olderFeedLink = "";
     public const string REDIRECT_URI = "http://www.google.com/photostream";
     public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
@@ -171,6 +170,7 @@ public class PhotoStream.App : Granite.Application
         {
             user = parseUser(userInfo);
             userFeedList = parseFeed(userFeed);
+            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
         }
         catch (Error e) // wrong token
         {
@@ -178,17 +178,26 @@ public class PhotoStream.App : Granite.Application
         }
 
         userWindowBox.load(user);
+        userWindowBox.loadFeed(userFeedList);
 
         Idle.add(() => {
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
+            this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
+                new Thread<int>("", loadOlderUserFeed);
+            });
             return false;
-        });     
+        });  
 
         
 
         return 0;
-    }  
+    } 
+    public int loadOlderUserFeed()
+    {
+        print("loading...\n");
+        return 0;
+    } 
 
     protected override void shutdown () 
     {
@@ -201,7 +210,7 @@ public class PhotoStream.App : Granite.Application
         try 
         {
             feedPosts = parseFeed(response);
-            olderFeedLink = parsePagination(response);
+            this.feedList.olderFeedLink = parsePagination(response);
         }
         catch (Error e) // wrong token
         {
@@ -218,11 +227,11 @@ public class PhotoStream.App : Granite.Application
 
     public int loadOlderFeed()
     {
-        string response = getOlderUserFeed();
+        string response = getOlderUserFeed(this.feedList.olderFeedLink);
         try 
         {
             var oldFeedPosts = parseFeed(response);
-            olderFeedLink = parsePagination(response);
+            this.feedList.olderFeedLink = parsePagination(response);
             foreach (MediaInfo post in oldFeedPosts)
                 feedPosts.append(post);
         }
@@ -365,6 +374,8 @@ public class PhotoStream.App : Granite.Application
         }
         return 0;
     }
+
+    
 
     public void switchWindow(string window)
     {

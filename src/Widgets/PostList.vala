@@ -4,6 +4,7 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 {
 	public GLib.List<PostBox> boxes;
 	public Gtk.Button moreButton;
+	public string olderFeedLink;
 	public PostList()
 	{
 		boxes = new GLib.List<PostBox>();
@@ -36,5 +37,12 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		PostBox box = new PostBox(post);
 		base.insert (box, (int) this.get_children().length () - 1);
 		boxes.append(box);			
+	}
+
+	public void clear()
+	{
+		foreach (var child in this.get_children())
+			this.remove(child);
+		this.boxes = new List<PostBox>();
 	}
 }

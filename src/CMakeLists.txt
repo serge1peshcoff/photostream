@@ -13,6 +13,7 @@ set(CLIENT_SOURCE
     Widgets/PostList.vala
     Widgets/PostBox.vala
     Widgets/UserWindowBox.vala
+
 )
 
 set (CLIENT_VALAC_OPTIONS

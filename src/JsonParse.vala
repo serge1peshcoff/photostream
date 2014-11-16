@@ -19,6 +19,7 @@ public List<MediaInfo> parseFeed(string message) throws Error
 
 public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
 {
+    print("aaa\n");
     MediaInfo info = new MediaInfo();
     var mediaPostObject = mediaPost.get_object();
 
@@ -100,7 +101,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
     return info;
 }  
 
-public Location parseLocationFromObject(Json.Object locationObject)
+public Location parseLocationFromObject(Json.Object locationObject) throws Error
 {
     var location = new Location();
     location.latitude = (locationObject.has_member("latitude")) ? locationObject.get_double_member("latitude") : 0;
@@ -175,7 +176,7 @@ public User parseUser(string message) throws Error
     return parseUserFromObject(response.get_object());
 }
 
-public string parseToken(string responce)
+public string parseToken(string responce) throws Error
 {
     var parser = new Json.Parser ();
     try 
@@ -235,7 +236,7 @@ public string parsePagination(string message) throws Error
     checkErrors(root_object);
 
     var paginationObject = root_object.get_member("pagination") .get_object();
-    return paginationObject.get_string_member("next_url");  
+    return paginationObject.has_member("next_url") ? paginationObject.get_string_member("next_url") : "";  
 } 
 
 public List<User> parseUserList(string message) throws Error

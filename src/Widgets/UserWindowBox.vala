@@ -41,7 +41,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.add(userCountsBox);
 
 		this.feedWindow.add_with_viewport(userFeed);
-		this.add(feedWindow);
+		this.pack_end(feedWindow, true, true);
 	}
 	public void load(User user)
 	{
@@ -57,6 +57,32 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.followsCount.set_label(user.followed.to_string() + "follows");
 		this.followersCount.set_label(user.followers.to_string() + "followers");
 	}
+	public void loadFeed(List<MediaInfo> feedList)
+	{
+		userFeed.clear();        
+        foreach (MediaInfo post in feedList)
+            if (!userFeed.contains(post))
+                userFeed.prepend(post);
+
+        new Thread<int>("", loadImages);
+        this.show_all();
+	}
+
+	public int loadImages()
+    {
+        foreach (PostBox postBox in userFeed.boxes)
+        {
+            if (postBox.avatar.pixbuf == null) //avatar not loaded, that means image was not added to PostList
+            {        
+                postBox.loadAvatar();
+                postBox.loadImage();
+            }
+            else
+                print("already loaded.\n");
+        }
+        return 0;
+    }
+
 	public string getFileName(string url)
     {
         var indexStart = url.last_index_of("/") + 1;
