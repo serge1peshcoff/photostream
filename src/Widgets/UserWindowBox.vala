@@ -2,6 +2,8 @@ using Gtk;
 using PhotoStream.Utils;
 public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 {
+	public Box box;
+
 	public Box userInfoBox;
 	public Image avatar;
 	public Label userName;
@@ -18,6 +20,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
+		box = new Box(Gtk.Orientation.VERTICAL, 0);
+
 		this.userInfoBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatar = new Image();
 		this.userName = new Label("username");
@@ -33,15 +37,16 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.userInfoBox.pack_start(avatar, false, true);
 		this.userInfoBox.add(avatar);
 		this.userInfoBox.add(userName);
-		this.pack_start(userInfoBox, false, true);
+		this.box.pack_start(userInfoBox, false, true);
 
 		this.userCountsBox.pack_start(mediaCount, false, true);
 		this.userCountsBox.add(followsCount);
 		this.userCountsBox.add(followersCount);
-		this.add(userCountsBox);
+		this.box.add(userCountsBox);
 
-		this.feedWindow.add_with_viewport(userFeed);
-		this.pack_end(feedWindow, true, true);
+		this.box.pack_end(userFeed, true, true);
+		this.feedWindow.add_with_viewport(box);
+		this.pack_start(feedWindow, true, true);
 	}
 	public void load(User user)
 	{

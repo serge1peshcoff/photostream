@@ -7,6 +7,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
+	public Gtk.Label dateLabel;
 	public Gtk.Label titleLabel;
 	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
@@ -29,8 +30,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 
 		this.post = post;
-		print("aaa1\n");
-
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
 		avatarBox = new Gtk.EventBox();
@@ -38,19 +37,17 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		avatarBox.add(avatar);
 		userToolbar.pack_start(avatarBox, false, true);	
 
-		print("aaa2\n");	
-		//printPost(post);
-
 		userNameLabel = new Gtk.Label("");
 		userNameLabel.set_markup(
                 "<span underline='none' font_weight='bold' size='large'>" +
                 post.postedUser.username + "</span>"
                 );
 		userNameLabel.set_line_wrap(true);
-
-		print("aaa3\n");
+		print(post.creationTime.to_unix().to_string() + "\n");
+		dateLabel = new Gtk.Label(post.creationTime.format("%e.%m.%Y %H:%M"));
 		
 		userToolbar.add(userNameLabel);
+		userToolbar.add(dateLabel);
 		box.pack_start(userToolbar, false, true);	
 
 		image = new Gtk.Image();

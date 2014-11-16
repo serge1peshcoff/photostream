@@ -43,7 +43,7 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
 
 
     info.filter = mediaPostObject.get_string_member("filter");
-    info.creationTime = new DateTime.from_unix_utc(mediaPostObject.get_int_member("created_time")); //getting creation time
+    info.creationTime = new DateTime.from_unix_local(int64.parse(mediaPostObject.get_string_member("created_time"))); //getting creation time
     info.link = mediaPostObject.get_string_member("link");
 
     var likeObject = mediaPostObject.get_member("likes").get_object(); //getting likes
