@@ -42,7 +42,7 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow followedWindow;
     public Gtk.ScrolledWindow searchWindow;
 
-    //public UserWindowBox userWindowBox;
+    public UserWindowBox userWindowBox;
 
     public PostList feedList; 
     
@@ -139,6 +139,12 @@ public class PhotoStream.App : Granite.Application
             new Thread<int>("", loadOlderFeed);
         });       
         this.userFeedWindow.add_with_viewport (feedList);
+
+        this.userWindow = new Gtk.ScrolledWindow(null, null);
+
+        this.userWindowBox = new UserWindowBox();
+        this.userWindow.add_with_viewport (userWindowBox);
+        stack.add_named(userWindow, "user");
     }
 
     public void setLoginWindow()
@@ -148,6 +154,30 @@ public class PhotoStream.App : Granite.Application
         this.loginWindow.show_all ();
         this.loginWindow.destroy.connect(tryLogin);
         this.loginWindow.set_application(this);
+    }
+    public int loadUser(string id)
+    {
+        string userInfo = getUserInfo(id);
+        string userFeed = getUserMedia(id);
+        User user;
+        List<MediaInfo> userFeedList;
+        try
+        {
+            user = parseUser(userInfo);
+            userFeedList = parseFeed(userFeed);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        Idle.add(() => {
+            switchWindow("user");
+            userWindowBox.load(user);
+            return false;
+        });       
+
+        return 0;
     }  
 
     protected override void shutdown () 
@@ -279,8 +309,21 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {          
 
             foreach (MediaInfo post in feedPosts)
-                if (!feedList.contains(post)) 
+                if (!feedList.contains(post))
+                { 
                     feedList.prepend(post);
+                    feedList.boxes.last().data.avatarBox.button_release_event.connect(() =>{
+                        new Thread<int>("", () => {
+                            print("aa");
+                            loadUser(post.postedUser.id);
+
+                            return 0;
+                        });
+                        return false;
+                    });
+                }
+
+
 
             print("finished loading.\n");
 
@@ -295,6 +338,7 @@ public class PhotoStream.App : Granite.Application
             mainWindow.show_all();
             print("setFeedWidgets end\n");
             isFeedLoaded = true;
+
             return false;
         });
 
