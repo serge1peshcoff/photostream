@@ -314,9 +314,7 @@ public class PhotoStream.App : Granite.Application
                     feedList.prepend(post);
                     feedList.boxes.last().data.avatarBox.button_release_event.connect(() =>{
                         new Thread<int>("", () => {
-                            print("aa");
                             loadUser(post.postedUser.id);
-
                             return 0;
                         });
                         return false;

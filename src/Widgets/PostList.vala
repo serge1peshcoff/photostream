@@ -9,6 +9,8 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		boxes = new GLib.List<PostBox>();
 		this.moreButton = new Gtk.Button.with_label("Load more...");
 		base.prepend(this.moreButton);
+
+		this.set_selection_mode (Gtk.SelectionMode.NONE);
 	}
 	public bool contains(MediaInfo post)
 	{

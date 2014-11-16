@@ -27,7 +27,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		this.add(box);
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
-		
+
 		this.post = post;
 
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
@@ -73,8 +73,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
         likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
 
-		//likeButton = new Gtk.Button();
-		//likeButton.set_image(likeImage);
 		likeToolbar.pack_start(likeImage, false, true);
 
 		likesLabel = new Gtk.Label( post.likesCount.to_string() + " likes.");
@@ -82,8 +80,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		box.add(likeToolbar);
 		print("finished.\n");
-
-		//this.set_sensitive (false);
 	}	
 	public void loadAvatar()
 	{
