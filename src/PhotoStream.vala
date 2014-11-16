@@ -32,13 +32,16 @@ public class PhotoStream.App : Granite.Application
     public Gtk.Image loadingImage;
 
     public PhotoStream.PhotoStack stack;
-    public Gtk.ScrolledWindow feedWindow;
+    public Gtk.ScrolledWindow userFeedWindow;
+    public Gtk.ScrolledWindow tagFeedWindow;
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow likesWindow;
     public Gtk.ScrolledWindow followersWindow;
     public Gtk.ScrolledWindow followedWindow;
-    public Gtk.ScrolledWindow searchWindow; 
+    public Gtk.ScrolledWindow searchWindow;
+
+    //public UserWindowBox userWindowBox;
 
     public PhotoStream.PostList feedList; 
     
@@ -113,9 +116,9 @@ public class PhotoStream.App : Granite.Application
     public void preloadWindows()
     {
         this.stack = new PhotoStack();
-        this.feedWindow = new Gtk.ScrolledWindow (null, null);
-        this.feedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
-        stack.add_named(feedWindow, "feed");
+        this.userFeedWindow = new Gtk.ScrolledWindow (null, null);
+        this.userFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+        stack.add_named(userFeedWindow, "userFeed");
 
         try {
             File file = File.new_for_path(CACHE_URL);
@@ -134,7 +137,7 @@ public class PhotoStream.App : Granite.Application
         this.feedList.moreButton.clicked.connect(() => {
             new Thread<int>("", loadOlderFeed);
         });       
-        this.feedWindow.add_with_viewport (feedList);
+        this.userFeedWindow.add_with_viewport (feedList);
     }
 
     public void setLoginWindow()
@@ -158,14 +161,6 @@ public class PhotoStream.App : Granite.Application
         {
             feedPosts = parseFeed(response);
             olderFeedLink = parsePagination(response);
-            //printFeed(feedPosts);
-
-            //var id = "4271597";
-            //var response2 = searchLocation(51.6971754, 39.1325322);
-            //print(response2);
-            //var feed2 = parseLocationList(response2);
-            //foreach(var location in feed2)
-            //    print(location.name + "\n");
         }
         catch (Error e) // wrong token
         {

@@ -55,7 +55,9 @@ public class PhotoStream.PostBox : Gtk.EventBox
 		Pixbuf likePixbuf;
 		try 
         {
-        	likePixbuf = new Pixbuf.from_file(post.didILikeThis ? PhotoStream.App.CACHE_IMAGES + "like.jpg" : PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
+        	likePixbuf = new Pixbuf.from_file(post.didILikeThis 
+        								? PhotoStream.App.CACHE_IMAGES + "like.jpg" 
+        								: PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
         }	
         catch (Error e)
         {
@@ -103,20 +105,32 @@ public class PhotoStream.PostBox : Gtk.EventBox
 
 	public void loadImage()
 	{
-		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.image.url);
-        downloadFile(post.image.url, imageFileName);
+		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
+																		? post.media.previewUrl 
+																		: post.media.url);
+        downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
 
         Idle.add(() => {
         	Pixbuf imagePixbuf; 
+        	Pixbuf videoPixbuf;
+        	print(post.type == PhotoStream.MediaType.VIDEO ? "video.\n" : "image.\n");
 	        try 
 	        {
 	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
+	        	imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+	        	if (post.type == PhotoStream.MediaType.VIDEO)
+	        	{	        		
+	        		videoPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "video.png");
+	        		videoPixbuf = videoPixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+	        		videoPixbuf.composite(imagePixbuf, 0, 0, 
+	        									IMAGE_SIZE, IMAGE_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
+	        	}
 	        }	
 	        catch (Error e)
 	        {
 	        	GLib.error("Something wrong with file loading.\n");
 	        }	
-			imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+			
 			
 			image.set_from_pixbuf(imagePixbuf);
 			print("finished image.\n");

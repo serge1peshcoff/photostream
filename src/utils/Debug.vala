@@ -28,9 +28,9 @@ public void printFeed(List<MediaInfo> list)
         }
 
         print("Image: \n");
-        print("\turl: %s\n", post.image.url);
-        print("\twidth: %" + uint64.FORMAT_MODIFIER + "d\n", post.image.width);
-        print("\theight: %" + uint64.FORMAT_MODIFIER + "d\n", post.image.height);
+        print("\turl: %s\n", post.media.url);
+        print("\twidth: %" + uint64.FORMAT_MODIFIER + "d\n", post.media.width);
+        print("\theight: %" + uint64.FORMAT_MODIFIER + "d\n", post.media.height);
 
         print("Users in photo: \n");
         foreach (TaggedUser user in post.taggedUsers)

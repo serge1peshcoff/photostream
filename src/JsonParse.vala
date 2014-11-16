@@ -51,12 +51,28 @@ public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
         foreach(var like in likeObject.get_array_member("data").get_elements())
             info.likes.append(parseUserFromObject(like.get_object()));
 
-    var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
-    var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
-    info.image = new Image();
-    info.image.url = imageHiResObject.get_string_member("url");
-    info.image.width = imageHiResObject.get_int_member("width");
-    info.image.height = imageHiResObject.get_int_member("height");
+    if (info.type == PhotoStream.MediaType.IMAGE) //if image
+    {
+        var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
+        var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
+        info.media = new Media();
+        info.media.url = imageHiResObject.get_string_member("url");
+        info.media.width = imageHiResObject.get_int_member("width");
+        info.media.height = imageHiResObject.get_int_member("height");
+    }
+    else if (info.type == PhotoStream.MediaType.VIDEO) // if video, loading one
+    {
+        var videosObject = mediaPostObject.get_member("videos").get_object();
+        var videoHiResObject = videosObject.get_member("standard_resolution").get_object();
+        info.media = new Media();
+        info.media.url = videoHiResObject.get_string_member("url");
+        info.media.width = videoHiResObject.get_int_member("width");
+        info.media.height = videoHiResObject.get_int_member("height");
+
+        var imagesObject = mediaPostObject.get_member("images").get_object(); //getting image data
+        var imageHiResObject = imagesObject.get_member("standard_resolution").get_object();
+        info.media.previewUrl = imageHiResObject.get_string_member("url");
+    }
 
 
     var usersInPhoto = mediaPostObject.get_array_member("users_in_photo");

@@ -11,7 +11,7 @@ namespace PhotoStream.Utils
 		public string link;
 		public List<User> likes;
 		public int64 likesCount;
-		public Image image;
+		public Media media;
 		public List<TaggedUser> taggedUsers;
 		public string title;
 		public User postedUser;
@@ -23,7 +23,6 @@ namespace PhotoStream.Utils
 			tags = new List<string>();
 			comments = new List<Comment>();
 			likes = new List<User>();
-			image = new Image();
 			taggedUsers = new List<TaggedUser>();
 		}
 	}
@@ -35,11 +34,13 @@ namespace PhotoStream.Utils
 		public string id;
 	}
 
-	public class Image
+
+	public class Media
 	{
 		public string url;
 		public int64 width;
 		public int64 height;
+		public string previewUrl;
 	}
 	public class User
 	{
