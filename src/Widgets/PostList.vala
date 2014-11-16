@@ -1,6 +1,6 @@
 using PhotoStream.Utils;
 
-public class PhotoStream.PostList : Gtk.ListBox
+public class PhotoStream.Widgets.PostList : Gtk.ListBox
 {
 	public GLib.List<PostBox> boxes;
 	public Gtk.Button moreButton;

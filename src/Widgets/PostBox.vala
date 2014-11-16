@@ -1,7 +1,7 @@
 using PhotoStream.Utils;
 using Gdk;
 
-public class PhotoStream.PostBox : Gtk.EventBox
+public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 {
 	public Gtk.Box box;
 

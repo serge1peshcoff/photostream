@@ -1,4 +1,5 @@
 using PhotoStream.Utils;
+using PhotoStream.Widgets;
 using Gdk;
 
 public class PhotoStream.App : Granite.Application 
@@ -31,7 +32,7 @@ public class PhotoStream.App : Granite.Application
     public Gtk.Box box;
     public Gtk.Image loadingImage;
 
-    public PhotoStream.PhotoStack stack;
+    public PhotoStack stack;
     public Gtk.ScrolledWindow userFeedWindow;
     public Gtk.ScrolledWindow tagFeedWindow;
     public Gtk.ScrolledWindow userWindow;
@@ -43,7 +44,7 @@ public class PhotoStream.App : Granite.Application
 
     //public UserWindowBox userWindowBox;
 
-    public PhotoStream.PostList feedList; 
+    public PostList feedList; 
     
 	protected override void activate () 
 	{      

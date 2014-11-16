@@ -6,13 +6,13 @@ set(CLIENT_SOURCE
     Networking.vala
     JsonParse.vala
     NewsParse.vala
-    utils/Debug.vala
-    utils/LikeInfo.vala
-    utils/Objects.vala
-    utils/PhotoStack.vala
-    utils/Settings.vala   
-    utils/PostList.vala
-    utils/PostBox.vala
+    Utils/Debug.vala
+    Utils/Objects.vala
+    Utils/Settings.vala 
+    Widgets/PhotoStack.vala  
+    Widgets/PostList.vala
+    Widgets/PostBox.vala
+    Widgets/UserWindowBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS
