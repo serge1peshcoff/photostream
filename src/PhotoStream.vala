@@ -157,6 +157,12 @@ public class PhotoStream.App : Granite.Application
     }
     public int loadUser(string id)
     {
+        Idle.add(() => {
+            box.remove(stack);
+            box.pack_start(loadingImage, true, true);
+            switchWindow("user");
+            return false;
+        });
         string userInfo = getUserInfo(id);
         string userFeed = getUserMedia(id);
         User user;
@@ -171,11 +177,15 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
 
+        userWindowBox.load(user);
+
         Idle.add(() => {
-            switchWindow("user");
-            userWindowBox.load(user);
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
             return false;
-        });       
+        });     
+
+        
 
         return 0;
     }  
@@ -268,8 +278,12 @@ public class PhotoStream.App : Granite.Application
         feedButton.set_icon_widget (new Gtk.Image.from_icon_name ("go-home", Gtk.IconSize.LARGE_TOOLBAR));
         feedButton.set_tooltip_text ("Feed");
         feedButton.set_label ("Feed");
-        //this.mainWindow.feedButton.set_sensitive (false);
+        //feedButton.set_sensitive (false);
         centered_toolbar.add (feedButton);
+
+        feedButton.clicked.connect(() => {
+            switchWindow("userFeed");
+        });
 
         exploreButton = new Gtk.ToggleToolButton ();
         exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
@@ -304,8 +318,6 @@ public class PhotoStream.App : Granite.Application
 
     public int setFeedWidgets()
     {        
-        print("setFeedWidgets start\n"); 
-
         Idle.add(() => {          
 
             foreach (MediaInfo post in feedPosts)
@@ -321,10 +333,6 @@ public class PhotoStream.App : Granite.Application
                     });
                 }
 
-
-
-            print("finished loading.\n");
-
             new Thread<int>("", loadImages);
 
             if (!isFeedLoaded)
@@ -334,7 +342,6 @@ public class PhotoStream.App : Granite.Application
             }
 
             mainWindow.show_all();
-            print("setFeedWidgets end\n");
             isFeedLoaded = true;
 
             return false;
@@ -348,7 +355,6 @@ public class PhotoStream.App : Granite.Application
     {
         foreach (PostBox postBox in feedList.boxes)
         {
-            //print(postBox.avatar.file + " 111\n");
             if (postBox.avatar.pixbuf == null) //avatar not loaded, that means image was not added to PostList
             {        
                 postBox.loadAvatar();

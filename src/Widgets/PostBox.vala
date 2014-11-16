@@ -106,7 +106,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public void loadImage()
 	{
-		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
+		var imageFileName = PhotoStream.App.CACHE_URL + "image" + getFileName(post.type == PhotoStream.MediaType.VIDEO 
 																		? post.media.previewUrl 
 																		: post.media.url);
         downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);

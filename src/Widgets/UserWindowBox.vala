@@ -45,9 +45,21 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	}
 	public void load(User user)
 	{
+		string avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
+		File file = File.new_for_path(avatarFileName);
+        if (!file.query_exists()) // avatar not downloaded, download
+        	downloadFile(user.profilePicture, avatarFileName);
+
+        this.avatar.set_from_file(avatarFileName);
+
 		this.userName.set_label(user.username);
 		this.mediaCount.set_label(user.mediaCount.to_string() + "media");
 		this.followsCount.set_label(user.followed.to_string() + "follows");
 		this.followersCount.set_label(user.followers.to_string() + "followers");
 	}
+	public string getFileName(string url)
+    {
+        var indexStart = url.last_index_of("/") + 1;
+        return url.substring(indexStart, url.length - indexStart);
+    }
 }
