@@ -177,10 +177,10 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
 
-        userWindowBox.load(user);
-        userWindowBox.loadFeed(userFeedList);
-
         Idle.add(() => {
+            userWindowBox.load(user);
+            userWindowBox.loadFeed(userFeedList);
+
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
             this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
@@ -195,7 +195,36 @@ public class PhotoStream.App : Granite.Application
     } 
     public int loadOlderUserFeed()
     {
-        print("loading...\n");
+        /*Idle.add(() => {
+            box.remove(stack);
+            box.pack_start(loadingImage, true, true);
+            return false;
+        }); */
+        string userFeed = getResponse(this.userWindowBox.userFeed.olderFeedLink);
+        List<MediaInfo> userFeedList;
+        try
+        {
+            userFeedList = parseFeed(userFeed);
+            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        Idle.add(() => {
+            userWindowBox.loadOlderFeed(userFeedList);
+            return false;
+        });
+
+        
+
+        /*Idle.add(() => {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            return false;
+        });  */
+
         return 0;
     } 
 
@@ -234,6 +263,15 @@ public class PhotoStream.App : Granite.Application
             this.feedList.olderFeedLink = parsePagination(response);
             foreach (MediaInfo post in oldFeedPosts)
                 feedPosts.append(post);
+
+            Idle.add(() => {
+                if (this.feedList.olderFeedLink == "")
+                    this.feedList.deleteMoreButton();
+
+                return false;
+            });
+
+            
         }
         catch (Error e) // wrong token
         {
@@ -327,7 +365,10 @@ public class PhotoStream.App : Granite.Application
 
     public int setFeedWidgets()
     {        
-        Idle.add(() => {          
+        Idle.add(() => { 
+
+            if (this.feedList.olderFeedLink != "")
+                this.feedList.addMoreButton();         
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post))
@@ -340,7 +381,7 @@ public class PhotoStream.App : Granite.Application
                         });
                         return false;
                     });
-                }
+                }         
 
             new Thread<int>("", loadImages);
 

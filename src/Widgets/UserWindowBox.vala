@@ -59,10 +59,26 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
-		userFeed.clear();        
+		userFeed.clear();   
+		if (this.userFeed.olderFeedLink != "")
+			userFeed.addMoreButton();
+
+        foreach (MediaInfo post in feedList)
+            userFeed.prepend(post);
+
+        new Thread<int>("", loadImages);
+        this.show_all();
+	}
+	public void loadOlderFeed(List<MediaInfo> feedList)
+	{      
         foreach (MediaInfo post in feedList)
             if (!userFeed.contains(post))
                 userFeed.prepend(post);
+
+        print(userFeed.olderFeedLink + " 1\n");
+
+        if (this.userFeed.olderFeedLink == "")
+            this.userFeed.deleteMoreButton();
 
         new Thread<int>("", loadImages);
         this.show_all();
