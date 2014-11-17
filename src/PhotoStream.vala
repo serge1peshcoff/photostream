@@ -37,8 +37,8 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow likesWindow;
-    public Gtk.ScrolledWindow followersWindow;
-    public Gtk.ScrolledWindow followedWindow;
+    public Gtk.ScrolledWindow commentsWindow;
+    public Gtk.ScrolledWindow usersWindow;
     public Gtk.ScrolledWindow searchWindow;
 
     public UserWindowBox userWindowBox;
@@ -55,9 +55,6 @@ public class PhotoStream.App : Granite.Application
         app_launcher        = "photostream.desktop";
         application_id      = "tk.itprogramming1.photostream";
         main_url            = "http://itprogramming1.tk/photostream";
-        //bug_url             = "https://github.com/birdieapp/birdie/issues";
-        //help_url            = "https://github.com/birdieapp/birdie/wiki";
-        //translate_url       = "http://www.transifex.com/projects/p/birdie/";
         about_authors       = {"Sergey Peshkov"};
         about_comments      = null;
         about_documenters   = {};

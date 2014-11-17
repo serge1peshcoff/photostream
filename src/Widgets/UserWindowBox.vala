@@ -93,7 +93,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
     {
         foreach (PostBox postBox in userFeed.boxes)
         {
-            if (postBox.avatar.pixbuf == null) //avatar not loaded, that means image was not added to PostList
+            if (postBox.avatar.pixbuf == null) // avatar not loaded, that means image was not added to PostList
             {        
                 postBox.loadAvatar();
                 postBox.loadImage();

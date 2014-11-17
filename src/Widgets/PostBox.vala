@@ -43,7 +43,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
                 post.postedUser.username + "</span>"
                 );
 		userNameLabel.set_line_wrap(true);
-		print(post.creationTime.to_unix().to_string() + "\n");
 		dateLabel = new Gtk.Label(post.creationTime.format("%e.%m.%Y %H:%M"));
 		
 		userToolbar.add(userNameLabel);
@@ -53,7 +52,25 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		image = new Gtk.Image();
 		box.add(image);	
 
-		titleLabel = new Gtk.Label(post.title);
+		Regex hashtagRegex = new Regex("(#[\\p{L}0-9_]+)[ #]");
+		MatchInfo info;
+		
+		if (hashtagRegex.match_all_full(post.title, -1, 0, 0, out info))
+		{
+			foreach(string hashTag in info.fetch_all())
+				post.title = post.title.replace(hashTag, "<a href=\"" + hashTag + "\">" + hashTag + "</a>");
+		}
+
+		Regex userNameRegex = new Regex("(@[a-zA-Z0-9_]+) ");
+		if (userNameRegex.match_all(post.title, 0, out info))
+		{
+			foreach(string userName in info.fetch_all())
+				post.title = post.title.replace(userName, "<a href=\"" + userName + "\">" + userName + "</a>");
+		}
+
+		print(post.title + "\n");
+		titleLabel = new Gtk.Label("");
+		titleLabel.set_markup(post.title);
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
 		box.add(titleLabel);
