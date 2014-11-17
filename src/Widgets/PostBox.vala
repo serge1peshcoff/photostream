@@ -52,27 +52,43 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		image = new Gtk.Image();
 		box.add(image);	
 
-		Regex hashtagRegex = new Regex("(#[\\p{L}0-9_]+)[ #]");
-		MatchInfo info;
-		
-		if (hashtagRegex.match_all_full(post.title, -1, 0, 0, out info))
-		{
-			foreach(string hashTag in info.fetch_all())
-				post.title = post.title.replace(hashTag, "<a href=\"" + hashTag + "\">" + hashTag + "</a>");
-		}
+		string res;
 
-		Regex userNameRegex = new Regex("(@[a-zA-Z0-9_]+) ");
-		if (userNameRegex.match_all(post.title, 0, out info))
+		try
 		{
-			foreach(string userName in info.fetch_all())
-				post.title = post.title.replace(userName, "<a href=\"" + userName + "\">" + userName + "</a>");
-		}
+			Regex hashtagRegex = new Regex("#([\\p{L}0-9_]+)");
+			res = hashtagRegex.replace_eval (post.title, -1, 0, 0, (mi, s) => {
+                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
+                return false;
+            });
 
-		print(post.title + "\n");
+			Regex usernameRegex = new Regex("@([a-zA-Z0-9_]+)");
+			res = usernameRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
+	                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
+	                return false;
+	            });
+
+
+
+			Regex urlRegex = new Regex("([a-zA-Z0-9_-]+\\.)+([a-zA-Z]{2,6})(/[a-zA-Z0-9_-]+)*/?");
+			res = urlRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
+	                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
+	                return false;
+	            });
+		}
+		catch(Error e)
+		{
+			error("Something wrong with regexes: " + e.message + ".\n");
+		}		
+
 		titleLabel = new Gtk.Label("");
-		titleLabel.set_markup(post.title);
+		titleLabel.set_markup(res);
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
+		titleLabel.activate_link.connect((uri) => {
+			print(uri + "\n");
+			return true;
+		});
 		box.add(titleLabel);
 
 		print("aaa4\n");
@@ -103,7 +119,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 
 		box.add(likeToolbar);
-		print("finished.\n");
 	}	
 	public void loadAvatar()
 	{
