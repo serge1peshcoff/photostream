@@ -85,10 +85,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_markup(res);
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
-		titleLabel.activate_link.connect((uri) => {
-			print(uri + "\n");
-			return true;
-		});
 		box.add(titleLabel);
 
 		print("aaa4\n");
