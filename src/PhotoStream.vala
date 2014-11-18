@@ -133,7 +133,8 @@ public class PhotoStream.App : Granite.Application
         this.feedList = new PostList();
         this.feedList.moreButton.clicked.connect(() => {
             new Thread<int>("", loadOlderFeed);
-        });       
+        });
+
         this.userFeedWindow.add_with_viewport (feedList);
 
         this.userWindow = new Gtk.ScrolledWindow(null, null);
@@ -151,6 +152,46 @@ public class PhotoStream.App : Granite.Application
         this.loginWindow.destroy.connect(tryLogin);
         this.loginWindow.set_application(this);
     }
+
+    public bool handleUris(string uri)
+    {
+        print(uri + "\n");
+        switch(uri[0])
+        {
+            case '#': // hashtag, stub
+            print("hashtag\n");
+            break;
+            case '@': // username
+            new Thread<int>("", () => {
+                print("username\n");
+                loadUserFromUsername(uri.substring(1, uri.length - 2));
+                return 0;
+            });
+            break;
+            default: // apparently this is URL
+            print("other\n");
+            return false; // open browser.
+
+        }
+        return true;
+    }
+
+    public int loadUserFromUsername(string username)
+    {
+        string response = searchUser(username);
+        List<User> userList;
+        try
+        {   
+            userList  = parseUserList(response);
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        loadUser(userList.nth(0).data.id);
+        return 0;
+    }
+
     public int loadUser(string id)
     {
         Idle.add(() => {
@@ -185,9 +226,6 @@ public class PhotoStream.App : Granite.Application
             });
             return false;
         });  
-
-        
-
         return 0;
     } 
     public int loadOlderUserFeed()
@@ -381,6 +419,9 @@ public class PhotoStream.App : Granite.Application
                 }         
 
             new Thread<int>("", loadImages);
+
+            foreach(PostBox postBox in this.feedList.boxes)
+                postBox.titleLabel.activate_link.connect(handleUris);
 
             if (!isFeedLoaded)
             {
