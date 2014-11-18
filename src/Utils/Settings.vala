@@ -16,5 +16,5 @@ public string loadToken()
 
 public void createSchema()
 {
-    print("Schema doesn't exist, creating one...\n");
+    error("Schema doesn't exist, exiting...\n");
 }
