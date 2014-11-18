@@ -163,17 +163,23 @@ public class PhotoStream.App : Granite.Application
             break;
             case '@': // username
             new Thread<int>("", () => {
-                print("username\n");
                 loadUserFromUsername(uri.substring(1, uri.length - 2));
                 return 0;
             });
             break;
             default: // apparently this is URL
-            print("other\n");
-            return false; // open browser.
-
+            Regex protocolRegex = new Regex("/^[a-zA-Z]+://");
+            if (!protocolRegex.match(uri))
+            {
+                string newUri = "http://" + uri;
+                Gtk.show_uri(null, newUri, Gdk.CURRENT_TIME); 
+                return true; // overwriting default behaviour because I can't change uri, so need to open a new uri with http:// at the beginning.
+            }
+            else
+                return false;   
+            break; 
         }
-        return true;
+        return true; // if removed, the compiler complaints
     }
 
     public int loadUserFromUsername(string username)
