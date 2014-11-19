@@ -44,7 +44,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.userFeed = new PostList();
 
 		this.userInfoBox.pack_start(avatar, false, true);
-		this.userInfoBox.add(avatar);
 		this.userInfoBox.add(userName);
 		this.box.pack_start(userInfoBox, false, true);
 

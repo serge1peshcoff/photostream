@@ -71,7 +71,6 @@ public class PhotoStream.App : Granite.Application
 
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
         mainWindow.add(box);
-        box.add(bar);
 
         mainWindow.show_all ();
         mainWindow.destroy.connect (Gtk.main_quit);
@@ -87,7 +86,6 @@ public class PhotoStream.App : Granite.Application
 
     public void tryLogin()
     {   
-        box.remove(bar);
         PixbufAnimation loadingPixbuf;
         try 
         {   
@@ -102,12 +100,13 @@ public class PhotoStream.App : Granite.Application
         box.pack_start(loadingImage, true, true);
         mainWindow.show_all ();
 
-
         appToken = loadToken();  
         if (appToken == "") //something went wrong. need to re-login
             this.setErrorWidgets("not-logged-in");          
         else
+        {
             new Thread<int>("", loadFeed);
+        }
     }
 
     public void stubLoading()
@@ -211,7 +210,6 @@ public class PhotoStream.App : Granite.Application
 
     public int loadUser(string id, string username)
     {
-        print("loadUser start\n");
         Idle.add(() => {
             stubLoading();
             switchWindow("user");
@@ -257,7 +255,6 @@ public class PhotoStream.App : Granite.Application
             });
             return false;
         });  
-        print("loadUser end\n");
         return 0;
     } 
     public int loadOlderUserFeed()
@@ -300,9 +297,12 @@ public class PhotoStream.App : Granite.Application
             setErrorWidgets("wrong-login");
             return 0;
         }
+
         // if we got here then we've got no errors, yay!
         if(box.get_children().find(bar) != null)
             box.remove(bar);  
+
+
 
         new Thread<int>("", setFeedWidgets);
         return 0;
