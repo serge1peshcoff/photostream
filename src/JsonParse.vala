@@ -19,7 +19,6 @@ public List<MediaInfo> parseFeed(string message) throws Error
 
 public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
 {
-    print("aaa\n");
     MediaInfo info = new MediaInfo();
     var mediaPostObject = mediaPost.get_object();
 

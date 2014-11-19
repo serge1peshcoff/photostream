@@ -155,11 +155,10 @@ public class PhotoStream.App : Granite.Application
 
     public bool handleUris(string uri)
     {
-        print(uri + "\n");
         switch(uri[0])
         {
             case '#': // hashtag, stub
-            print("hashtag\n");
+
             break;
             case '@': // username
             new Thread<int>("", () => {
@@ -451,8 +450,6 @@ public class PhotoStream.App : Granite.Application
                 postBox.loadAvatar();
                 postBox.loadImage();
             }
-            else
-                print("already loaded.\n");
         }
         return 0;
     }

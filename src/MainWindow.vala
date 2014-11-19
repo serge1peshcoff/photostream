@@ -42,7 +42,5 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
 
         this.set_default_size (425, 500);
         this.set_size_request (425, 50);        
-             
-        //box.add (stack);
 	}    
 }

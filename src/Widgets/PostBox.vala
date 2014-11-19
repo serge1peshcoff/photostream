@@ -87,8 +87,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_justify(Gtk.Justification.LEFT);
 		box.add(titleLabel);
 
-		print("aaa4\n");
-
 		likeToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
 		Pixbuf likePixbuf;
@@ -136,7 +134,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
 			avatar.set_from_pixbuf(avatarPixbuf);		
-			print("finished avatar.\n");
 			return false;
         });
 	}
@@ -154,7 +151,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         Idle.add(() => {
         	Pixbuf imagePixbuf; 
         	Pixbuf videoPixbuf;
-        	print(post.type == PhotoStream.MediaType.VIDEO ? "video.\n" : "image.\n");
 	        try 
 	        {
 	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
@@ -174,7 +170,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			
 			
 			image.set_from_pixbuf(imagePixbuf);
-			print("finished image.\n");
 			return false;
         }); 				
 	}

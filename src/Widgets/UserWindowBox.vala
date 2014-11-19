@@ -108,8 +108,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
             if (!userFeed.contains(post))
                 userFeed.prepend(post);
 
-        print(userFeed.olderFeedLink + " 1\n");
-
         if (this.userFeed.olderFeedLink == "")
             this.userFeed.deleteMoreButton();
 
@@ -126,8 +124,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
                 postBox.loadAvatar();
                 postBox.loadImage();
             }
-            else
-                print("already loaded.\n");
         }
         return 0;
     }
