@@ -110,6 +110,15 @@ public class PhotoStream.App : Granite.Application
             new Thread<int>("", loadFeed);
     }
 
+    public void stubLoading()
+    {
+        if (!loadingImage.is_ancestor(box))
+        {
+            box.remove(stack);
+            box.pack_start(loadingImage, true, true);
+        }
+    }
+
     public void preloadWindows()
     {
         this.stack = new PhotoStack();
@@ -182,6 +191,10 @@ public class PhotoStream.App : Granite.Application
 
     public int loadUserFromUsername(string username)
     {
+        Idle.add(() => {
+            stubLoading();
+            return false;
+        });
         string response = searchUser(username);
         List<User> userList;
         try
@@ -192,16 +205,15 @@ public class PhotoStream.App : Granite.Application
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }
-        loadUser(userList.nth(0).data.id);
+        loadUser(userList.nth(0).data.id, userList.nth(0).data.username);
         return 0;
     }
 
-    public int loadUser(string id)
+    public int loadUser(string id, string username)
     {
         print("loadUser start\n");
         Idle.add(() => {
-            box.remove(stack);
-            box.pack_start(loadingImage, true, true);
+            stubLoading();
             switchWindow("user");
             return false;
         });
@@ -231,7 +243,7 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             
             if (isPrivate)
-                userWindowBox.loadPrivate();
+                userWindowBox.loadPrivate(id, username);
             else
             {
                 userWindowBox.loadFeed(userFeedList);
@@ -247,7 +259,6 @@ public class PhotoStream.App : Granite.Application
         });  
         print("loadUser end\n");
         return 0;
-
     } 
     public int loadOlderUserFeed()
     {
@@ -419,7 +430,7 @@ public class PhotoStream.App : Granite.Application
                     feedList.prepend(post);
                     feedList.boxes.last().data.avatarBox.button_release_event.connect(() =>{
                         new Thread<int>("", () => {
-                            loadUser(post.postedUser.id);
+                            loadUser(post.postedUser.id, post.postedUser.username);
                             return 0;
                         });
                         return false;

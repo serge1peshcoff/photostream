@@ -19,6 +19,11 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 	public Box errorBox;
 	public Label privateLabel;
+	public Button followButton;
+
+	public bool isPrivate = false;
+	public string id;
+	public string username;
 
 	public UserWindowBox()
 	{
@@ -54,7 +59,10 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.errorBox = new Box(Gtk.Orientation.VERTICAL, 0);
 		this.privateLabel = new Label("");
 		this.privateLabel.set_markup("<b>This user is private.</b>");
-		this.errorBox.add(privateLabel);
+		this.errorBox.pack_start(privateLabel, true, true);
+		
+		this.followButton = new Button.with_label("Follow...");
+		this.errorBox.add(followButton);
 
 		this.viewport = new Viewport(null, null);
 		this.feedWindow.add(viewport);
@@ -75,9 +83,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
+		isPrivate = false;
 		clearPrivate();
-
-		print("loadFeed\n");
 
 		if(!this.box.is_ancestor(viewport))
 			viewport.add(box);
@@ -92,30 +99,25 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         new Thread<int>("", loadImages);
 	        
     	this.show_all();
-
-    	print("loadFeed end\n");
 	}
-	public void loadPrivate()
+	public void loadPrivate(string id, string username)
 	{
+		isPrivate = true;
+		this.id = id;
+		this.username = username;
 		clearFeed();
-
-		print("loadPrivate\n");
 
 		if(!this.errorBox.is_ancestor(viewport))
 			viewport.add(errorBox);
 		this.show_all();
-
-		print("loadPrivate end\n");
 	}
 	private void clearFeed()
 	{
-		print("clearFeed\n");
 		if(this.box.is_ancestor(viewport))
 			viewport.remove(box); // feedWindow -> GtkViewport -> box, that's why
 	}
 	public void clearPrivate()
 	{
-		print("clearPrivate\n");
 		if(this.errorBox.is_ancestor(viewport))
 			viewport.remove(errorBox);
 	}

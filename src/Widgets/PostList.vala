@@ -14,7 +14,8 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 	}
 	public void addMoreButton()
 	{
-		base.prepend(this.moreButton);
+		if(!this.moreButton.is_ancestor(this))
+			base.prepend(this.moreButton);
 	}
 	public void deleteMoreButton()
 	{
