@@ -246,6 +246,9 @@ public class PhotoStream.App : Granite.Application
             {
                 userWindowBox.loadFeed(userFeedList);
                 userWindowBox.load(user);
+
+                foreach (PostBox postBox in userWindowBox.userFeed.boxes)
+                    postBox.titleLabel.activate_link.connect(handleUris);
             }
 
             box.remove(loadingImage);
@@ -273,6 +276,8 @@ public class PhotoStream.App : Granite.Application
 
         Idle.add(() => {
             userWindowBox.loadOlderFeed(userFeedList);
+            foreach (PostBox postBox in userWindowBox.userFeed.boxes)
+                    postBox.titleLabel.activate_link.connect(handleUris);
             return false;
         });
 
