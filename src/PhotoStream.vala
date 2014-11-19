@@ -177,7 +177,6 @@ public class PhotoStream.App : Granite.Application
             }
             else
                 return false;   
-            break; 
         }
         return true; // if removed, the compiler complaints
     }
@@ -208,8 +207,10 @@ public class PhotoStream.App : Granite.Application
         });
         string userInfo = getUserInfo(id);
         string userFeed = getUserMedia(id);
-        User user;
-        List<MediaInfo> userFeedList;
+        User user = new User();
+        List<MediaInfo> userFeedList = new List<MediaInfo>();
+        bool isPrivate = false;
+
         try
         {
             user = parseUser(userInfo);
@@ -218,12 +219,21 @@ public class PhotoStream.App : Granite.Application
         }
         catch (Error e) // wrong token
         {
-            error("Something wrong with parsing: " + e.message + ".\n");
+            if (e.message == "you cannot view this resource") // this profile is private
+                isPrivate = true;
+            else
+                error("Something wrong with parsing: " + e.message + ".\n");
         }
 
         Idle.add(() => {
-            userWindowBox.load(user);
-            userWindowBox.loadFeed(userFeedList);
+            
+            if (isPrivate)
+                userWindowBox.loadPrivate();
+            else
+            {
+                userWindowBox.loadFeed(userFeedList);
+                userWindowBox.load(user);
+            }
 
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
@@ -236,11 +246,6 @@ public class PhotoStream.App : Granite.Application
     } 
     public int loadOlderUserFeed()
     {
-        /*Idle.add(() => {
-            box.remove(stack);
-            box.pack_start(loadingImage, true, true);
-            return false;
-        }); */
         string userFeed = getResponse(this.userWindowBox.userFeed.olderFeedLink);
         List<MediaInfo> userFeedList;
         try
@@ -257,14 +262,6 @@ public class PhotoStream.App : Granite.Application
             userWindowBox.loadOlderFeed(userFeedList);
             return false;
         });
-
-        
-
-        /*Idle.add(() => {
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
-            return false;
-        });  */
 
         return 0;
     } 

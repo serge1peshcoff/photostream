@@ -16,6 +16,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
 
+	public Box errorBox;
+	public Label privateLabel;
+
 	public UserWindowBox()
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
@@ -45,8 +48,12 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.box.add(userCountsBox);
 
 		this.box.pack_end(userFeed, true, true);
-		this.feedWindow.add_with_viewport(box);
 		this.pack_start(feedWindow, true, true);
+
+		this.errorBox = new Box(Gtk.Orientation.VERTICAL, 0);
+		this.privateLabel = new Label("");
+		this.privateLabel.set_markup("<b>This user is private.</b>");
+		this.errorBox.add(privateLabel);
 	}
 	public void load(User user)
 	{
@@ -64,6 +71,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
+		clearPrivate();
+
+		this.feedWindow.add_with_viewport(box);
 		userFeed.clear();   
 		if (this.userFeed.olderFeedLink != "")
 			userFeed.addMoreButton();
@@ -72,7 +82,25 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
             userFeed.prepend(post);
 
         new Thread<int>("", loadImages);
-        this.show_all();
+	        
+    	this.show_all();
+	}
+	public void loadPrivate()
+	{
+		clearFeed();
+
+		this.feedWindow.add_with_viewport(errorBox);
+		this.show_all();
+	}
+	private void clearFeed()
+	{
+		if(this.box.is_ancestor(feedWindow))
+			this.feedWindow.remove(this.feedWindow.get_child());
+	}
+	public void clearPrivate()
+	{
+		if(this.errorBox.is_ancestor(feedWindow))
+			this.feedWindow.remove(this.feedWindow.get_child());
 	}
 	public void loadOlderFeed(List<MediaInfo> feedList)
 	{      
