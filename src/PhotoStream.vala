@@ -198,6 +198,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadUser(string id)
     {
+        print("loadUser start\n");
         Idle.add(() => {
             box.remove(stack);
             box.pack_start(loadingImage, true, true);
@@ -219,7 +220,10 @@ public class PhotoStream.App : Granite.Application
         catch (Error e) // wrong token
         {
             if (e.message == "you cannot view this resource") // this profile is private
+            {
                 isPrivate = true;
+                this.userWindowBox.userFeed.olderFeedLink = "";
+            }
             else
                 error("Something wrong with parsing: " + e.message + ".\n");
         }
@@ -241,7 +245,9 @@ public class PhotoStream.App : Granite.Application
             });
             return false;
         });  
+        print("loadUser end\n");
         return 0;
+
     } 
     public int loadOlderUserFeed()
     {

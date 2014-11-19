@@ -3,6 +3,7 @@ using PhotoStream.Utils;
 public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 {
 	public Box box;
+	public Viewport viewport;
 
 	public Box userInfoBox;
 	public Image avatar;
@@ -54,6 +55,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.privateLabel = new Label("");
 		this.privateLabel.set_markup("<b>This user is private.</b>");
 		this.errorBox.add(privateLabel);
+
+		this.viewport = new Viewport(null, null);
+		this.feedWindow.add(viewport);
 	}
 	public void load(User user)
 	{
@@ -73,7 +77,11 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	{
 		clearPrivate();
 
-		this.feedWindow.add_with_viewport(box);
+		print("loadFeed\n");
+
+		if(!this.box.is_ancestor(viewport))
+			viewport.add(box);
+
 		userFeed.clear();   
 		if (this.userFeed.olderFeedLink != "")
 			userFeed.addMoreButton();
@@ -84,23 +92,32 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         new Thread<int>("", loadImages);
 	        
     	this.show_all();
+
+    	print("loadFeed end\n");
 	}
 	public void loadPrivate()
 	{
 		clearFeed();
 
-		this.feedWindow.add_with_viewport(errorBox);
+		print("loadPrivate\n");
+
+		if(!this.errorBox.is_ancestor(viewport))
+			viewport.add(errorBox);
 		this.show_all();
+
+		print("loadPrivate end\n");
 	}
 	private void clearFeed()
 	{
-		if(this.box.is_ancestor(feedWindow))
-			this.feedWindow.remove(this.feedWindow.get_child());
+		print("clearFeed\n");
+		if(this.box.is_ancestor(viewport))
+			viewport.remove(box); // feedWindow -> GtkViewport -> box, that's why
 	}
 	public void clearPrivate()
 	{
-		if(this.errorBox.is_ancestor(feedWindow))
-			this.feedWindow.remove(this.feedWindow.get_child());
+		print("clearPrivate\n");
+		if(this.errorBox.is_ancestor(viewport))
+			viewport.remove(errorBox);
 	}
 	public void loadOlderFeed(List<MediaInfo> feedList)
 	{      
