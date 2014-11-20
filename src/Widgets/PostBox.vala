@@ -83,7 +83,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		if (post.likesCount == post.likes.length() && post.likesCount != 0) // if all likes can be displayed or there's no likes
 		{
 			foreach (User likedUser in post.likes)
-				if(post.likes.index(likedUser) == post.likes.length() || post.likes.length() == 1) // last user
+				if(post.likes.index(likedUser) == post.likes.length() - 1 || post.likes.length() == 1) // last user
 					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>";
 				else
 					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>, ";
