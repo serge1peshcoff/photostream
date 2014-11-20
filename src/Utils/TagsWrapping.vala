@@ -10,7 +10,7 @@ public string wrapInTags(string original)
             return false;
         });
 
-		Regex usernameRegex = new Regex("@([a-zA-Z0-9_.]+)");
+		Regex usernameRegex = new Regex("(@[a-zA-Z0-9_\\.]+)");
 		res = usernameRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
                 s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
                 return false;
@@ -18,7 +18,7 @@ public string wrapInTags(string original)
 
 
 
-		Regex urlRegex = new Regex("([a-zA-Z0-9_-]+\\.)+([a-zA-Z]{2,6})(/[a-zA-Z0-9_-]+)*/?");
+		Regex urlRegex = new Regex("([@#]![a-zA-Z0-9_-]+\\.)+([a-zA-Z]{2,6})(/[a-zA-Z0-9_-]+)*/?");
 		res = urlRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
                 s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
                 return false;

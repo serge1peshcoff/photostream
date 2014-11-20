@@ -20,6 +20,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public const int IMAGE_SIZE = 400;
 	public const int LIKE_SIZE = 20;
 
+	public CommentsList commentList;
+
 	public MediaInfo post;
 
 	public PostBox(MediaInfo post)
@@ -74,9 +76,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
-
         likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
-
 		likeToolbar.pack_start(likeImage, false, true);
 
 		string likesText = "";
@@ -96,8 +96,16 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		likeToolbar.add(likesLabel);
 
-
 		box.add(likeToolbar);
+		commentList = new CommentsList();
+		if (post.commentsCount != 0)
+		{
+			if(post.commentsCount !=  post.comments.length())
+				commentList.addMoreButton();
+			foreach(Comment comment in post.comments)
+				commentList.prepend(comment);
+			box.add(commentList);
+		}
 	}	
 	public void loadAvatar()
 	{

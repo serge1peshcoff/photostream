@@ -249,6 +249,11 @@ public class PhotoStream.App : Granite.Application
                 {
                     postBox.titleLabel.activate_link.connect(handleUris);
                     postBox.likesLabel.activate_link.connect(handleUris);
+                    foreach(CommentBox commentBox in postBox.commentList.comments)
+                    {
+                        commentBox.usernameLabel.activate_link.connect(handleUris);
+                        commentBox.textLabel.activate_link.connect(handleUris);
+                    }
                 }
             }
 
@@ -282,6 +287,11 @@ public class PhotoStream.App : Granite.Application
             {
                 postBox.titleLabel.activate_link.connect(handleUris);
                 postBox.likesLabel.activate_link.connect(handleUris);
+                foreach(CommentBox commentBox in postBox.commentList.comments)
+                {
+                    commentBox.usernameLabel.activate_link.connect(handleUris);
+                    commentBox.textLabel.activate_link.connect(handleUris);
+                }
             }
             return false;
         });
@@ -453,6 +463,11 @@ public class PhotoStream.App : Granite.Application
             {
                 postBox.titleLabel.activate_link.connect(handleUris);
                 postBox.likesLabel.activate_link.connect(handleUris);
+                foreach(CommentBox commentBox in postBox.commentList.comments)
+                {
+                    commentBox.usernameLabel.activate_link.connect(handleUris);
+                    commentBox.textLabel.activate_link.connect(handleUris);
+                }
             }
 
             if (!isFeedLoaded)

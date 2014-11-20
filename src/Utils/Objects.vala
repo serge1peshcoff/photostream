@@ -4,6 +4,7 @@ namespace PhotoStream.Utils
 	{
 		public int type;
 		public List<string> tags;
+		public int64 commentsCount;
 		public List<Comment> comments;
 		public string filter;
 		public DateTime creationTime;

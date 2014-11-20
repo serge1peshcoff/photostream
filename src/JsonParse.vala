@@ -37,7 +37,7 @@ public MediaInfo parseMediaPostFromObject(Json.Node mediaPost) throws Error
         info.location = parseLocationFromObject(locationObject.get_object());        
 
     var commentObject = mediaPostObject.get_member("comments").get_object(); //getting comments
-    if (commentObject.get_int_member("count") != 0) //if there are any
+    if ((info.commentsCount = commentObject.get_int_member("count")) != 0) //if there are any
         info.comments = parseCommentsFromObject(commentObject);
 
 

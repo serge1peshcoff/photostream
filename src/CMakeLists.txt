@@ -14,6 +14,8 @@ set(CLIENT_SOURCE
     Widgets/PostList.vala
     Widgets/PostBox.vala
     Widgets/UserWindowBox.vala
+    Widgets/CommentsList.vala
+    Widgets/CommentsBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS
