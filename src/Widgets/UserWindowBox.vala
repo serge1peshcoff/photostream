@@ -75,7 +75,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
         this.avatar.set_from_file(avatarFileName);
 
-		this.userName.set_label(user.username);
+		this.userName.set_label(user.username + " (" + user.fullName + ")");
 		this.mediaCount.set_label(user.mediaCount.to_string() + "media");
 		this.followsCount.set_label(user.followed.to_string() + "follows");
 		this.followersCount.set_label(user.followers.to_string() + "followers");

@@ -168,7 +168,7 @@ public class PhotoStream.App : Granite.Application
             break;
             case '@': // username
             new Thread<int>("", () => {
-                loadUserFromUsername(uri.substring(1, uri.length - 2));
+                loadUserFromUsername(uri.substring(1, uri.length - 1));
                 return 0;
             });
             break;
@@ -246,7 +246,10 @@ public class PhotoStream.App : Granite.Application
                 userWindowBox.load(user);
 
                 foreach (PostBox postBox in userWindowBox.userFeed.boxes)
+                {
                     postBox.titleLabel.activate_link.connect(handleUris);
+                    postBox.likesLabel.activate_link.connect(handleUris);
+                }
             }
 
             box.remove(loadingImage);
@@ -276,7 +279,10 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             userWindowBox.loadOlderFeed(userFeedList);
             foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-                    postBox.titleLabel.activate_link.connect(handleUris);
+            {
+                postBox.titleLabel.activate_link.connect(handleUris);
+                postBox.likesLabel.activate_link.connect(handleUris);
+            }
             return false;
         });
 
@@ -446,6 +452,7 @@ public class PhotoStream.App : Granite.Application
             foreach(PostBox postBox in this.feedList.boxes)
             {
                 postBox.titleLabel.activate_link.connect(handleUris);
+                postBox.likesLabel.activate_link.connect(handleUris);
             }
 
             if (!isFeedLoaded)

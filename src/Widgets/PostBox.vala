@@ -79,7 +79,21 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		likeToolbar.pack_start(likeImage, false, true);
 
-		likesLabel = new Gtk.Label( post.likesCount.to_string() + " likes.");
+		string likesText = "";
+		if (post.likesCount == post.likes.length() && post.likesCount != 0) // if all likes can be displayed or there's no likes
+		{
+			foreach (User likedUser in post.likes)
+				if(post.likes.index(likedUser) == post.likes.length() || post.likes.length() == 1) // last user
+					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>";
+				else
+					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>, ";
+		}
+		else
+			likesText = post.likesCount.to_string() + " likes.";
+
+		likesLabel = new Gtk.Label("");
+		likesLabel.set_markup(likesText);	
+
 		likeToolbar.add(likesLabel);
 
 
