@@ -37,11 +37,11 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow likesWindow;
-    public Gtk.ScrolledWindow commentsWindow;
     public Gtk.ScrolledWindow usersWindow;
     public Gtk.ScrolledWindow searchWindow;
 
     public UserWindowBox userWindowBox;
+    public MediaPostBox mediaPostBox;
 
     public PostList feedList; 
     
@@ -146,10 +146,14 @@ public class PhotoStream.App : Granite.Application
         this.userFeedWindow.add_with_viewport (feedList);
 
         this.userWindow = new Gtk.ScrolledWindow(null, null);
-
         this.userWindowBox = new UserWindowBox();
         this.userWindow.add_with_viewport (userWindowBox);
         stack.add_named(userWindow, "user");
+
+        this.postWindow = new Gtk.ScrolledWindow(null, null);
+        this.mediaPostBox = new MediaPostBox();
+        this.postWindow.add_with_viewport (mediaPostBox);
+        stack.add_named(postWindow, "post");
     }
 
     public void setLoginWindow()
@@ -260,6 +264,51 @@ public class PhotoStream.App : Granite.Application
         });  
         return 0;
     } 
+    public int loadPost(string id)
+    {
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("post");
+            return false;
+        });   
+        string mediaData = getMediaData(id);
+        MediaInfo mediaInfo = new MediaInfo();
+
+        try
+        {
+            mediaInfo = parseMediaPost(mediaData);
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        if (mediaInfo.location != null)
+        {
+            string locationInfo = getLocationInfo(mediaInfo.location.id); // sometimes only ID is returned in userfeed, => loading again.
+            try
+            {
+                Location location  = parseLocation(locationInfo); 
+                mediaInfo.location = location;
+            }
+            catch (Error e)
+            {
+                error("Something wrong with parsing: " + e.message + ".\n");
+            }
+        }
+
+        Idle.add(() => {
+            
+            mediaPostBox.loadPost(mediaInfo);
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+
+            mediaPostBox.loadAvatar();
+            mediaPostBox.loadImage();
+
+            return false;
+        });  
+        return 0;
+    }
     public int loadOlderUserFeed()
     {
         string userFeed = getResponse(this.userWindowBox.userFeed.olderFeedLink);
@@ -445,7 +494,16 @@ public class PhotoStream.App : Granite.Application
             new Thread<int>("", loadImages);
 
             foreach(PostBox postBox in this.feedList.boxes)
+            {
                 postBox.titleLabel.activate_link.connect(handleUris);
+                postBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        loadPost(postBox.post.id);
+                        return 0;
+                    });
+                    return false;
+                });
+            }
 
             if (!isFeedLoaded)
             {

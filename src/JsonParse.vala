@@ -12,12 +12,12 @@ public List<MediaInfo> parseFeed(string message) throws Error
     var response = root_object.get_array_member ("data");
 
     foreach (var mediaPost in response.get_elements ())  	
-        list.append(parseMediaPost(mediaPost));
+        list.append(parseMediaPostFromObject(mediaPost));
 
     return list;
 }
 
-public MediaInfo parseMediaPost(Json.Node mediaPost) throws Error
+public MediaInfo parseMediaPostFromObject(Json.Node mediaPost) throws Error
 {
     MediaInfo info = new MediaInfo();
     var mediaPostObject = mediaPost.get_object();
@@ -193,7 +193,7 @@ public string parseToken(string responce) throws Error
     return token;
 }
 
-public MediaInfo parseImage(string message) throws Error
+public MediaInfo parseMediaPost(string message) throws Error
 {
     var parser = new Json.Parser ();
     tryLoadMessage(parser, message);
@@ -201,7 +201,7 @@ public MediaInfo parseImage(string message) throws Error
     var root_object = parser.get_root().get_object();
     checkErrors(root_object);
     var response = root_object.get_member ("data");
-    return parseMediaPost(response);
+    return parseMediaPostFromObject(response);
 }
 
 public void checkErrors(Json.Object root_object) throws Error

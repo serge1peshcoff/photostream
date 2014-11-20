@@ -145,9 +145,9 @@ public string searchTag(string tag)
 }
 
 // locations
-public string getLocationInfo(string id)
+public string getLocationInfo(int64 id)
 {
-    return getResponse("https://api.instagram.com/v1/locations/" + id + "?access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/locations/" + id.to_string() + "?access_token=" + PhotoStream.App.appToken);
 }
 public string getLocationRecent(string id)
 {
