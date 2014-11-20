@@ -52,37 +52,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		image = new Gtk.Image();
 		box.add(image);	
 
-		string res;
-
-		try
-		{
-			Regex hashtagRegex = new Regex("#([\\p{L}0-9_]+)");
-			res = hashtagRegex.replace_eval (post.title, -1, 0, 0, (mi, s) => {
-                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
-                return false;
-            });
-
-			Regex usernameRegex = new Regex("@([a-zA-Z0-9_]+)");
-			res = usernameRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
-	                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
-	                return false;
-	            });
-
-
-
-			Regex urlRegex = new Regex("([a-zA-Z0-9_-]+\\.)+([a-zA-Z]{2,6})(/[a-zA-Z0-9_-]+)*/?");
-			res = urlRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
-	                s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
-	                return false;
-	            });
-		}
-		catch(Error e)
-		{
-			error("Something wrong with regexes: " + e.message + ".\n");
-		}		
-
 		titleLabel = new Gtk.Label("");
-		titleLabel.set_markup(res);
+		titleLabel.set_markup(wrapInTags(post.title));
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
 		box.add(titleLabel);

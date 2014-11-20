@@ -9,6 +9,7 @@ set(CLIENT_SOURCE
     Utils/Debug.vala
     Utils/Objects.vala
     Utils/Settings.vala 
+    Utils/TagsWrapping.vala
     Widgets/PhotoStack.vala  
     Widgets/PostList.vala
     Widgets/PostBox.vala
