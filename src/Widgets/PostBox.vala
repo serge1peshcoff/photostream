@@ -14,11 +14,11 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.EventBox avatarBox;
 	public Gtk.Image image;
 	public Gtk.Box likeToolbar;
-	public Gtk.Button likeButton;
+	public Gtk.EventBox likeBox;
 	public Gtk.Image likeImage;
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
-	public const int LIKE_SIZE = 20;
+	public const int LIKE_SIZE = 25;
 
 	public CommentsList commentList;
 
@@ -77,7 +77,11 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
         likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
-		likeToolbar.pack_start(likeImage, false, true);
+        likeBox = new Gtk.EventBox();
+        likeBox.add(likeImage);
+		likeToolbar.pack_start(likeBox, false, true);
+
+		likeBox.button_release_event.connect(callback);
 
 		string likesText = "";
 		if (post.likesCount == post.likes.length() && post.likesCount != 0) // if all likes can be displayed or there's no likes
@@ -129,6 +133,45 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			avatar.set_from_pixbuf(avatarPixbuf);		
 			return false;
         });
+	}
+
+	public int switchLike()
+	{
+		likeBox.button_release_event.disconnect(callback);
+
+		string response; 
+		if (!post.didILikeThis) // if not liked, then like
+			response = likeMedia(post.id);
+		else // dislike
+			response = dislikeMedia(post.id);
+
+		post.didILikeThis = !post.didILikeThis;
+
+		Pixbuf likePixbuf;
+		try 
+        {
+        	likePixbuf = new Pixbuf.from_file(post.didILikeThis 
+        								? PhotoStream.App.CACHE_IMAGES + "like.jpg" 
+        								: PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }
+
+
+        likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
+        likeImage.set_from_pixbuf(likePixbuf);
+
+
+
+		likeBox.button_release_event.connect(callback);
+		return 0;
+	}
+	public bool callback()
+	{
+		new Thread<int>("", switchLike);
+		return false;
 	}
 
 	public void loadImage()

@@ -11,6 +11,7 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		this.moreButton = new Gtk.Button.with_label("Load more...");
 
 		this.set_selection_mode (Gtk.SelectionMode.NONE);
+		this.activate_on_single_click = false;
 	}
 	public void addMoreButton()
 	{
