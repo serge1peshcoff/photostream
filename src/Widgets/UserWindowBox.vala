@@ -65,6 +65,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.viewport = new Viewport(null, null);
 		this.feedWindow.add(viewport);
+
+		this.viewport.add(box);
 	}
 	public void load(User user)
 	{
@@ -85,8 +87,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		isPrivate = false;
 		clearPrivate();
 
-		if(!this.box.is_ancestor(viewport))
-			viewport.add(box);
+		if(!this.userFeed.is_ancestor(box))
+			box.add(userFeed);
 
 		userFeed.clear();   
 		if (this.userFeed.olderFeedLink != "")
@@ -99,26 +101,24 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	        
     	this.show_all();
 	}
-	public void loadPrivate(string id, string username)
+	public void loadPrivate()
 	{
 		isPrivate = true;
-		this.id = id;
-		this.username = username;
 		clearFeed();
 
-		if(!this.errorBox.is_ancestor(viewport))
-			viewport.add(errorBox);
+		if(!this.errorBox.is_ancestor(box))
+			box.add(errorBox);
 		this.show_all();
 	}
 	private void clearFeed()
 	{
-		if(this.box.is_ancestor(viewport))
-			viewport.remove(box); // feedWindow -> GtkViewport -> box, that's why
+		if(this.userFeed.is_ancestor(box))
+			box.remove(userFeed); // feedWindow -> GtkViewport -> box, that's why
 	}
 	public void clearPrivate()
 	{
-		if(this.errorBox.is_ancestor(viewport))
-			viewport.remove(errorBox);
+		if(this.errorBox.is_ancestor(box))
+			box.remove(errorBox);
 	}
 	public void loadOlderFeed(List<MediaInfo> feedList)
 	{      

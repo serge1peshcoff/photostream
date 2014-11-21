@@ -202,11 +202,11 @@ public class PhotoStream.App : Granite.Application
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }
-        loadUser(userList.nth(0).data.id, userList.nth(0).data.username);
+        loadUser(userList.nth(0).data.id, userList.nth(0).data);
         return 0;
     }
 
-    public int loadUser(string id, string username)
+    public int loadUser(string id, User? loadedUser = null)
     {
         Idle.add(() => {
             stubLoading();
@@ -239,7 +239,10 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             
             if (isPrivate)
-                userWindowBox.loadPrivate(id, username);
+            {
+                userWindowBox.load(loadedUser);
+                userWindowBox.loadPrivate();
+            }
             else
             {
                 userWindowBox.loadFeed(userFeedList);
@@ -273,7 +276,7 @@ public class PhotoStream.App : Granite.Application
             return false;
         });  
         return 0;
-    } 
+    }
 
     public int loadOlderUserFeed()
     {
@@ -485,7 +488,7 @@ public class PhotoStream.App : Granite.Application
                     feedList.prepend(post);
                     feedList.boxes.last().data.avatarBox.button_release_event.connect(() =>{
                         new Thread<int>("", () => {
-                            loadUser(post.postedUser.id, post.postedUser.username);
+                            loadUser(post.postedUser.id, post.postedUser);
                             return 0;
                         });
                         return false;
