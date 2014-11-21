@@ -43,6 +43,8 @@ public class PhotoStream.App : Granite.Application
     public UserWindowBox userWindowBox;
 
     public PostList feedList; 
+
+    public static User selfUser;
     
 	protected override void activate () 
 	{      
@@ -344,8 +346,23 @@ public class PhotoStream.App : Granite.Application
 
 
         new Thread<int>("", setFeedWidgets);
+
+        loadSelfInfo();
         return 0;
-    }   
+    }  
+
+    public void loadSelfInfo()
+    {
+        string response = getUserInfo("self");
+        try 
+        {
+            selfUser = parseUser(response);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+    } 
 
     public int loadOlderFeed()
     {

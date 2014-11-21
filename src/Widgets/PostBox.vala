@@ -21,6 +21,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Image locationImage;
 	public Gtk.Label locationLabel;
 	public Pixbuf locationPixbuf;
+	public string likesText;
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
 	public const int LIKE_SIZE = 25;
@@ -95,7 +96,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		likeBox.button_release_event.connect(callback);
 
-		string likesText = "";
+		likesText = "";
 		if (post.likesCount == post.likes.length() && post.likesCount != 0) // if all likes can be displayed or there's no likes
 		{
 			foreach (User likedUser in post.likes)
@@ -151,11 +152,19 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	{
 		likeBox.button_release_event.disconnect(callback);
 
+		int64 beforeLikes = post.likesCount;
+
 		string response; 
 		if (!post.didILikeThis) // if not liked, then like
+		{
 			response = likeMedia(post.id);
+			this.post.likesCount += 1;
+		}
 		else // dislike
+		{
 			response = dislikeMedia(post.id);
+			this.post.likesCount -= 1;
+		}
 
 		post.didILikeThis = !post.didILikeThis;
 
@@ -175,9 +184,18 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
         likeImage.set_from_pixbuf(likePixbuf);
 
+        if (beforeLikes != post.likes.length())
+        	likesText = post.likesCount.to_string() + " likes.";
+        else if (this.post.likesCount != 1) // if only self liked this
+        	likesText = "<a href=\"@" + PhotoStream.App.selfUser.username + "\">" + PhotoStream.App.selfUser.username + "</a>, " + likesText;
+        else
+        	likesText = "<a href=\"@" + PhotoStream.App.selfUser.username + "\">" + PhotoStream.App.selfUser.username + "</a>";
 
+        likesLabel.set_markup(likesText);
 
 		likeBox.button_release_event.connect(callback);
+
+		this.show_all();
 		return 0;
 	}
 	public bool callback()
