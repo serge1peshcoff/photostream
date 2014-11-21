@@ -20,6 +20,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Box locationBox;
 	public Gtk.Image locationImage;
 	public Gtk.Label locationLabel;
+	public Pixbuf locationPixbuf;
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
 	public const int LIKE_SIZE = 25;
@@ -66,7 +67,10 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		box.add(titleLabel);
 
 		if (post.location != null)
+		{
+			this.locationEventBox = new Gtk.EventBox();
 			loadLocation(post.location);
+		}
 
 		likeToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
@@ -227,27 +231,36 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
     public void loadLocation(Location location)
     {
     	this.post.location = location;
-    	this.locationEventBox = new Gtk.EventBox();
-		this.locationBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.locationEventBox.add(locationBox);
+    	if (!locationEventBox.is_ancestor(box))
+    	{	    	
+			this.locationBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+			this.locationEventBox.add(locationBox);
 
-		Pixbuf locationPixbuf;
-		try 
-        {
-        	locationPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "location.png");
-        }	
-        catch (Error e)
-        {
-        	GLib.error("Something wrong with file loading.\n");
+			try 
+	        {
+	        	locationPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "location.png");
+	        }	
+	        catch (Error e)
+	        {
+	        	GLib.error("Something wrong with file loading.\n");
+	        }
+
+	        locationPixbuf = locationPixbuf.scale_simple(LOCATION_SIZE, LOCATION_SIZE, Gdk.InterpType.BILINEAR);
+	        locationImage = new Gtk.Image.from_pixbuf(locationPixbuf);
+	        locationBox.add(locationImage);
+
+
+        	locationLabel = new Gtk.Label(post.location.name);
+
+
+	        locationBox.add(locationLabel);
+
+	        box.add(locationEventBox);
+
         }
+        else
+        	locationLabel.set_text(post.location.name);
 
-        locationPixbuf = locationPixbuf.scale_simple(LOCATION_SIZE, LOCATION_SIZE, Gdk.InterpType.BILINEAR);
-        locationImage = new Gtk.Image.from_pixbuf(locationPixbuf);
-        locationBox.add(locationImage);
-
-        locationLabel = new Gtk.Label(post.location.name);
-        locationBox.add(locationLabel);
-
-        box.add(locationEventBox);
+        this.show_all();
     }
 }

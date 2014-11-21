@@ -103,8 +103,12 @@ public MediaInfo parseMediaPostFromObject(Json.Node mediaPost) throws Error
 public Location parseLocationFromObject(Json.Object locationObject) throws Error
 {
     var location = new Location();
-    location.latitude = (locationObject.has_member("latitude")) ? locationObject.get_double_member("latitude") : 0;
-    location.longitude = (locationObject.has_member("longitude")) ? locationObject.get_double_member("longitude") : 0;
+    location.latitude = (locationObject.has_member("latitude") && !locationObject.get_member("latitude").is_null()) 
+                                    ? locationObject.get_double_member("latitude") 
+                                    : 0;
+    location.longitude = (locationObject.has_member("longitude") && !locationObject.get_member("longitude").is_null()) 
+                                    ? locationObject.get_double_member("longitude") 
+                                    : 0;
     location.name = (locationObject.has_member("name")) ? locationObject.get_string_member("name") : "";
     location.id = (locationObject.has_member("id")) ? locationObject.get_int_member("id") : 0;
     return location;

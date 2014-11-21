@@ -254,6 +254,14 @@ public class PhotoStream.App : Granite.Application
                         commentBox.usernameLabel.activate_link.connect(handleUris);
                         commentBox.textLabel.activate_link.connect(handleUris);
                     }
+                    if (postBox.post.location != null 
+                        && postBox.post.location.latitude == 0 
+                        && postBox.post.location.longitude == 0 
+                        && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+                        new Thread<int>("", () => {
+                            loadMissingLocation(postBox, postBox.post.location.id);
+                            return 0;
+                        });
                 }
             }
 
@@ -292,6 +300,14 @@ public class PhotoStream.App : Granite.Application
                     commentBox.usernameLabel.activate_link.connect(handleUris);
                     commentBox.textLabel.activate_link.connect(handleUris);
                 }
+                if (postBox.post.location != null 
+                        && postBox.post.location.latitude == 0 
+                        && postBox.post.location.longitude == 0 
+                        && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+                        new Thread<int>("", () => {
+                            loadMissingLocation(postBox, postBox.post.location.id);
+                            return 0;
+                        });
             }
             return false;
         });
@@ -355,6 +371,25 @@ public class PhotoStream.App : Granite.Application
         // if we got here then we've got no errors, yay!   
 
         new Thread<int>("", setFeedWidgets);
+        return 0;
+    }
+
+    public int loadMissingLocation(PostBox postBox, int64 id)
+    {
+        string response = getLocationInfo(id);
+        Location location;
+        try
+        {
+            location = parseLocation(response);
+        }
+        catch (Error e) 
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        Idle.add(() => {
+            postBox.loadLocation(location);
+            return false;
+        });
         return 0;
     }
 
@@ -455,6 +490,14 @@ public class PhotoStream.App : Granite.Application
                         });
                         return false;
                     });
+                    if (post.location != null 
+                        && post.location.latitude == 0 
+                        && post.location.longitude == 0 
+                        && post.location.name == "") // sometimes location contains only ID, for such cases
+                        new Thread<int>("", () => {
+                            loadMissingLocation(feedList.boxes.last().data, post.location.id);
+                            return 0;
+                        });
                 }         
 
             new Thread<int>("", loadImages);
