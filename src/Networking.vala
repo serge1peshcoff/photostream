@@ -88,7 +88,8 @@ public string getComments(string id)
 }
 public string postComment(string id, string comment)
 {
-    // stub, waiting for Instagram to allow me to use this endpoint.
+    // stub, waiting for Instagram to allow me to use this endpoint. 
+    // UPD: they rejected me. don't know what to do.
     return "";
 }
 public string deleteComment(string mediaId, string commentId)

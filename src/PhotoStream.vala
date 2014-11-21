@@ -37,12 +37,14 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow likesWindow;
+    public Gtk.ScrolledWindow commentWindow;
     public Gtk.ScrolledWindow usersWindow;
     public Gtk.ScrolledWindow searchWindow;
 
     public UserWindowBox userWindowBox;
 
     public PostList feedList; 
+    public CommentsList commentsList;
 
     public static User selfUser;
     
@@ -147,6 +149,11 @@ public class PhotoStream.App : Granite.Application
         this.userWindowBox = new UserWindowBox();
         this.userWindow.add_with_viewport (userWindowBox);
         stack.add_named(userWindow, "user");
+
+        this.commentWindow = new Gtk.ScrolledWindow(null, null);
+        this.commentsList = new CommentsList();
+        this.commentWindow.add_with_viewport(commentsList);
+        stack.add_named(commentWindow, "comments");
     }
 
     public void setLoginWindow()
@@ -202,6 +209,39 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
         loadUser(userList.nth(0).data.id, userList.nth(0).data);
+        return 0;
+    }
+
+    public int loadComments(string postId)
+    {
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("comments");
+            return false;
+        });
+        string response = getComments(postId);
+        List<Comment> commentsListRequested = new List<Comment>();
+
+        try
+        {
+            commentsListRequested = parseComments(response);
+
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        commentsList.clear();
+        foreach(Comment comment in commentsListRequested)
+            commentsList.prepend(comment, true);
+
+        Idle.add(() => {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            return false;
+        });
+        
         return 0;
     }
 
@@ -261,6 +301,14 @@ public class PhotoStream.App : Granite.Application
                             loadMissingLocation(postBox, postBox.post.location.id);
                             return 0;
                         });
+                    if (postBox.commentList.loadMoreButton != null)
+                        postBox.commentList.loadMoreButton.activate_link.connect(() => {
+                            new Thread<int>("", () => {
+                                loadComments(postBox.post.id);
+                                return 0;
+                            });
+                            return true;
+                        });
                 }
             }
 
@@ -304,6 +352,14 @@ public class PhotoStream.App : Granite.Application
                             loadMissingLocation(postBox, postBox.post.location.id);
                             return 0;
                         });
+                if (postBox.commentList.loadMoreButton != null)
+                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
+                        new Thread<int>("", () => {
+                            loadComments(postBox.post.id);
+                            return 0;
+                        });
+                        return true;
+                    });
             }
             return false;
         });
@@ -532,6 +588,14 @@ public class PhotoStream.App : Granite.Application
                 postBox.likesLabel.activate_link.connect(handleUris);
                 foreach(CommentBox commentBox in postBox.commentList.comments)
                     commentBox.textLabel.activate_link.connect(handleUris);
+                if (postBox.commentList.loadMoreButton != null)
+                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
+                        new Thread<int>("", () => {
+                            loadComments(postBox.post.id);
+                            return 0;
+                        });
+                        return true;
+                    });
             }
 
             if (!isFeedLoaded)

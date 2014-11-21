@@ -1,11 +1,10 @@
 public string wrapInTags(string original)
 {
-	string res;
-
+	string res = GLib.Markup.escape_text(original);
 	try
 	{
 		Regex hashtagRegex = new Regex("#([\\p{L}0-9_]+)");
-		res = hashtagRegex.replace_eval (original, -1, 0, 0, (mi, s) => {
+		res = hashtagRegex.replace_eval (res, -1, 0, 0, (mi, s) => {
             s.append_printf ("<a href=\"%s\">%s</a>", mi.fetch (0), mi.fetch (0));
             return false;
         });
@@ -28,6 +27,5 @@ public string wrapInTags(string original)
 	{
 		error("Something wrong with regexes: " + e.message + ".\n");
 	}
-	res = res.replace("&", "&amp;");
 	return res;
 }

@@ -31,4 +31,11 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		base.insert (box, -1);
 		comments.append(box);			
 	}
+
+	public void clear()
+	{
+		foreach (var child in this.get_children())
+			this.remove(child);
+		this.comments = new List<CommentBox>();
+	}
 }
