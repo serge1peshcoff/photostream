@@ -66,8 +66,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		try 
         {
         	likePixbuf = new Pixbuf.from_file(post.didILikeThis 
-        								? PhotoStream.App.CACHE_IMAGES + "like.jpg" 
-        								: PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
+        								? PhotoStream.App.CACHE_IMAGES + "like.png" 
+        								: PhotoStream.App.CACHE_IMAGES + "dontlike.png");
         }	
         catch (Error e)
         {
@@ -151,8 +151,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		try 
         {
         	likePixbuf = new Pixbuf.from_file(post.didILikeThis 
-        								? PhotoStream.App.CACHE_IMAGES + "like.jpg" 
-        								: PhotoStream.App.CACHE_IMAGES + "dontlike.jpg");
+        								? PhotoStream.App.CACHE_IMAGES + "like.png" 
+        								: PhotoStream.App.CACHE_IMAGES + "dontlike.png");
         }	
         catch (Error e)
         {
