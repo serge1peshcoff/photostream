@@ -234,7 +234,18 @@ public class PhotoStream.App : Granite.Application
 
         commentsList.clear();
         foreach(Comment comment in commentsListRequested)
+        {
             commentsList.prepend(comment, true);
+            commentsList.comments.last().data.textLabel.activate_link.connect(handleUris);
+            if( commentsList.comments.last().data.avatarBox != null)
+                commentsList.comments.last().data.avatarBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        loadUser(comment.user.id, comment.user);
+                        return 0;
+                    });                   
+                    return false;
+                });
+        }
 
         Idle.add(() => {
             box.remove(loadingImage);

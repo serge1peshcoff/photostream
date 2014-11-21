@@ -5,6 +5,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 {
 	public Comment comment;
 	public Gtk.Label textLabel;
+	public Gtk.EventBox avatarBox;
 	public Gtk.Image avatar;
 	public int AVATAR_SIZE = 35;
 
@@ -16,6 +17,8 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.textLabel.set_line_wrap(true);
 		this.textLabel.set_justify(Gtk.Justification.LEFT);
 
+		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+
 		if (withAvatar)
 		{
 			var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(comment.user.profilePicture);
@@ -23,7 +26,10 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	        if (!file.query_exists()) // avatar not downloaded, download
 	        	downloadFile(comment.user.profilePicture, avatarFileName);
 
+
         	avatar = new Gtk.Image();
+        	avatarBox = new Gtk.EventBox();
+        	avatarBox.add(avatar);
         	Pixbuf avatarPixbuf; 
 	        try 
 	        {
@@ -36,7 +42,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
 			avatar.set_from_pixbuf(avatarPixbuf);	
-			this.pack_start(avatar, false, true);	
+			this.pack_start(avatarBox, false, true);	
 		}
 		this.add(textLabel);
 
