@@ -78,9 +78,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         this.avatar.set_from_file(avatarFileName);
 
 		this.userName.set_label(user.username + " (" + user.fullName + ")");
-		this.mediaCount.set_label(user.mediaCount.to_string() + "media");
-		this.followsCount.set_label(user.followed.to_string() + "follows");
-		this.followersCount.set_label(user.followers.to_string() + "followers");
+		this.mediaCount.set_label((user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + " media");
+		this.followsCount.set_label((user.followed == 0 ? "?" : user.followed.to_string()) + " follows");
+		this.followersCount.set_label((user.followers == 0 ? "?" : user.followers.to_string()) + " followers");
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
