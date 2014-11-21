@@ -18,16 +18,16 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	{
 		this.comments = new GLib.List<CommentBox>();
 	}
-	public void append(Comment post)
+	public void append(Comment post, bool withAvatar)
 	{
-		CommentBox box = new CommentBox(post);
+		CommentBox box = new CommentBox(post, withAvatar);
 		base.prepend(box);
 		comments.append(box);		
 	}
 
-	public new void prepend(Comment post)
+	public new void prepend(Comment post, bool withAvatar)
 	{
-		CommentBox box = new CommentBox(post);
+		CommentBox box = new CommentBox(post, withAvatar);
 		base.insert (box, -1);
 		comments.append(box);			
 	}

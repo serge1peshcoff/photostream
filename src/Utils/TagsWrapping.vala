@@ -28,5 +28,6 @@ public string wrapInTags(string original)
 	{
 		error("Something wrong with regexes: " + e.message + ".\n");
 	}
+	res = res.replace("&", "&amp;");
 	return res;
 }

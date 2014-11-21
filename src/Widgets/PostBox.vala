@@ -120,7 +120,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			if(post.commentsCount !=  post.comments.length())
 				commentList.addMoreButton();
 			foreach(Comment comment in post.comments)
-				commentList.prepend(comment);
+				commentList.prepend(comment, false);
 			box.add(commentList);
 		}
 	}	

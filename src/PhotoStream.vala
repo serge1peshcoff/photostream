@@ -77,12 +77,9 @@ public class PhotoStream.App : Granite.Application
         mainWindow.destroy.connect (Gtk.main_quit);
         mainWindow.set_application(this); 
 
-        tryLogin();
+        preloadWindows();
 
-        Idle.add(() => {
-            preloadWindows();
-            return false;
-        });
+        tryLogin();
     }
 
     public void tryLogin()
@@ -255,10 +252,7 @@ public class PhotoStream.App : Granite.Application
                     postBox.titleLabel.activate_link.connect(handleUris);
                     postBox.likesLabel.activate_link.connect(handleUris);
                     foreach(CommentBox commentBox in postBox.commentList.comments)
-                    {
-                        commentBox.usernameLabel.activate_link.connect(handleUris);
                         commentBox.textLabel.activate_link.connect(handleUris);
-                    }
                     if (postBox.post.location != null 
                         && postBox.post.location.latitude == 0 
                         && postBox.post.location.longitude == 0 
@@ -301,10 +295,7 @@ public class PhotoStream.App : Granite.Application
                 postBox.titleLabel.activate_link.connect(handleUris);
                 postBox.likesLabel.activate_link.connect(handleUris);
                 foreach(CommentBox commentBox in postBox.commentList.comments)
-                {
-                    commentBox.usernameLabel.activate_link.connect(handleUris);
                     commentBox.textLabel.activate_link.connect(handleUris);
-                }
                 if (postBox.post.location != null 
                         && postBox.post.location.latitude == 0 
                         && postBox.post.location.longitude == 0 
@@ -327,6 +318,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadFeed()
     {
+        loadSelfInfo();
         string response = getUserFeed();
         try 
         {
@@ -343,11 +335,7 @@ public class PhotoStream.App : Granite.Application
         if(box.get_children().find(bar) != null)
             box.remove(bar);  
 
-
-
-        new Thread<int>("", setFeedWidgets);
-
-        loadSelfInfo();
+        new Thread<int>("", setFeedWidgets);      
         return 0;
     }  
 
@@ -457,9 +445,7 @@ public class PhotoStream.App : Granite.Application
         //feedButton.set_sensitive (false);
         centered_toolbar.add (feedButton);
 
-        feedButton.clicked.connect(() => {
-            switchWindow("userFeed");
-        });
+        
 
         exploreButton = new Gtk.ToggleToolButton ();
         exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
@@ -487,14 +473,32 @@ public class PhotoStream.App : Granite.Application
         userButton.set_tooltip_text ("You");
         userButton.set_label ("You");
         //this.mainWindow.userButton.set_sensitive (false);
-        centered_toolbar.add (userButton);
+        centered_toolbar.add (userButton);        
 
         header.set_custom_title (centered_toolbar);
+    }
+
+    public void setHeaderCallbacks()
+    {
+        feedButton.clicked.connect(() => {
+            switchWindow("userFeed");
+        });
+
+        userButton.clicked.connect(() => {
+            new Thread<int>("", () => {
+                loadUser(selfUser.id);
+                return 0;
+            });
+            
+        });
+
     }
 
     public int setFeedWidgets()
     {        
         Idle.add(() => { 
+
+            setHeaderCallbacks();
 
             if (this.feedList.olderFeedLink != "")
                 this.feedList.addMoreButton();         
@@ -527,10 +531,7 @@ public class PhotoStream.App : Granite.Application
                 postBox.titleLabel.activate_link.connect(handleUris);
                 postBox.likesLabel.activate_link.connect(handleUris);
                 foreach(CommentBox commentBox in postBox.commentList.comments)
-                {
-                    commentBox.usernameLabel.activate_link.connect(handleUris);
                     commentBox.textLabel.activate_link.connect(handleUris);
-                }
             }
 
             if (!isFeedLoaded)
