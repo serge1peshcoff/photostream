@@ -590,17 +590,9 @@ public class PhotoStream.App : Granite.Application
                 this.feedList.addMoreButton();         
 
             foreach (MediaInfo post in feedPosts)
-                if (!feedList.contains(post))
-                { 
+                if (!feedList.contains(post)) 
                     feedList.prepend(post);
-                    feedList.boxes.last().data.avatarBox.button_release_event.connect(() =>{
-                        new Thread<int>("", () => {
-                            loadUser(post.postedUser.id, post.postedUser);
-                            return 0;
-                        });
-                        return false;
-                    });
-                }         
+                       
 
             new Thread<int>("", loadImages);
 
@@ -658,6 +650,13 @@ public class PhotoStream.App : Granite.Application
                 });
                 return true;
             });
+        postBox.avatarBox.button_release_event.connect(() =>{
+            new Thread<int>("", () => {
+                loadUser(postBox.post.postedUser.id, postBox.post.postedUser);
+                return 0;
+            });
+            return false;
+        });
     }
 
     
