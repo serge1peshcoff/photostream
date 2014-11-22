@@ -4,6 +4,7 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 {
 	public GLib.List<PostBox> boxes;
 	public Gtk.Button moreButton;
+	public Gtk.Alignment moreButtonAlignment;
 	public string olderFeedLink;
 	public PostList()
 	{
@@ -14,9 +15,11 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		this.activate_on_single_click = false;
 	}
 	public void addMoreButton()
-	{
+	{		
+		this.moreButtonAlignment = new Gtk.Alignment (1,0,1,1);
+        this.moreButtonAlignment.add(moreButton);
 		if(!this.moreButton.is_ancestor(this))
-			base.prepend(this.moreButton);
+			base.prepend(this.moreButtonAlignment);
 	}
 	public void deleteMoreButton()
 	{
@@ -45,8 +48,6 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		base.insert (separator, (int) this.get_children().length () - 1);
 		PostBox box = new PostBox(post);
 		base.insert (box, (int) this.get_children().length () - 1);
-		this.get_children().last().data.set_halign(Gtk.Align.START);
-		this.get_children().nth(0).data.set_halign(Gtk.Align.START);
 		boxes.append(box);			
 	}
 
