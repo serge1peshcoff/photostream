@@ -45,6 +45,8 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		base.insert (separator, (int) this.get_children().length () - 1);
 		PostBox box = new PostBox(post);
 		base.insert (box, (int) this.get_children().length () - 1);
+		this.get_children().last().data.set_halign(Gtk.Align.START);
+		this.get_children().nth(0).data.set_halign(Gtk.Align.START);
 		boxes.append(box);			
 	}
 

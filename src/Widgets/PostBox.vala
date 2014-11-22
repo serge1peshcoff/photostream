@@ -5,6 +5,14 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 {
 	public Gtk.Box box;
 
+	public Gtk.Alignment avatarAlignment;
+	public Gtk.Alignment userNameAlignment;
+	public Gtk.Alignment imageAlignment;
+	public Gtk.Alignment titleAlignment;
+	public Gtk.Alignment locationAlignment;
+	public Gtk.Alignment likeAlignment;
+	public Gtk.Alignment commentsAlignment;
+
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
 	public Gtk.Label dateLabel;
@@ -12,6 +20,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
 	public Gtk.EventBox avatarBox;
+	public Gtk.Fixed imageBox;
 	public Gtk.Image image;
 	public Gtk.Box likeToolbar;
 	public Gtk.EventBox likeBox;
@@ -41,10 +50,23 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		this.post = post;
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
+		this.avatarAlignment = new Gtk.Alignment (0,0,0,1);
+        this.avatarAlignment.top_padding = 6;
+        this.avatarAlignment.right_padding = 4;
+        this.avatarAlignment.bottom_padding = 6;
+        this.avatarAlignment.left_padding = 6;
+
 		avatarBox = new Gtk.EventBox();
 		avatar = new Gtk.Image();
 		avatarBox.add(avatar);
-		userToolbar.pack_start(avatarBox, false, true);	
+		avatarAlignment.add(avatarBox);
+		userToolbar.pack_start(avatarAlignment, false, true);
+
+		this.userNameAlignment = new Gtk.Alignment (0,0,0,1);
+        this.userNameAlignment.top_padding = 6;
+        this.userNameAlignment.right_padding = 6;
+        this.userNameAlignment.bottom_padding = 0;
+        this.userNameAlignment.left_padding = 6;	
 
 		userNameLabel = new Gtk.Label("");
 		userNameLabel.set_markup(
@@ -54,18 +76,36 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		userNameLabel.set_line_wrap(true);
 		dateLabel = new Gtk.Label(post.creationTime.format("%e.%m.%Y %H:%M"));
 		
-		userToolbar.add(userNameLabel);
-		userToolbar.add(dateLabel);
-		box.pack_start(userToolbar, false, true);	
 
+		userNameAlignment.add(userNameLabel);		
+		userToolbar.add(userNameAlignment);
+		userToolbar.add(dateLabel);
+		box.pack_start(userToolbar, false, true);
+
+		this.imageAlignment = new Gtk.Alignment (0,0,0,1);
+        this.imageAlignment.top_padding = 6;
+        this.imageAlignment.right_padding = 6;
+        this.imageAlignment.bottom_padding = 0;
+        this.imageAlignment.left_padding = 6;	
+
+		imageBox = new Gtk.Fixed();
 		image = new Gtk.Image();
-		box.add(image);	
+		imageBox.put(image, 0, 0);
+		imageAlignment.add(imageBox);
+		box.add(imageAlignment);	
+
+		this.titleAlignment = new Gtk.Alignment (0,0,0,1);
+        this.titleAlignment.top_padding = 6;
+        this.titleAlignment.right_padding = 6;
+        this.titleAlignment.bottom_padding = 0;
+        this.titleAlignment.left_padding = 6;
 
 		titleLabel = new Gtk.Label("");
 		titleLabel.set_markup(wrapInTags(post.title));
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
-		box.add(titleLabel);
+		titleAlignment.add(titleLabel);
+		box.add(titleAlignment);
 
 		if (post.location != null)
 		{
@@ -87,12 +127,19 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         	GLib.error("Something wrong with file loading.\n");
         }
 
+        this.likeAlignment = new Gtk.Alignment (0,0,0,1);
+        this.likeAlignment.top_padding = 6;
+        this.likeAlignment.right_padding = 6;
+        this.likeAlignment.bottom_padding = (post.commentsCount == 0) ? 6 : 0;
+        this.likeAlignment.left_padding = 6;
+
 
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
         likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
         likeBox = new Gtk.EventBox();
         likeBox.add(likeImage);
-		likeToolbar.pack_start(likeBox, false, true);
+        likeAlignment.add(likeBox);
+		likeToolbar.pack_start(likeAlignment, false, true);
 
 		likeBox.button_release_event.connect(callback);
 
@@ -117,36 +164,21 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		commentList = new CommentsList();
 		if (post.commentsCount != 0)
 		{
+			this.commentsAlignment = new Gtk.Alignment (0,1,1,1);
+	        this.commentsAlignment.top_padding = 3;
+	        this.commentsAlignment.right_padding = 6;
+	        this.commentsAlignment.bottom_padding = 3;
+	        this.commentsAlignment.left_padding = 6;
+
 			if(post.commentsCount !=  post.comments.length())
 				commentList.addMoreButton();
 			foreach(Comment comment in post.comments)
 				commentList.prepend(comment, false);
-			box.add(commentList);
+
+			commentsAlignment.add(commentList);
+			box.add(commentsAlignment);
 		}
 	}	
-	public void loadAvatar()
-	{
-		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
-		File file = File.new_for_path(avatarFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	downloadFile(post.postedUser.profilePicture, avatarFileName);
-
-        Idle.add(() => {
-        	Pixbuf avatarPixbuf; 
-	        try 
-	        {
-	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-
-			avatar.set_from_pixbuf(avatarPixbuf);		
-			return false;
-        });
-	}
 
 	public int switchLike()
 	{
@@ -202,6 +234,36 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	{
 		new Thread<int>("", switchLike);
 		return false;
+	}
+
+	public void loadAvatar()
+	{
+		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
+		File file = File.new_for_path(avatarFileName);
+        if (!file.query_exists()) // avatar not downloaded, download
+        	downloadFile(post.postedUser.profilePicture, avatarFileName);
+
+        Idle.add(() => {
+        	Pixbuf avatarPixbuf; 
+        	Pixbuf avatarMaskPixbuf;
+	        try 
+	        {
+	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
+	        	avatarMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
+	        }	
+	        catch (Error e)
+	        {
+	        	GLib.error("Something wrong with file loading.\n");
+	        }
+			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
+			avatarMaskPixbuf = avatarMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
+
+			avatarMaskPixbuf.composite(avatarPixbuf, 0, 0, 
+	        						AVATAR_SIZE, AVATAR_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
+
+			avatar.set_from_pixbuf(avatarPixbuf);		
+			return false;
+        });
 	}
 
 	public void loadImage()

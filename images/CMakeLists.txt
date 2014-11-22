@@ -6,6 +6,7 @@ set(GENERIC_IMAGES
     location.png
     following.png
     not-following.png
+    avatar-mask.png
 )
 
 install (FILES ${GENERIC_IMAGES} DESTINATION ${IMAGES_DIR})

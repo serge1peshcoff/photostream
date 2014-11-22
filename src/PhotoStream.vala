@@ -309,18 +309,20 @@ public class PhotoStream.App : Granite.Application
         string relationshipInfo = getUsersRelationship(id);
         User user = new User();
         bool isPrivate = false;
+        Relationship relationship = null;
 
         try
         {
             user = parseUser(userInfo);
-            user.relationship = parseRelationship(relationshipInfo);
+            relationship = parseRelationship(relationshipInfo);
+            user.relationship = relationship;
         }
         catch (Error e) // wrong token
         {
             if (e.message == "you cannot view this resource") // this profile is private
             {
                 isPrivate = true;
-                loadedUser.relationship = parseRelationship(relationshipInfo);
+                loadedUser.relationship = relationship;
             }
             else
                 error("Something wrong with parsing: " + e.message + ".\n");

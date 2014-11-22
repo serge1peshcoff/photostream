@@ -4,6 +4,11 @@ using Gdk;
 public class PhotoStream.Widgets.CommentBox : Gtk.Box
 {
 	public Comment comment;
+
+	public Gtk.Alignment avatarAlignment;
+	public Gtk.Alignment textAlignment;
+
+	public Gtk.Box textBox;
 	public Gtk.Label textLabel;
 	public Gtk.EventBox avatarBox;
 	public Gtk.Image avatar;
@@ -12,10 +17,27 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	public CommentBox(Comment comment, bool withAvatar)
 	{
 		this.comment = comment;
+
+		this.textAlignment = new Gtk.Alignment (0,0,1,1);
+        this.textAlignment.top_padding = 2;
+        this.textAlignment.right_padding = 6;
+        this.textAlignment.bottom_padding = 2;
+        this.textAlignment.left_padding = 0;
+
+        this.avatarAlignment = new Gtk.Alignment (0,0,1,1);
+        this.avatarAlignment.top_padding = 2;
+        this.avatarAlignment.right_padding = 6;
+        this.avatarAlignment.bottom_padding = 2;
+        this.avatarAlignment.left_padding = 0;
+
+        this.textBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.textLabel = new Gtk.Label("");
 		this.textLabel.set_markup("<b>" + wrapInTags("@" + comment.user.username) + "</b> " + wrapInTags(comment.text));
 		this.textLabel.set_line_wrap(true);
 		this.textLabel.set_justify(Gtk.Justification.LEFT);
+		this.textBox.set_halign(Gtk.Align.START);
+		this.textLabel.set_halign(Gtk.Align.START);
+		this.textAlignment.set_halign(Gtk.Align.START);
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 
@@ -42,9 +64,13 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
 			avatar.set_from_pixbuf(avatarPixbuf);	
-			this.pack_start(avatarBox, false, true);	
+
+			avatarAlignment.add(avatarBox);
+			this.pack_start(avatarAlignment, false, true);	
 		}
-		this.add(textLabel);
+		textBox.add(textLabel);
+		textAlignment.add(textBox);
+		this.add(textAlignment);
 
 		this.show_all();
 	}

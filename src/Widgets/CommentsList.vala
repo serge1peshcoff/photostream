@@ -17,6 +17,9 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public CommentsList()
 	{
 		this.comments = new GLib.List<CommentBox>();
+
+		this.set_selection_mode (Gtk.SelectionMode.NONE);
+
 	}
 	public void append(Comment post, bool withAvatar)
 	{
