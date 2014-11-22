@@ -362,28 +362,7 @@ public class PhotoStream.App : Granite.Application
             userWindowBox.load(user);
 
             foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-            {
-                postBox.titleLabel.activate_link.connect(handleUris);
-                postBox.likesLabel.activate_link.connect(handleUris);
-                foreach(CommentBox commentBox in postBox.commentList.comments)
-                    commentBox.textLabel.activate_link.connect(handleUris);
-                if (postBox.post.location != null 
-                    && postBox.post.location.latitude == 0 
-                    && postBox.post.location.longitude == 0 
-                    && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
-                    new Thread<int>("", () => {
-                        loadMissingLocation(postBox, postBox.post.location.id);
-                        return 0;
-                    });
-                if (postBox.commentList.loadMoreButton != null)
-                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
-                        new Thread<int>("", () => {
-                            loadComments(postBox.post.id);
-                            return 0;
-                        });
-                        return true;
-                    });
-            }
+                connectPostBoxHandlers(postBox);
 
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
@@ -412,28 +391,7 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             userWindowBox.loadOlderFeed(userFeedList);
             foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-            {
-                postBox.titleLabel.activate_link.connect(handleUris);
-                postBox.likesLabel.activate_link.connect(handleUris);
-                foreach(CommentBox commentBox in postBox.commentList.comments)
-                    commentBox.textLabel.activate_link.connect(handleUris);
-                if (postBox.post.location != null 
-                        && postBox.post.location.latitude == 0 
-                        && postBox.post.location.longitude == 0 
-                        && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
-                        new Thread<int>("", () => {
-                            loadMissingLocation(postBox, postBox.post.location.id);
-                            return 0;
-                        });
-                if (postBox.commentList.loadMoreButton != null)
-                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
-                        new Thread<int>("", () => {
-                            loadComments(postBox.post.id);
-                            return 0;
-                        });
-                        return true;
-                    });
-            }
+                connectPostBoxHandlers(postBox);
             return false;
         });
 
@@ -642,33 +600,12 @@ public class PhotoStream.App : Granite.Application
                         });
                         return false;
                     });
-                    if (post.location != null 
-                        && post.location.latitude == 0 
-                        && post.location.longitude == 0 
-                        && post.location.name == "") // sometimes location contains only ID, for such cases
-                        new Thread<int>("", () => {
-                            loadMissingLocation(feedList.boxes.last().data, post.location.id);
-                            return 0;
-                        });
                 }         
 
             new Thread<int>("", loadImages);
 
             foreach(PostBox postBox in this.feedList.boxes)
-            {
-                postBox.titleLabel.activate_link.connect(handleUris);
-                postBox.likesLabel.activate_link.connect(handleUris);
-                foreach(CommentBox commentBox in postBox.commentList.comments)
-                    commentBox.textLabel.activate_link.connect(handleUris);
-                if (postBox.commentList.loadMoreButton != null)
-                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
-                        new Thread<int>("", () => {
-                            loadComments(postBox.post.id);
-                            return 0;
-                        });
-                        return true;
-                    });
-            }
+                connectPostBoxHandlers(postBox);
 
             if (!isFeedLoaded)
             {
@@ -697,6 +634,30 @@ public class PhotoStream.App : Granite.Application
             }
         }
         return 0;
+    }
+
+    public void connectPostBoxHandlers(PostBox postBox)
+    {
+        postBox.titleLabel.activate_link.connect(handleUris);
+        postBox.likesLabel.activate_link.connect(handleUris);
+        foreach(CommentBox commentBox in postBox.commentList.comments)
+            commentBox.textLabel.activate_link.connect(handleUris);
+        if (postBox.post.location != null 
+            && postBox.post.location.latitude == 0 
+            && postBox.post.location.longitude == 0 
+            && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+            new Thread<int>("", () => {
+                loadMissingLocation(postBox, postBox.post.location.id);
+                return 0;
+            });
+        if (postBox.commentList.loadMoreButton != null)
+            postBox.commentList.loadMoreButton.activate_link.connect(() => {
+                new Thread<int>("", () => {
+                    loadComments(postBox.post.id);
+                    return 0;
+                });
+                return true;
+            });
     }
 
     
