@@ -16,6 +16,8 @@ set(CLIENT_SOURCE
     Widgets/UserWindowBox.vala
     Widgets/CommentsList.vala
     Widgets/CommentsBox.vala
+    Widgets/HashTagList.vala
+    Widgets/HashTagBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

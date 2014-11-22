@@ -34,6 +34,7 @@ public class PhotoStream.App : Granite.Application
     public PhotoStack stack;
     public Gtk.ScrolledWindow userFeedWindow;
     public Gtk.ScrolledWindow tagFeedWindow;
+    public Gtk.ScrolledWindow tagSearchWindow;
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow likesWindow;
@@ -45,6 +46,7 @@ public class PhotoStream.App : Granite.Application
 
     public PostList feedList; 
     public CommentsList commentsList;
+    public HashTagList tagList;
 
     public static User selfUser;
     
@@ -154,6 +156,11 @@ public class PhotoStream.App : Granite.Application
         this.commentsList = new CommentsList();
         this.commentWindow.add_with_viewport(commentsList);
         stack.add_named(commentWindow, "comments");
+
+        this.tagSearchWindow = new Gtk.ScrolledWindow(null, null);
+        this.tagList = new HashTagList();
+        this.tagSearchWindow.add_with_viewport(tagList);
+        stack.add_named(tagSearchWindow, "tags");
     }
 
     public void setLoginWindow()
@@ -209,6 +216,41 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
         loadUser(userList.nth(0).data.id, userList.nth(0).data);
+        return 0;
+    }
+
+    public int searchTag(string tag)
+    {
+
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("tags");
+            return false;
+        });
+        string response = searchTags(tag);
+        List<Tag> tagListRequested = new List<Tag>();
+
+        try
+        {
+            tagListRequested = parseTagList(response);
+
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        tagList.clear();
+        foreach(Tag tagInList in tagListRequested)
+            tagList.prepend(tagInList);
+
+        Idle.add(() => {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            this.stack.show_all();
+            return false;
+        });
+        
         return 0;
     }
 
@@ -558,7 +600,6 @@ public class PhotoStream.App : Granite.Application
             });
             
         });
-
     }
 
     public int setFeedWidgets()

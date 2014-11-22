@@ -140,7 +140,7 @@ public string getTagRecent(string tag)
 {
     return getResponse("https://api.instagram.com/v1/tags/" + tag + "/media/recent?access_token=" + PhotoStream.App.appToken);
 }
-public string searchTag(string tag)
+public string searchTags(string tag)
 {
     return getResponse("https://api.instagram.com/v1/tags/search?q=" + tag + "&access_token=" + PhotoStream.App.appToken);
 }
