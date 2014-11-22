@@ -306,16 +306,12 @@ public class PhotoStream.App : Granite.Application
             return false;
         });
         string userInfo = getUserInfo(id);
-        string userFeed = getUserMedia(id);
         User user = new User();
-        List<MediaInfo> userFeedList = new List<MediaInfo>();
         bool isPrivate = false;
 
         try
         {
             user = parseUser(userInfo);
-            userFeedList = parseFeed(userFeed);
-            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
         }
         catch (Error e) // wrong token
         {
@@ -328,41 +324,65 @@ public class PhotoStream.App : Granite.Application
                 error("Something wrong with parsing: " + e.message + ".\n");
         }
 
-        Idle.add(() => {
-            
-            if (isPrivate)
-            {
+        if (isPrivate)
+        {
+            Idle.add(() => {
                 userWindowBox.load(loadedUser);
                 userWindowBox.loadPrivate();
-            }
-            else
-            {
-                userWindowBox.loadFeed(userFeedList);
-                userWindowBox.load(user);
 
-                foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-                {
-                    postBox.titleLabel.activate_link.connect(handleUris);
-                    postBox.likesLabel.activate_link.connect(handleUris);
-                    foreach(CommentBox commentBox in postBox.commentList.comments)
-                        commentBox.textLabel.activate_link.connect(handleUris);
-                    if (postBox.post.location != null 
-                        && postBox.post.location.latitude == 0 
-                        && postBox.post.location.longitude == 0 
-                        && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+                box.remove(loadingImage);
+                box.pack_start(stack, true, true); 
+                this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
+                    new Thread<int>("", loadOlderUserFeed);
+                });
+                return false;
+            });
+            return 0;
+        }
+
+        // if we got here, user it not private (aparently).
+
+        string userFeed = getUserMedia(id);        
+        List<MediaInfo> userFeedList = new List<MediaInfo>();
+        
+
+        try
+        {            
+            userFeedList = parseFeed(userFeed);
+            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        Idle.add(() => {
+
+            userWindowBox.loadFeed(userFeedList);
+            userWindowBox.load(user);
+
+            foreach (PostBox postBox in userWindowBox.userFeed.boxes)
+            {
+                postBox.titleLabel.activate_link.connect(handleUris);
+                postBox.likesLabel.activate_link.connect(handleUris);
+                foreach(CommentBox commentBox in postBox.commentList.comments)
+                    commentBox.textLabel.activate_link.connect(handleUris);
+                if (postBox.post.location != null 
+                    && postBox.post.location.latitude == 0 
+                    && postBox.post.location.longitude == 0 
+                    && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+                    new Thread<int>("", () => {
+                        loadMissingLocation(postBox, postBox.post.location.id);
+                        return 0;
+                    });
+                if (postBox.commentList.loadMoreButton != null)
+                    postBox.commentList.loadMoreButton.activate_link.connect(() => {
                         new Thread<int>("", () => {
-                            loadMissingLocation(postBox, postBox.post.location.id);
+                            loadComments(postBox.post.id);
                             return 0;
                         });
-                    if (postBox.commentList.loadMoreButton != null)
-                        postBox.commentList.loadMoreButton.activate_link.connect(() => {
-                            new Thread<int>("", () => {
-                                loadComments(postBox.post.id);
-                                return 0;
-                            });
-                            return true;
-                        });
-                }
+                        return true;
+                    });
             }
 
             box.remove(loadingImage);
