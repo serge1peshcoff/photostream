@@ -306,19 +306,21 @@ public class PhotoStream.App : Granite.Application
             return false;
         });
         string userInfo = getUserInfo(id);
+        string relationshipInfo = getUsersRelationship(id);
         User user = new User();
         bool isPrivate = false;
 
         try
         {
             user = parseUser(userInfo);
+            user.relationship = parseRelationship(relationshipInfo);
         }
         catch (Error e) // wrong token
         {
             if (e.message == "you cannot view this resource") // this profile is private
             {
                 isPrivate = true;
-                this.userWindowBox.userFeed.olderFeedLink = "";
+                loadedUser.relationship = parseRelationship(relationshipInfo);
             }
             else
                 error("Something wrong with parsing: " + e.message + ".\n");

@@ -319,3 +319,18 @@ public List<Location> parseLocationList(string message) throws Error
 
     return locationList;
 }
+
+public Relationship parseRelationship(string message) throws Error
+{
+    Relationship relationship = new Relationship();
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+    var response = root_object.get_member ("data").get_object();
+    relationship.outcoming = response.get_string_member("outgoing_status");
+    relationship.incoming = response.get_string_member("incoming_status");
+
+    return relationship;
+}

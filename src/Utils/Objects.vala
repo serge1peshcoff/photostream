@@ -54,6 +54,12 @@ namespace PhotoStream.Utils
 		public int64 mediaCount = 0;
 		public int64 followers = 0;
 		public int64 followed = 0; //these 3 are only in user page
+		public Relationship relationship = null; // this'll be used in the user page.
+	}
+	public class Relationship
+	{
+		public string incoming;
+		public string outcoming;
 	}
 	public class Location
 	{

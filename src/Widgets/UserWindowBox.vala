@@ -1,4 +1,5 @@
 using Gtk;
+using Gdk;
 using PhotoStream.Utils;
 public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 {
@@ -8,6 +9,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Box userInfoBox;
 	public Image avatar;
 	public Label userName;
+
+	public Gtk.EventBox relationshipBox;
+	public Gtk.Image relationshipImage;
 
 	public Box userCountsBox;
 	public Label mediaCount;
@@ -19,11 +23,13 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 	public Box errorBox;
 	public Label privateLabel;
-	public Button followButton;
 
 	public bool isPrivate = false;
-	public string id;
-	public string username;
+
+	public User user;
+
+	public const int RELATIONSHIP_WIDTH = 100;
+	public const int RELATIONSHIP_HEIGHT = 20;
 
 	public UserWindowBox()
 	{
@@ -45,6 +51,12 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userInfoBox.pack_start(avatar, false, true);
 		this.userInfoBox.add(userName);
+
+		this.relationshipBox = new Gtk.EventBox();
+		this.relationshipImage = new Gtk.Image();
+		this.relationshipBox.add(relationshipImage);
+		this.userInfoBox.add(relationshipBox);
+
 		this.box.pack_start(userInfoBox, false, true);
 
 		this.userCountsBox.pack_start(mediaCount, false, true);
@@ -59,9 +71,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.privateLabel = new Label("");
 		this.privateLabel.set_markup("<b>This user is private.</b>");
 		this.errorBox.pack_start(privateLabel, true, true);
-		
-		this.followButton = new Button.with_label("Follow...");
-		this.errorBox.add(followButton);
 
 		this.viewport = new Viewport(null, null);
 		this.feedWindow.add(viewport);
@@ -70,6 +79,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	}
 	public void load(User user)
 	{
+		this.user = user;
 		string avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
 		File file = File.new_for_path(avatarFileName);
         if (!file.query_exists()) // avatar not downloaded, download
@@ -81,6 +91,28 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.mediaCount.set_label((user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + " media");
 		this.followsCount.set_label((user.followed == 0 ? "?" : user.followed.to_string()) + " follows");
 		this.followersCount.set_label((user.followers == 0 ? "?" : user.followers.to_string()) + " followers");
+
+		Pixbuf relationshipPixbuf;
+		try 
+        {
+        	switch (user.relationship.outcoming)
+        	{
+        		case "follows":
+        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
+        			break;
+        		default:
+        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
+        			break;
+        	}
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }
+
+
+        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
+        relationshipImage.set_from_pixbuf(relationshipPixbuf);
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
