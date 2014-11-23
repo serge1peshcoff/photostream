@@ -6,6 +6,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Box box;
 	public Viewport viewport;
 
+	public Gtk.Alignment avatarAlignment;
+
 	public Box userInfoBox;
 	public Image avatar;
 	public Label userName;
@@ -49,7 +51,14 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.feedWindow = new ScrolledWindow(null, null);
 		this.userFeed = new PostList();
 
-		this.userInfoBox.pack_start(avatar, false, true);
+		this.avatarAlignment = new Gtk.Alignment (0,0,0,1);
+        this.avatarAlignment.top_padding = 6;
+        this.avatarAlignment.right_padding = 6;
+        this.avatarAlignment.bottom_padding = 0;
+        this.avatarAlignment.left_padding = 6;	
+
+        avatarAlignment.add(avatar);
+		this.userInfoBox.pack_start(avatarAlignment, false, true);
 		this.userInfoBox.add(userName);
 
 		this.relationshipBox = new Gtk.EventBox();
@@ -87,10 +96,20 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
         this.avatar.set_from_file(avatarFileName);
 
-		this.userName.set_label(user.username + " (" + user.fullName + ")");
-		this.mediaCount.set_label((user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + " media");
-		this.followsCount.set_label((user.followed == 0 ? "?" : user.followed.to_string()) + " follows");
-		this.followersCount.set_label((user.followers == 0 ? "?" : user.followers.to_string()) + " followers");
+        string userNameString;
+        if (user.fullName == "")
+        	userNameString = "@" +  user.username;
+        else
+        	userNameString = "<b>" + user.fullName + "</b> (@" + user.username + ")";
+
+		this.userName.set_markup(userNameString);
+
+		
+
+		this.mediaCount.set_markup("<b>" + (user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + "</b>\nmedia");
+		this.followsCount.set_markup("<b>" + (user.followed == 0 ? "?" : user.followed.to_string()) + "</b>\nfollows");
+		this.followersCount.set_markup("<b>" + (user.followers == 0 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
+
 
 		Pixbuf relationshipPixbuf;
 		try 

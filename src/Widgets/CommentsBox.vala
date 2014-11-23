@@ -19,15 +19,15 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.comment = comment;
 
 		this.textAlignment = new Gtk.Alignment (0,0,1,1);
-        this.textAlignment.top_padding = 2;
+        this.textAlignment.top_padding = 1;
         this.textAlignment.right_padding = 6;
-        this.textAlignment.bottom_padding = 2;
+        this.textAlignment.bottom_padding = 1;
         this.textAlignment.left_padding = 0;
 
         this.avatarAlignment = new Gtk.Alignment (0,0,1,1);
-        this.avatarAlignment.top_padding = 2;
+        this.avatarAlignment.top_padding = 1;
         this.avatarAlignment.right_padding = 6;
-        this.avatarAlignment.bottom_padding = 2;
+        this.avatarAlignment.bottom_padding = 1;
         this.avatarAlignment.left_padding = 0;
 
         this.textBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);

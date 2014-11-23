@@ -313,8 +313,8 @@ public class PhotoStream.App : Granite.Application
 
         try
         {
-            user = parseUser(userInfo);
             relationship = parseRelationship(relationshipInfo);
+            user = parseUser(userInfo);            
             user.relationship = relationship;
         }
         catch (Error e) // wrong token
