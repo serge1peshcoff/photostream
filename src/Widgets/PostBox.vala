@@ -94,7 +94,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		imageAlignment.add(imageBox);
 		box.add(imageAlignment);	
 
-		this.titleAlignment = new Gtk.Alignment (0,0,0,1);
+		this.titleAlignment = new Gtk.Alignment (0,0,1,1);
         this.titleAlignment.top_padding = 6;
         this.titleAlignment.right_padding = 6;
         this.titleAlignment.bottom_padding = 0;
@@ -104,6 +104,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_markup(wrapInTags(post.title));
 		titleLabel.set_line_wrap(true);
 		titleLabel.set_justify(Gtk.Justification.LEFT);
+		titleLabel.set_halign(Gtk.Align.START);
 		titleAlignment.add(titleLabel);
 		box.add(titleAlignment);
 
@@ -127,7 +128,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         	GLib.error("Something wrong with file loading.\n");
         }
 
-        this.likeAlignment = new Gtk.Alignment (0,0,0,1);
+        this.likeAlignment = new Gtk.Alignment (0,0,0,0);
         this.likeAlignment.top_padding = 6;
         this.likeAlignment.right_padding = 6;
         this.likeAlignment.bottom_padding = (post.commentsCount == 0) ? 6 : 0;
@@ -164,19 +165,22 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		commentList = new CommentsList();
 		if (post.commentsCount != 0)
 		{
-			this.commentsAlignment = new Gtk.Alignment (0,1,1,1);
+			this.commentsAlignment = new Gtk.Alignment (1,1,1,1);
 	        this.commentsAlignment.top_padding = 3;
 	        this.commentsAlignment.right_padding = 6;
 	        this.commentsAlignment.bottom_padding = 3;
 	        this.commentsAlignment.left_padding = 6;
 
+	        this.commentList.set_halign(Gtk.Align.START);
+
 			if(post.commentsCount !=  post.comments.length())
-				commentList.addMoreButton();
+				commentList.addMoreButton(post.commentsCount);
 			foreach(Comment comment in post.comments)
 				commentList.prepend(comment, false);
 
 			commentsAlignment.add(commentList);
-			box.add(commentsAlignment);
+			//commentsList.
+			box.pack_end(commentsAlignment, false, false);
 		}
 	}	
 
@@ -312,9 +316,17 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
     {
     	this.post.location = location;
     	if (!locationEventBox.is_ancestor(box))
-    	{	    	
+    	{
+    		this.locationAlignment = new Gtk.Alignment (0,0,0,1);
+	        this.locationAlignment.top_padding = 6;
+	        this.locationAlignment.right_padding = 4;
+	        this.locationAlignment.bottom_padding = 0;
+	        this.locationAlignment.left_padding = 6;
+
+
 			this.locationBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-			this.locationEventBox.add(locationBox);
+			this.locationAlignment.add(locationBox);
+			this.locationEventBox.add(locationAlignment);
 
 			try 
 	        {

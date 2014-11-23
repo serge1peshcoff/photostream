@@ -5,10 +5,10 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public Gtk.LinkButton loadMoreButton;
 	public Gtk.Box moreBox;
 
-	public void addMoreButton()
+	public void addMoreButton(int64 commentsCount)
 	{
 		this.moreBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.loadMoreButton = new Gtk.LinkButton("Load more...");
+		this.loadMoreButton = new Gtk.LinkButton("Load all " + commentsCount.to_string() + " comments");
 
 		this.moreBox.add(loadMoreButton);
 		base.prepend(moreBox);

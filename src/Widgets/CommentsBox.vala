@@ -16,15 +16,17 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 	public CommentBox(Comment comment, bool withAvatar)
 	{
+		this.set_halign(Gtk.Align.START);
+
 		this.comment = comment;
 
-		this.textAlignment = new Gtk.Alignment (0,0,1,1);
+		this.textAlignment = new Gtk.Alignment (0,1,1,1);
         this.textAlignment.top_padding = 1;
-        this.textAlignment.right_padding = 6;
+        this.textAlignment.right_padding = 0;
         this.textAlignment.bottom_padding = 1;
         this.textAlignment.left_padding = 0;
 
-        this.avatarAlignment = new Gtk.Alignment (0,0,1,1);
+        this.avatarAlignment = new Gtk.Alignment (0,1,1,1);
         this.avatarAlignment.top_padding = 1;
         this.avatarAlignment.right_padding = 6;
         this.avatarAlignment.bottom_padding = 1;
@@ -34,10 +36,8 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.textLabel = new Gtk.Label("");
 		this.textLabel.set_markup("<b>" + wrapInTags("@" + comment.user.username) + "</b> " + wrapInTags(comment.text));
 		this.textLabel.set_line_wrap(true);
+		this.textLabel.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
 		this.textLabel.set_justify(Gtk.Justification.LEFT);
-		this.textBox.set_halign(Gtk.Align.START);
-		this.textLabel.set_halign(Gtk.Align.START);
-		this.textAlignment.set_halign(Gtk.Align.START);
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 
@@ -70,7 +70,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		}
 		textBox.add(textLabel);
 		textAlignment.add(textBox);
-		this.add(textAlignment);
+		this.pack_end(textAlignment, false, true);
 
 		this.show_all();
 	}

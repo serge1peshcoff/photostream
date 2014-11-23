@@ -110,28 +110,32 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.followsCount.set_markup("<b>" + (user.followed == 0 ? "?" : user.followed.to_string()) + "</b>\nfollows");
 		this.followersCount.set_markup("<b>" + (user.followers == 0 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
 
+		if (user.id != PhotoStream.App.selfUser.id)
+		{
+			Pixbuf relationshipPixbuf;
+			try 
+	        {
+	        	switch (user.relationship.outcoming)
+	        	{
+	        		case "follows":
+	        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
+	        			break;
+	        		default:
+	        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
+	        			break;
+	        	}
+	        }	
+	        catch (Error e)
+	        {
+	        	GLib.error("Something wrong with file loading.\n");
+	        }
 
-		Pixbuf relationshipPixbuf;
-		try 
-        {
-        	switch (user.relationship.outcoming)
-        	{
-        		case "follows":
-        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
-        			break;
-        		default:
-        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
-        			break;
-        	}
-        }	
-        catch (Error e)
-        {
-        	GLib.error("Something wrong with file loading.\n");
-        }
 
-
-        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
-        relationshipImage.set_from_pixbuf(relationshipPixbuf);
+	        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
+	        relationshipImage.set_from_pixbuf(relationshipPixbuf);
+	    }
+	    else
+	    	relationshipImage = new Gtk.Image();
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
