@@ -216,8 +216,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public void openMedia()
 	{
-		string filename = getFileName(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url);
-		MediaWindow mediaWindow = new MediaWindow(filename, post.type == PhotoStream.MediaType.VIDEO);
+		MediaWindow mediaWindow = new MediaWindow(post.media.url, post.type == PhotoStream.MediaType.VIDEO);
 		mediaWindow.show_all ();
 	}
 
