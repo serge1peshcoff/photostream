@@ -42,6 +42,7 @@ set (SRC_TARGET ${CMAKE_PROJECT_NAME})
 #
 
 set (CORE_PKG
+  gstreamer-1.0
   gtk+-3.0
   granite
   glib-2.0>=2.32

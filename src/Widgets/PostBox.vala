@@ -20,6 +20,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
 	public Gtk.EventBox avatarBox;
+	public Gtk.EventBox imageEventBox;
 	public Gtk.Fixed imageBox;
 	public Gtk.Image image;
 	public Gtk.Box likeToolbar;
@@ -46,6 +47,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		this.add(box);
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
 		this.post = post;
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
@@ -61,6 +64,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		avatarBox.add(avatar);
 		avatarAlignment.add(avatarBox);
 		userToolbar.pack_start(avatarAlignment, false, true);
+
+		avatarBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
 
 		this.userNameAlignment = new Gtk.Alignment (0,0,0,1);
         this.userNameAlignment.top_padding = 6;
@@ -88,11 +98,24 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         this.imageAlignment.bottom_padding = 0;
         this.imageAlignment.left_padding = 6;	
 
+        imageEventBox = new Gtk.EventBox();
 		imageBox = new Gtk.Fixed();
 		image = new Gtk.Image();
 		imageBox.put(image, 0, 0);
-		imageAlignment.add(imageBox);
+		imageEventBox.add(imageBox);
+		imageAlignment.add(imageEventBox);
 		box.add(imageAlignment);	
+
+		imageEventBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
+		imageEventBox.button_release_event.connect(() => {
+			openMedia();
+			return false;
+		});
 
 		this.titleAlignment = new Gtk.Alignment (0,0,1,1);
         this.titleAlignment.top_padding = 6;
@@ -142,6 +165,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         likeAlignment.add(likeBox);
 		likeToolbar.pack_start(likeAlignment, false, true);
 
+		likeBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
+
 		likeBox.button_release_event.connect(callback);
 
 		likesText = "";
@@ -183,6 +213,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			box.pack_end(commentsAlignment, false, false);
 		}
 	}	
+
+	public void openMedia()
+	{
+		string filename = getFileName(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url);
+		MediaWindow mediaWindow = new MediaWindow(filename, post.type == PhotoStream.MediaType.VIDEO);
+		mediaWindow.show_all ();
+	}
 
 	public int switchLike()
 	{
@@ -323,7 +360,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	        this.locationAlignment.bottom_padding = 0;
 	        this.locationAlignment.left_padding = 6;
 
-
 			this.locationBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 			this.locationAlignment.add(locationBox);
 			this.locationEventBox.add(locationAlignment);
@@ -352,6 +388,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         }
         else
         	locationLabel.set_text(post.location.name);
+
+        locationEventBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
 
         this.show_all();
     }

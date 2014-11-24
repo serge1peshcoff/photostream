@@ -67,6 +67,13 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 			avatarAlignment.add(avatarBox);
 			this.pack_start(avatarAlignment, false, true);	
+
+			avatarBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
 		}
 		textBox.add(textLabel);
 		textAlignment.add(textBox);

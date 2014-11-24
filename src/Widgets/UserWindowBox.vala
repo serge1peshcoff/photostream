@@ -135,7 +135,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	        relationshipImage.set_from_pixbuf(relationshipPixbuf);
 	    }
 	    else
-	    	relationshipImage = new Gtk.Image();
+	    	relationshipImage.clear();
 	}
 	public void loadFeed(List<MediaInfo> feedList)
 	{
