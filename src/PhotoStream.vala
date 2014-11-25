@@ -340,7 +340,11 @@ public class PhotoStream.App : Granite.Application
             userBox.loadAvatar();
             userBox.userNameLabel.activate_link.connect(handleUris);
             userBox.avatarBox.button_release_event.connect(() => {
-                loadUser(userBox.user.id, userBox.user);
+                new Thread<int>("", () => {
+                    loadUser(userBox.user.id, userBox.user);
+                    return 0;
+                });
+                
                 return false;
             });
         }
@@ -355,6 +359,17 @@ public class PhotoStream.App : Granite.Application
             switchWindow("user");
             return false;
         });
+
+        if (userWindowBox.user != null &&userWindowBox.user.id == id) // if user is already loaded, just open the user tab and return. no need to load.
+        {
+            Idle.add(() => {
+                box.remove(loadingImage);
+                box.pack_start(stack, true, true); 
+                return false;
+            });
+            return 0;
+        }
+
         string userInfo = getUserInfo(id);
         string relationshipInfo = getUsersRelationship(id);
         User user = new User();
@@ -397,8 +412,7 @@ public class PhotoStream.App : Granite.Application
         // if we got here, user it not private (aparently).
 
         string userFeed = getUserMedia(id);        
-        List<MediaInfo> userFeedList = new List<MediaInfo>();
-        
+        List<MediaInfo> userFeedList = new List<MediaInfo>();        
 
         try
         {            
@@ -583,7 +597,7 @@ public class PhotoStream.App : Granite.Application
         feedButton.set_icon_widget (new Gtk.Image.from_icon_name ("go-home", Gtk.IconSize.LARGE_TOOLBAR));
         feedButton.set_tooltip_text ("Feed");
         feedButton.set_label ("Feed");
-        //feedButton.set_sensitive (false);
+        feedButton.set_sensitive (false);
         centered_toolbar.add (feedButton);
 
         
@@ -592,28 +606,28 @@ public class PhotoStream.App : Granite.Application
         exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
         exploreButton.set_tooltip_text ("Explore");
         exploreButton.set_label ("Explore");
-        //this.mainWindow.exploreButton.set_sensitive (false);
+        exploreButton.set_sensitive (false);
         centered_toolbar.add (exploreButton);
 
         photoButton = new Gtk.ToggleToolButton ();
         photoButton.set_icon_widget (new Gtk.Image.from_icon_name ("camera", Gtk.IconSize.LARGE_TOOLBAR));
         photoButton.set_tooltip_text ("Take a picture");
         photoButton.set_label ("Take a picture");
-        //this.mainWindow.photoButton.set_sensitive (false);
+        photoButton.set_sensitive (false);
         centered_toolbar.add (photoButton);
 
         newsButton = new Gtk.ToggleToolButton ();
         newsButton.set_icon_widget (new Gtk.Image.from_icon_name ("emblem-synchronizing", Gtk.IconSize.LARGE_TOOLBAR));
         newsButton.set_tooltip_text ("News");
         newsButton.set_label ("News");
-        //this.mainWindow.newsButton.set_sensitive (false);
+        newsButton.set_sensitive (false);
         centered_toolbar.add (newsButton);
 
         userButton = new Gtk.ToggleToolButton ();
         userButton.set_icon_widget (new Gtk.Image.from_icon_name ("system-users", Gtk.IconSize.LARGE_TOOLBAR));
         userButton.set_tooltip_text ("You");
         userButton.set_label ("You");
-        //this.mainWindow.userButton.set_sensitive (false);
+        userButton.set_sensitive (false);
         centered_toolbar.add (userButton);        
 
         header.set_custom_title (centered_toolbar);
@@ -621,17 +635,58 @@ public class PhotoStream.App : Granite.Application
 
     public void setHeaderCallbacks()
     {
+        feedButton.set_sensitive (true);
+        exploreButton.set_sensitive (true);
+        photoButton.set_sensitive (true);
+        newsButton.set_sensitive (true);
+        userButton.set_sensitive (true);
+
         feedButton.clicked.connect(() => {
             switchWindow("userFeed");
+            uncheckButtonsExcept("feed");
+        });
+
+        exploreButton.clicked.connect(() => {
+            uncheckButtonsExcept("explore");
+        });
+
+        photoButton.clicked.connect(() => {
+            uncheckButtonsExcept("photo");
+        });
+
+        newsButton.clicked.connect(() => {
+            uncheckButtonsExcept("news");
         });
 
         userButton.clicked.connect(() => {
+            uncheckButtonsExcept("self");
             new Thread<int>("", () => {
                 loadUser(selfUser.id);
                 return 0;
             });
             
         });
+    }
+
+    public void uncheckButtonsExcept(string notUncheck)
+    {
+        feedButton.set_active(false);
+        userButton.set_active(false);
+        photoButton.set_active(false);
+        exploreButton.set_active(false);
+        newsButton.set_active(false);
+
+
+        //if (notUncheck == "feed")
+        //    feedButton.set_active(true);
+        //else if (notUncheck == "self")
+        //    userButton.set_active(true);
+        //else if (notUncheck == "photo")
+        //    photoButton.set_active(true);
+        //else  if (notUncheck == "explore")
+        //    exploreButton.set_active(true);
+        //else if (notUncheck == "news")
+        //    newsButton.set_active(true);
     }
 
     public int setFeedWidgets()
@@ -722,9 +777,7 @@ public class PhotoStream.App : Granite.Application
             });
             return false;
         });
-    }
-
-    
+    }    
 
     public void switchWindow(string window)
     {
