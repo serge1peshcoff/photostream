@@ -184,7 +184,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>, ";
 		}
 		else
-			likesText = post.likesCount.to_string() + " likes.";
+			likesText = "<a href=\"getLikes\">" + post.likesCount.to_string() + " likes.</a>";
 
 		likesLabel = new Gtk.Label("");
 		likesLabel.set_markup(likesText);	

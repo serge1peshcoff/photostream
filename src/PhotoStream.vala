@@ -37,7 +37,7 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow tagSearchWindow;
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
-    public Gtk.ScrolledWindow likesWindow;
+    public Gtk.ScrolledWindow userListWindow;
     public Gtk.ScrolledWindow commentWindow;
     public Gtk.ScrolledWindow usersWindow;
     public Gtk.ScrolledWindow searchWindow;
@@ -47,6 +47,7 @@ public class PhotoStream.App : Granite.Application
     public PostList feedList; 
     public CommentsList commentsList;
     public HashTagList tagList;
+    public UserList userList;
 
     public static User selfUser;
     
@@ -161,6 +162,11 @@ public class PhotoStream.App : Granite.Application
         this.tagList = new HashTagList();
         this.tagSearchWindow.add_with_viewport(tagList);
         stack.add_named(tagSearchWindow, "tags");
+
+        this.userListWindow = new Gtk.ScrolledWindow(null, null);
+        this.userList = new UserList();
+        this.userListWindow.add_with_viewport(userList);
+        stack.add_named(userListWindow, "userList");
     }
 
     public void setLoginWindow()
@@ -294,6 +300,50 @@ public class PhotoStream.App : Granite.Application
             box.pack_start(stack, true, true); 
             return false;
         });
+        
+        return 0;
+    }
+
+    public int loadLikes(string postId)
+    {
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("userList");
+            return false;
+        });
+        string response = getMediaLikes(postId);
+        List<User> likees = new List<User>();
+
+        try
+        {
+            likees = parseUserList(response);
+
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        userList.clear();
+        foreach(User user in likees)
+            userList.prepend(user);
+
+        Idle.add(() => {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            this.box.show_all();
+            return false;
+        });
+
+        foreach(UserBox userBox in userList.boxes)
+        {
+            userBox.loadAvatar();
+            userBox.userNameLabel.activate_link.connect(handleUris);
+            userBox.avatarBox.button_release_event.connect(() => {
+                loadUser(userBox.user.id, userBox.user);
+                return false;
+            });
+        }
         
         return 0;
     }
@@ -635,7 +685,18 @@ public class PhotoStream.App : Granite.Application
     public void connectPostBoxHandlers(PostBox postBox)
     {
         postBox.titleLabel.activate_link.connect(handleUris);
-        postBox.likesLabel.activate_link.connect(handleUris);
+        postBox.likesLabel.activate_link.connect((uri) => {
+            if (uri == "getLikes")
+            {
+                new Thread<int>("", () => {
+                    loadLikes(postBox.post.id);
+                    return 0;
+                });                
+                return true;
+            }
+            else
+                return handleUris(uri);
+        });
         foreach(CommentBox commentBox in postBox.commentList.comments)
             commentBox.textLabel.activate_link.connect(handleUris);
         if (postBox.post.location != null 

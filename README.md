@@ -14,6 +14,10 @@ Uses libraries:
 
 Inspired a lot by Birdie Twitter client.
 
+You need this packages to build:
+
+* libgstreamer-plugins-base1.0-dev
+
 ## Installation  
 Building:
 

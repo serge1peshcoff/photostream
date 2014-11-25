@@ -9,9 +9,8 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 	public Pipeline pipeline;
 	public Element src;
 	public Element sink;
-
-	public Gdk.Pixbuf videoPixbuf;
-	public ulong xid;
+	public Element decode;
+	public uint* xid;
 
 	public MediaWindow(string fileName, bool video)
 	{
@@ -33,16 +32,35 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 		string downloadFileName = PhotoStream.App.CACHE_URL + getFileName(fileName);
 		downloadFile(fileName, downloadFileName);
 
-		/*this.pipeline = new Pipeline ("mypipeline");
+		this.pipeline = new Pipeline ("mypipeline");
 		this.src = ElementFactory.make ("filesrc", "video");
 		src.set("location", downloadFileName);
-        this.sink = ElementFactory.make ("gdkpixbufsink", "sink");
-        this.pipeline.add_many (this.src, this.sink);
-        this.src.link (this.sink);
+		this.decode = ElementFactory.make ("decodebin", "decode");
+        this.sink = ElementFactory.make ("autoaudiosink", "sink");
+        this.pipeline.add_many (this.src, this.decode,  this.sink);
 
-        this.pipeline.set_state (State.PLAYING);
+        if (this.src == null)
+        	error("Gstreamer element init error 1");
+        if (this.decode == null)
+        	error("Gstreamer element init error 2");
+        if (this.sink == null)
+        	error("Gstreamer element init error 3");
 
-        this.videoPixbuf = sink.get("last-pixbuf") as Gdk.Pixbuf;*/
+        if (!this.src.link (this.decode))
+        	error("GStreamer linking problems.");
+        if (!this.decode.link (this.sink))
+        	error("GStreamer linking problems 2.");
+        
+
+        this.drawingArea = new Gtk.DrawingArea();
+        this.add(drawingArea);
+        this.drawingArea.realize.connect(() => {
+        	this.xid = (uint*)(((Gdk.X11.Window) this.drawingArea.get_window()).get_xid ());
+
+        	var xoverlay = this.sink as Gst.Video.Overlay;
+	        xoverlay.set_window_handle (this.xid);
+	        this.pipeline.set_state (State.PLAYING);
+        });       
 	}
 
 	public string getFileName(string url)

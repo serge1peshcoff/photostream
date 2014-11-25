@@ -50,6 +50,8 @@ set (CORE_PKG
   json-glib-1.0
   webkitgtk-3.0
   libxml-2.0
+  gdk-x11-3.0
+  gstreamer-video-1.0
 )
 
 find_package (PkgConfig)
