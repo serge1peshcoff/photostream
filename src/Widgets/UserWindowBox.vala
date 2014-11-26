@@ -22,6 +22,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Pixbuf notFollowingPixbuf;
 	public Pixbuf unfollowPixbuf;
 	public Pixbuf followPixbuf;
+	public Pixbuf requestedPixbuf;
 
 	public Box userCountsBox;
 	public Label mediaCount;
@@ -35,6 +36,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Label privateLabel;
 
 	public bool isPrivate = false;
+	private bool relationshipHandlersSet = false;
 
 	public User user;
 
@@ -58,6 +60,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			this.notFollowingPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
 			this.unfollowPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "unfollow.png");
 			this.followPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "follow.png");
+			this.requestedPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "requested.png");
 		}
 		catch(Error e)
 		{
@@ -136,12 +139,16 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userName.set_markup(userNameString);
 
-		
-
 		this.mediaCount.set_markup("<b>" + (user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + "</b>\nmedia");
 		this.followsCount.set_markup("<b>" + (user.followed == 0 ? "?" : user.followed.to_string()) + "</b>\nfollows");
 		this.followersCount.set_markup("<b>" + (user.followers == 0 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
 
+		this.loadRelationship();
+		
+	}
+
+	public void loadRelationship()
+	{
 		if (user.id != PhotoStream.App.selfUser.id)
 		{
 			Pixbuf relationshipPixbuf;
@@ -153,22 +160,37 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         		case "none":
         			relationshipPixbuf = notFollowingPixbuf;
         			break;
-        		default:
-        			relationshipPixbuf = notFollowingPixbuf;
+        		case "requested":
+        			relationshipPixbuf = requestedPixbuf;
         			break;
+        		default:
+        			error("Should've not reached here.");
         	}
 
 	        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
 	        relationshipImage.set_from_pixbuf(relationshipPixbuf);
 
-	        relationshipBox.enter_notify_event.connect((event) => {
-	        	onHover(event);
-	        	return false;
-	        });
-	        relationshipBox.leave_notify_event.connect((event) => {
-	        	onHoverOut(event);
-	        	return false;
-	        });
+	        if (!relationshipHandlersSet)
+	        {
+		        relationshipBox.enter_notify_event.connect((event) => {
+		        	onHover(event);
+		        	return false;
+		        });
+		        relationshipBox.leave_notify_event.connect((event) => {
+		        	onHoverOut(event);
+		        	return false;
+		        });
+
+		        relationshipBox.button_release_event.connect((event) => {
+		        	new Thread<int>("", () => {
+		        		changeRelationship();
+		        		return 0;
+		        	});
+		        	
+		        	return false;
+		        });
+		    }
+		    relationshipHandlersSet = true;
 	    }
 	    else
 	    	relationshipImage.clear();
@@ -250,12 +272,12 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         );
 
 		Pixbuf relationshipPixbuf;
-		if (user.relationship.outcoming == "follows")
+		if (user.relationship.outcoming == "follows" || user.relationship.outcoming == "requested")
 			relationshipPixbuf = unfollowPixbuf;
 		else if (user.relationship.outcoming == "none")
 			relationshipPixbuf = followPixbuf;
 		else
-			error("Should not reached here.");
+			error("Should've not reached here.");
 
         relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
         relationshipImage.set_from_pixbuf(relationshipPixbuf);
@@ -267,10 +289,50 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			relationshipPixbuf = followingPixbuf;
 		else if (user.relationship.outcoming == "none")
 			relationshipPixbuf = notFollowingPixbuf;
+		else if (user.relationship.outcoming == "requested")
+			relationshipPixbuf = requestedPixbuf;
 		else
-			error("Should not reached here.");
+			error("Should've not reached here.");
 
         relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
         relationshipImage.set_from_pixbuf(relationshipPixbuf);
+    }
+
+    private void changeRelationship()
+    {
+
+        string action;
+		switch (user.relationship.outcoming)
+		{
+			case "follows":
+			case "requested":
+        		action = "unfollow";
+        		break;
+    		case "none":
+    			action = "follow";
+    			break;
+    		default:
+    			error("Should've not reached here.");
+		}
+
+		string relationshipInfo = relationshipAction(this.user.id, action);
+		print(relationshipInfo + "\n");
+        Relationship relationship = null;
+
+        try
+        {
+            relationship = parseRelationship(relationshipInfo);      
+            user.relationship = relationship;
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        Idle.add(() => {
+        	this.loadRelationship();
+        	return false;
+        });
+        
     }
 }
