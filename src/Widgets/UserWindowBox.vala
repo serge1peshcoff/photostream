@@ -9,11 +9,18 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Gtk.Alignment avatarAlignment;
 
 	public Box userInfoBox;
+
+	public Box avatarBox;
 	public Image avatar;
 	public Label userName;
 
+	public Gtk.Alignment relationshipAlignment;
 	public Gtk.EventBox relationshipBox;
 	public Gtk.Image relationshipImage;
+
+	public Pixbuf followingPixbuf;
+	public Pixbuf notFollowingPixbuf;
+	public Pixbuf unfollowPixbuf;
 
 	public Box userCountsBox;
 	public Label mediaCount;
@@ -40,8 +47,20 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		box = new Box(Gtk.Orientation.VERTICAL, 0);
 
 		this.userInfoBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
+		this.avatarBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatar = new Image();
 		this.userName = new Label("username");
+
+		try 
+		{
+			this.followingPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
+			this.notFollowingPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
+			this.unfollowPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "unfollow.png");
+		}
+		catch(Error e)
+		{
+			GLib.error("Something wrong with file loading.");
+		}
 
 		this.userCountsBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.mediaCount = new Label("0 media.");
@@ -57,14 +76,25 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         this.avatarAlignment.bottom_padding = 0;
         this.avatarAlignment.left_padding = 6;	
 
-        avatarAlignment.add(avatar);
-		this.userInfoBox.pack_start(avatarAlignment, false, true);
+        this.avatarBox.add(avatar);
+        this.avatarAlignment.add(avatarBox);
+		this.userInfoBox.pack_start(avatarAlignment, false, false);
 		this.userInfoBox.add(userName);
 
+		this.relationshipAlignment = new Gtk.Alignment (1,0,1,1);
+        this.relationshipAlignment.top_padding = 6;
+        this.relationshipAlignment.right_padding = 6;
+        this.relationshipAlignment.bottom_padding = 0;
+        this.relationshipAlignment.left_padding = 6;
+
 		this.relationshipBox = new Gtk.EventBox();
+		this.relationshipBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.relationshipBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.relationshipBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 		this.relationshipImage = new Gtk.Image();
 		this.relationshipBox.add(relationshipImage);
-		this.userInfoBox.add(relationshipBox);
+		this.relationshipAlignment.add(relationshipBox);
+		this.userInfoBox.pack_end(relationshipAlignment, false, false);
 
 		this.box.pack_start(userInfoBox, false, true);
 
@@ -113,26 +143,30 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		if (user.id != PhotoStream.App.selfUser.id)
 		{
 			Pixbuf relationshipPixbuf;
-			try 
-	        {
-	        	switch (user.relationship.outcoming)
-	        	{
-	        		case "follows":
-	        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
-	        			break;
-	        		default:
-	        			relationshipPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
-	        			break;
-	        	}
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-
+        	switch (user.relationship.outcoming)
+        	{
+        		case "follows":
+        			relationshipPixbuf = followingPixbuf;
+        			break;
+        		case "none":
+        			relationshipPixbuf = notFollowingPixbuf;
+        			break;
+        		default:
+        			relationshipPixbuf = notFollowingPixbuf;
+        			break;
+        	}
 
 	        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
 	        relationshipImage.set_from_pixbuf(relationshipPixbuf);
+
+	        relationshipBox.enter_notify_event.connect((event) => {
+	        	onHover(event);
+	        	return false;
+	        });
+	        relationshipBox.leave_notify_event.connect((event) => {
+	        	onHoverOut(event);
+	        	return false;
+	        });
 	    }
 	    else
 	    	relationshipImage.clear();
@@ -205,5 +239,36 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
     {
         var indexStart = url.last_index_of("/") + 1;
         return url.substring(indexStart, url.length - indexStart);
+    }
+
+    private void onHover(EventCrossing event)
+    {
+    	event.window.set_cursor (
+            new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+        );
+
+		Pixbuf relationshipPixbuf;
+		if (user.relationship.outcoming == "follows")
+			relationshipPixbuf = unfollowPixbuf;
+		else if (user.relationship.outcoming == "none")
+			relationshipPixbuf = followingPixbuf;
+		else
+			relationshipPixbuf = notFollowingPixbuf;
+
+        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
+        relationshipImage.set_from_pixbuf(relationshipPixbuf);
+    }
+    private void onHoverOut(EventCrossing event)
+    {
+    	Pixbuf relationshipPixbuf;
+		if (user.relationship.outcoming == "follows")
+			relationshipPixbuf = followingPixbuf;
+		else if (user.relationship.outcoming == "none")
+			relationshipPixbuf = notFollowingPixbuf;
+		else
+			relationshipPixbuf = notFollowingPixbuf;
+
+        relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
+        relationshipImage.set_from_pixbuf(relationshipPixbuf);
     }
 }

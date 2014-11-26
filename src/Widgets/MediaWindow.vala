@@ -20,6 +20,8 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 		windowBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(windowBox);
 
+		this.windowBox.add(new Gtk.Button.with_label("aaa"));
+
 
 		if (video)
 			loadVideo(fileName);
@@ -71,14 +73,24 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 
         this.drawingArea = new Gtk.DrawingArea();
         this.windowBox.pack_start(drawingArea, true, true, 0);
-        this.drawingArea.realize.connect(() => {
-        	this.xid = (uint*)(((Gdk.X11.Window) this.drawingArea.get_window()).get_xid ());
 
-        	var xoverlay = this.videoSink as Gst.Video.Overlay;
-	        xoverlay.set_window_handle (this.xid);
-	        this.pipeline.set_state (State.PLAYING);
-	        this.show_all();
-        });       
+        this.drawingArea.realize.connect(() => {
+        	this.xid = (uint*)(((Gdk.X11.Window) this.drawingArea.get_window()).get_xid ());      	
+        }); 
+
+        this.pipeline.get_bus().add_watch(0, (bus, message) => {
+        	if(Gst.Video.is_video_overlay_prepare_window_handle_message (message)) 
+        	{
+				Gst.Video.Overlay overlay = message.src as Gst.Video.Overlay;
+				assert (overlay != null);
+
+				overlay.set_window_handle (this.xid);
+				this.show_all();
+			}
+			return true;
+        });
+
+        this.pipeline.set_state (State.PLAYING);        
 	}
 
 	private void padAddedHandler(Gst.Element src, Gst.Pad new_pad)
@@ -94,16 +106,16 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 		{
 			stdout.printf ("  It has audio type '%s', loading.\n", new_pad_type);
 			linkPads(new_pad, audioSinkPad, new_pad_type);
-			if (videoSinkPad.is_linked())
-				playVideo();
+			//if (videoSinkPad.is_linked())
+			//	playVideo();
 			return ;
 		}
 		else
 		{
 			stdout.printf ("  It has video type '%s', loading.\n", new_pad_type);
 			linkPads(new_pad, videoSinkPad, new_pad_type);
-			if (audioSinkPad.is_linked())
-				playVideo();
+			//if (audioSinkPad.is_linked())
+			//	playVideo();
 			return ;
 		}
 	}
@@ -116,11 +128,6 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 		} else {
 			stdout.printf ("  Link succeeded (type '%s').\n", new_pad_type);
 		}
-	}
-
-	private void playVideo()
-	{
-		this.pipeline.set_state (State.PLAYING);
 	}
 
 	public string getFileName(string url)
