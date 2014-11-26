@@ -11,6 +11,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Box userInfoBox;
 
 	public Box avatarBox;
+	public Pixbuf avatarPixbuf;
 	public Image avatar;
 	public Label userName;
 
@@ -181,12 +182,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		        	return false;
 		        });
 
-		        relationshipBox.button_release_event.connect((event) => {
-		        	new Thread<int>("", () => {
-		        		changeRelationship();
-		        		return 0;
-		        	});
-		        	
+		        relationshipBox.button_release_event.connect(() => {
+		        	confirmChangingRelationship();
 		        	return false;
 		        });
 		    }
@@ -298,10 +295,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         relationshipImage.set_from_pixbuf(relationshipPixbuf);
     }
 
-    private void changeRelationship()
+    private void confirmChangingRelationship()
     {
-
-        string action;
+    	string action;
 		switch (user.relationship.outcoming)
 		{
 			case "follows":
@@ -315,8 +311,40 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
     			error("Should've not reached here.");
 		}
 
+		if (action == "unfollow") // make sure user want to unfollow
+		{
+			Gtk.MessageDialog msg = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL, 
+													Gtk.MessageType.QUESTION, Gtk.ButtonsType.OK_CANCEL, 
+													"Are you sure you want to unfollow @" + user.username + "?");
+			msg.response.connect ((response_id) => {
+				bool allowedToUnfollow = (response_id == Gtk.ResponseType.OK);
+
+				msg.destroy();
+
+				if (!allowedToUnfollow)
+					return;
+				else
+					new Thread<int>("", () => {
+		        		changeRelationshipReally(action);
+		        		return 0;
+		        	});				
+			});
+			msg.show ();
+		}
+		else // following
+			new Thread<int>("", () => {
+        		changeRelationshipReally(action);
+        		return 0;
+        	});
+
+    }
+
+    private void changeRelationshipReally(string action)
+    {
+		// user agreed, continue unfollowing
+		// or not unfollowing but following.
+
 		string relationshipInfo = relationshipAction(this.user.id, action);
-		print(relationshipInfo + "\n");
         Relationship relationship = null;
 
         try
