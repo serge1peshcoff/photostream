@@ -21,6 +21,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Pixbuf followingPixbuf;
 	public Pixbuf notFollowingPixbuf;
 	public Pixbuf unfollowPixbuf;
+	public Pixbuf followPixbuf;
 
 	public Box userCountsBox;
 	public Label mediaCount;
@@ -56,6 +57,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			this.followingPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "following.png");
 			this.notFollowingPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "not-following.png");
 			this.unfollowPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "unfollow.png");
+			this.followPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "follow.png");
 		}
 		catch(Error e)
 		{
@@ -251,9 +253,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		if (user.relationship.outcoming == "follows")
 			relationshipPixbuf = unfollowPixbuf;
 		else if (user.relationship.outcoming == "none")
-			relationshipPixbuf = followingPixbuf;
+			relationshipPixbuf = followPixbuf;
 		else
-			relationshipPixbuf = notFollowingPixbuf;
+			error("Should not reached here.");
 
         relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
         relationshipImage.set_from_pixbuf(relationshipPixbuf);
@@ -266,7 +268,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		else if (user.relationship.outcoming == "none")
 			relationshipPixbuf = notFollowingPixbuf;
 		else
-			relationshipPixbuf = notFollowingPixbuf;
+			error("Should not reached here.");
 
         relationshipPixbuf = relationshipPixbuf.scale_simple(RELATIONSHIP_WIDTH, RELATIONSHIP_HEIGHT, Gdk.InterpType.BILINEAR);
         relationshipImage.set_from_pixbuf(relationshipPixbuf);

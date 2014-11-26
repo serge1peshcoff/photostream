@@ -7,6 +7,7 @@ set(GENERIC_IMAGES
     following.png
     not-following.png
     unfollow.png
+    follow.png
     avatar-mask.png
 )
 
