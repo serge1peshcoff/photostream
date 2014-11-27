@@ -50,6 +50,8 @@ public class PhotoStream.App : Granite.Application
     public UserList userList;
 
     public static User selfUser;
+
+    private bool headersCallbacksSet = false;
     
 	protected override void activate () 
 	{      
@@ -598,9 +600,7 @@ public class PhotoStream.App : Granite.Application
         feedButton.set_tooltip_text ("Feed");
         feedButton.set_label ("Feed");
         feedButton.set_sensitive (false);
-        centered_toolbar.add (feedButton);
-
-        
+        centered_toolbar.add (feedButton);        
 
         exploreButton = new Gtk.ToggleToolButton ();
         exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
@@ -635,6 +635,9 @@ public class PhotoStream.App : Granite.Application
 
     public void setHeaderCallbacks()
     {
+        if (headersCallbacksSet)
+            return;
+
         feedButton.set_sensitive (true);
         exploreButton.set_sensitive (true);
         photoButton.set_sensitive (true);
@@ -656,41 +659,32 @@ public class PhotoStream.App : Granite.Application
 
         newsButton.clicked.connect(() => {
             uncheckButtonsExcept("news");
-        });
+        });        
 
         userButton.clicked.connect(() => {
             uncheckButtonsExcept("self");
+            //print("1\n");
             new Thread<int>("", () => {
                 loadUser(selfUser.id);
                 return 0;
-            });
-            
+            });            
         });
+
+        headersCallbacksSet = true;
     }
 
     public void uncheckButtonsExcept(string notUncheck)
     {
-        feedButton.set_active(false);
-        userButton.set_active(false);
-        photoButton.set_active(false);
-        exploreButton.set_active(false);
-        newsButton.set_active(false);
-
-
-        //if (notUncheck == "feed")
-        //    feedButton.set_active(true);
-        //else if (notUncheck == "self")
-        //    userButton.set_active(true);
-        //else if (notUncheck == "photo")
-        //    photoButton.set_active(true);
-        //else  if (notUncheck == "explore")
-        //    exploreButton.set_active(true);
-        //else if (notUncheck == "news")
-        //    newsButton.set_active(true);
+        //feedButton.active = (notUncheck == "feed");
+        //userButton.active = (notUncheck == "self");
+        //photoButton.active = (notUncheck == "photo");
+        //exploreButton.active = (notUncheck == "explore");
+        //newsButton.active = (notUncheck == "news");
     }
 
     public int setFeedWidgets()
-    {        
+    {   
+        print("loadFeed start.\n");     
         Idle.add(() => { 
 
             setHeaderCallbacks();

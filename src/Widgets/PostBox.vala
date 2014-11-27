@@ -25,6 +25,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Image image;
 	public Gtk.Box likeToolbar;
 	public Gtk.EventBox likeBox;
+	public List<Gtk.Popover> usersOnPhoto;
 	public Gtk.Image likeImage;
 	public Gtk.EventBox locationEventBox;
 	public Gtk.Box locationBox;
@@ -130,6 +131,24 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_halign(Gtk.Align.START);
 		titleAlignment.add(titleLabel);
 		box.add(titleAlignment);
+
+		if (post.taggedUsers.length() != 0)
+		{
+			usersOnPhoto = new List<Gtk.Popover>();
+			foreach (TaggedUser userInPhoto in post.taggedUsers)
+			{
+				Gtk.Box tmpBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+				imageBox.put(tmpBox, (int)(userInPhoto.x * IMAGE_SIZE), (int)(userInPhoto.y * IMAGE_SIZE));
+
+				//Gtk.Popover userPopover = new Gtk.Popover(tmpBox);
+				Gtk.Button userPopover = new Gtk.Button.with_label(userInPhoto.user.username);
+				//userPopover.add(new Gtk.Label(userInPhoto.user.username));
+				//userPopover.set_modal(false);
+				//this.usersOnPhoto.append(userPopover);
+				tmpBox.add(userPopover);
+
+			}
+		}
 
 		if (post.location != null)
 		{
