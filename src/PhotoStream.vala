@@ -339,7 +339,8 @@ public class PhotoStream.App : Granite.Application
 
         foreach(UserBox userBox in userList.boxes)
         {
-            userBox.loadAvatar();
+            userBox.loadAvatar();          
+
             userBox.userNameLabel.activate_link.connect(handleUris);
             userBox.avatarBox.button_release_event.connect(() => {
                 new Thread<int>("", () => {
@@ -348,7 +349,29 @@ public class PhotoStream.App : Granite.Application
                 });
                 
                 return false;
-            });
+            });            
+        }
+
+        foreach(UserBox userBox in userList.boxes)
+        {
+            if (userBox.user.id == selfUser.id)
+                continue;
+
+            string responseRelatioship = getUsersRelationship(userBox.user.id);
+            Relationship usersRelationship = new Relationship();
+
+            try
+            {
+                usersRelationship = parseRelationship(responseRelatioship);
+
+            }
+            catch (Error e) // wrong token
+            {
+                error("Something wrong with parsing: " + e.message + ".\n");
+            }
+
+            userBox.user.relationship = usersRelationship;
+            userBox.loadRelationship();
         }
         
         return 0;

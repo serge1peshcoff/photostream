@@ -20,9 +20,6 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 		windowBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(windowBox);
 
-		this.windowBox.add(new Gtk.Button.with_label("aaa"));
-
-
 		if (video)
 			loadVideo(fileName);
 		else

@@ -13,6 +13,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public Gtk.Alignment likeAlignment;
 	public Gtk.Alignment commentsAlignment;
 
+	public Pixbuf likePixbuf;
+	public Pixbuf dislikePixbuf;
+
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
 	public Gtk.Label dateLabel;
@@ -50,6 +53,16 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 		set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
         set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+
+		try 
+        {
+        	likePixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "like.png" );
+        	dislikePixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "dontlike.png");
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }
 
 		this.post = post;
 		userToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
@@ -158,17 +171,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		likeToolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
-		Pixbuf likePixbuf;
-		try 
-        {
-        	likePixbuf = new Pixbuf.from_file(post.didILikeThis 
-        								? PhotoStream.App.CACHE_IMAGES + "like.png" 
-        								: PhotoStream.App.CACHE_IMAGES + "dontlike.png");
-        }	
-        catch (Error e)
-        {
-        	GLib.error("Something wrong with file loading.\n");
-        }
+		
 
         this.likeAlignment = new Gtk.Alignment (0,0,0,0);
         this.likeAlignment.top_padding = 6;
@@ -176,19 +179,23 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         this.likeAlignment.bottom_padding = (post.commentsCount == 0) ? 6 : 0;
         this.likeAlignment.left_padding = 6;
 
+        Pixbuf currentLikePixbuf = (post.didILikeThis? likePixbuf : dislikePixbuf);
 
-        likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
-        likeImage = new Gtk.Image.from_pixbuf(likePixbuf);
+        currentLikePixbuf = currentLikePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
+        likeImage = new Gtk.Image.from_pixbuf(currentLikePixbuf);
         likeBox = new Gtk.EventBox();
         likeBox.add(likeImage);
         likeAlignment.add(likeBox);
 		likeToolbar.pack_start(likeAlignment, false, true);
 
 		likeBox.enter_notify_event.connect((event) => {
-			event.window.set_cursor (
-                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-            );
-            return false;
+			onLikeHover(event);
+			return false;
+		});
+
+		likeBox.leave_notify_event.connect((event) => {
+			onLikeHoverOut(event);
+			return false;
 		});
 
 		likeBox.button_release_event.connect(callback);
@@ -416,4 +423,24 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
         this.show_all();
     }
+
+    private void onLikeHover(EventCrossing event)
+    {
+    	event.window.set_cursor (
+            new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+        );
+
+        Pixbuf currentLikePixbuf = (!post.didILikeThis? likePixbuf : dislikePixbuf);
+
+        currentLikePixbuf = currentLikePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
+        likeImage.set_from_pixbuf(currentLikePixbuf);
+    }
+    private void onLikeHoverOut(EventCrossing event)
+    {
+    	Pixbuf currentLikePixbuf = (post.didILikeThis? likePixbuf : dislikePixbuf);
+
+        currentLikePixbuf = currentLikePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
+        likeImage.set_from_pixbuf(currentLikePixbuf);
+    }
+
 }
