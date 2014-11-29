@@ -164,7 +164,7 @@ public string searchLocation(double latitude, double longitude, int distance = 1
 }
 
 
-public void downloadFile(string url, string filename)
+public void downloadFile(string url, string filename) throws Error
 {
 	var session = new Soup.Session ();
     var message = new Soup.Message ("GET", url);
@@ -174,6 +174,9 @@ public void downloadFile(string url, string filename)
 
     File file;
     FileIOStream stream;
+
+    if (message.status_code != 200)
+        error("Something wrong with downloading.");
 
     try 
     {

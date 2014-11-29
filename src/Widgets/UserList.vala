@@ -4,7 +4,7 @@ public class PhotoStream.Widgets.UserList : Gtk.ListBox
 {
 	public GLib.List<UserBox> boxes;
 	public Gtk.Button moreButton;
-	public string olderFeedLink;
+	public string olderUsersLink;
 	public UserList()
 	{
 		boxes = new GLib.List<UserBox>();

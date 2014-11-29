@@ -25,10 +25,12 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Pixbuf followPixbuf;
 	public Pixbuf requestedPixbuf;
 
-	public Box userCountsBox;
+	public Box userCountsBox;	
 	public Label mediaCount;
 	public Label followsCount;
 	public Label followersCount;
+	public EventBox followsCountBox;
+	public EventBox followersCountBox;
 
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
@@ -73,6 +75,16 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.followsCount = new Label("0 follows.");
 		this.followersCount = new Label("0 followers.");
 
+		this.followsCountBox = new EventBox();
+		this.followersCountBox = new EventBox();
+
+        this.followsCountBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.followsCountBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.followsCountBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+        this.followersCountBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.followersCountBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.followersCountBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+
 		this.feedWindow = new ScrolledWindow(null, null);
 		this.userFeed = new PostList();
 
@@ -104,10 +116,21 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.box.pack_start(userInfoBox, false, true);
 
+		this.followsCountBox.add(followsCount);
+		this.followersCountBox.add(followersCount);
 		this.userCountsBox.pack_start(mediaCount, false, true);
-		this.userCountsBox.add(followsCount);
-		this.userCountsBox.add(followersCount);
+		this.userCountsBox.add(followsCountBox);
+		this.userCountsBox.add(followersCountBox);
 		this.box.add(userCountsBox);
+
+		this.followsCountBox.enter_notify_event.connect((event) => {
+			onCountsHover(event);
+			return false;
+		});
+		this.followersCountBox.enter_notify_event.connect((event) => {
+			onCountsHover(event);
+			return false;
+		});
 
 		this.box.pack_end(userFeed, true, true);
 		this.pack_start(feedWindow, true, true);
@@ -128,7 +151,14 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		string avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
 		File file = File.new_for_path(avatarFileName);
         if (!file.query_exists()) // avatar not downloaded, download
-        	downloadFile(user.profilePicture, avatarFileName);
+        	try
+        	{
+        		downloadFile(user.profilePicture, avatarFileName);
+        	}
+        	catch (Error e)
+        	{
+        		error("Can't load avatar.");
+        	}
 
         this.avatar.set_from_file(avatarFileName);
 
@@ -140,9 +170,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userName.set_markup(userNameString);
 
-		this.mediaCount.set_markup("<b>" + (user.mediaCount == 0 ? "?" : user.mediaCount.to_string()) + "</b>\nmedia");
-		this.followsCount.set_markup("<b>" + (user.followed == 0 ? "?" : user.followed.to_string()) + "</b>\nfollows");
-		this.followersCount.set_markup("<b>" + (user.followers == 0 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
+		this.mediaCount.set_markup("<b>" + (user.mediaCount == -1 ? "?" : user.mediaCount.to_string()) + "</b>\nmedia");
+		this.followsCount.set_markup("<b>" + (user.followed == -1 ? "?" : user.followed.to_string()) + "</b>\nfollows");
+		this.followersCount.set_markup("<b>" + (user.followers == -1 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
 
 		this.loadRelationship();
 		
@@ -260,6 +290,13 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
     {
         var indexStart = url.last_index_of("/") + 1;
         return url.substring(indexStart, url.length - indexStart);
+    }
+
+    private void onCountsHover(EventCrossing event)
+    {
+    	event.window.set_cursor (
+            new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+        );
     }
 
     private void onHover(EventCrossing event)

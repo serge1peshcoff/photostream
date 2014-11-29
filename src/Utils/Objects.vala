@@ -51,9 +51,9 @@ namespace PhotoStream.Utils
 		public string id;
 		public string website = ""; //this is not in all requests
 		public string bio = ""; //this is too;
-		public int64 mediaCount = 0;
-		public int64 followers = 0;
-		public int64 followed = 0; //these 3 are only in user page
+		public int64 mediaCount = -1;
+		public int64 followers = -1;
+		public int64 followed = -1; //these 3 are only in user page
 		public Relationship relationship = null; // this'll be used in the user page.
 	}
 	public class Relationship

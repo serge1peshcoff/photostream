@@ -32,7 +32,14 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
 	public void loadVideo(string fileName)
 	{
 		string downloadFileName = PhotoStream.App.CACHE_URL + getFileName(fileName);
-		downloadFile(fileName, downloadFileName);
+		try
+		{
+			downloadFile(fileName, downloadFileName);
+		}
+		catch (Error e)
+		{
+			error("Video cannot be loaded.");
+		}
 
 		this.pipeline = new Pipeline ("mypipeline");
 		this.src = ElementFactory.make ("filesrc", "video");

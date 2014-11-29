@@ -140,7 +140,7 @@ public class PhotoStream.App : Granite.Application
                 file.make_directory_with_parents ();
 
         } catch (Error e) {
-            error("Error: %s\n", e.message);
+            error("Error creating caching directories: %s\n", e.message);
         }
 
         this.feedList = new PostList();
@@ -154,6 +154,22 @@ public class PhotoStream.App : Granite.Application
         this.userWindowBox = new UserWindowBox();
         this.userWindow.add_with_viewport (userWindowBox);
         stack.add_named(userWindow, "user");
+
+        userWindowBox.followersCountBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                loadUsers(userWindowBox.user.id, "followers");
+                return 0;
+            }); 
+            return false;
+        });
+
+        userWindowBox.followsCountBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                loadUsers(userWindowBox.user.id, "follows");
+                return 0;
+            }); 
+            return false;
+        });
 
         this.commentWindow = new Gtk.ScrolledWindow(null, null);
         this.commentsList = new CommentsList();
@@ -306,19 +322,30 @@ public class PhotoStream.App : Granite.Application
         return 0;
     }
 
-    public int loadLikes(string postId)
+
+    public int loadUsers(string postId, string type)
     {
         Idle.add(() => {
             stubLoading();
             switchWindow("userList");
             return false;
         });
-        string response = getMediaLikes(postId);
+        string response;
+        if (type == "likes")
+            response = getMediaLikes(postId);
+        else if (type == "follows")
+            response = getUserFollows(postId); 
+        else if (type == "followers")
+            response = getUserFollowers(postId);  
+        else
+            error("Should've not reach here."); 
         List<User> likees = new List<User>();
+        string olderUsersLink;
 
         try
         {
             likees = parseUserList(response);
+            olderUsersLink = parsePagination(response);
 
         }
         catch (Error e) // wrong token
@@ -326,53 +353,71 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
 
-        userList.clear();
-        foreach(User user in likees)
-            userList.prepend(user);
-
         Idle.add(() => {
+            userList.clear();
+            foreach(User user in likees)
+                userList.prepend(user);
+        
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
-            this.box.show_all();
-            return false;
-        });
+            this.box.show_all();   
 
-        foreach(UserBox userBox in userList.boxes)
-        {
-            userBox.loadAvatar();          
+            new Thread<int>("", () => {                  
+                foreach(UserBox userBox in userList.boxes)
+                    userBox.loadAvatar();                    
+                return 0;
+            });     
 
-            userBox.userNameLabel.activate_link.connect(handleUris);
-            userBox.avatarBox.button_release_event.connect(() => {
+            foreach(UserBox userBox in userList.boxes)
+            {
+                userBox.userNameLabel.activate_link.connect(handleUris);
+                userBox.avatarBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        loadUser(userBox.user.id, userBox.user);
+                        return 0;
+                    });
+                    return false;
+                });  
+            }              
+
+            foreach(UserBox userBox in userList.boxes)
+            {
+                if (userBox.user.id == selfUser.id)
+                    continue;
+
                 new Thread<int>("", () => {
-                    loadUser(userBox.user.id, userBox.user);
+                    Relationship usersRelationship;
+                    if (type == "follows" && userWindowBox.user.id == selfUser.id) // loading self followers
+                    {   
+                        usersRelationship = new Relationship();  // don't need to actually load this from server, lol
+                        usersRelationship.outcoming = "follows"; // so make a stub Relationship object and load it into userBox
+                    }
+                    else
+                    {
+                        string responseRelatioship = getUsersRelationship(userBox.user.id);
+                        usersRelationship = new Relationship();
+
+                        try
+                        {
+                            usersRelationship = parseRelationship(responseRelatioship);
+                        }
+                        catch (Error e) 
+                        {
+                            error("Something wrong with parsing: " + e.message + ".\n");
+                        }
+                    }            
+
+                    userBox.user.relationship = usersRelationship;
+                    Idle.add(() => {
+                        userBox.loadRelationship();
+                        return false;
+                    });
+
                     return 0;
-                });
-                
-                return false;
-            });            
-        }
-
-        foreach(UserBox userBox in userList.boxes)
-        {
-            if (userBox.user.id == selfUser.id)
-                continue;
-
-            string responseRelatioship = getUsersRelationship(userBox.user.id);
-            Relationship usersRelationship = new Relationship();
-
-            try
-            {
-                usersRelationship = parseRelationship(responseRelatioship);
-
+                }); 
             }
-            catch (Error e) // wrong token
-            {
-                error("Something wrong with parsing: " + e.message + ".\n");
-            }
-
-            userBox.user.relationship = usersRelationship;
-            userBox.loadRelationship();
-        }
+            return false; 
+        });
         
         return 0;
     }
@@ -761,7 +806,7 @@ public class PhotoStream.App : Granite.Application
             if (uri == "getLikes")
             {
                 new Thread<int>("", () => {
-                    loadLikes(postBox.post.id);
+                    loadUsers(postBox.post.id, "likes");
                     return 0;
                 });                
                 return true;

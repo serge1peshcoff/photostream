@@ -209,8 +209,10 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 				else
 					likesText += "<a href=\"@" + likedUser.username + "\">" + likedUser.username + "</a>, ";
 		}
-		else
+		else if (post.likesCount != 0)
 			likesText = "<a href=\"getLikes\">" + post.likesCount.to_string() + " likes.</a>";
+		else
+			likesText = post.likesCount.to_string() + " likes.";
 
 		likesLabel = new Gtk.Label("");
 		likesLabel.set_markup(likesText);	
@@ -307,7 +309,14 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
 		File file = File.new_for_path(avatarFileName);
         if (!file.query_exists()) // avatar not downloaded, download
-        	downloadFile(post.postedUser.profilePicture, avatarFileName);
+        	try
+        	{
+        		downloadFile(post.postedUser.profilePicture, avatarFileName);
+        	}
+        	catch (Error e)
+        	{
+        		return; // not loading avatar, to fix.
+        	}
 
         Idle.add(() => {
         	Pixbuf avatarPixbuf; 
@@ -340,7 +349,14 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		File file = File.new_for_path(imageFileName);
         if (!file.query_exists()) // avatar not downloaded, download
-        	downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
+        	try
+        	{
+        		downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
+        	}
+        	catch (Error e)
+        	{
+        		error("Some posts cannot be loaded.");
+        	}
 
         Idle.add(() => {
         	Pixbuf imagePixbuf; 

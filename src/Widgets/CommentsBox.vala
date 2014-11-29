@@ -43,37 +43,46 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 		if (withAvatar)
 		{
+			bool isImageLoaded = true;
 			var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(comment.user.profilePicture);
 			File file = File.new_for_path(avatarFileName);
 	        if (!file.query_exists()) // avatar not downloaded, download
-	        	downloadFile(comment.user.profilePicture, avatarFileName);
+	        	try {
+	        		downloadFile(comment.user.profilePicture, avatarFileName);
+	        	}
+	        	catch (Error e) // broken download
+	        	{
+	        		isImageLoaded = false;
+	        	}	        	
 
-
-        	avatar = new Gtk.Image();
-        	avatarBox = new Gtk.EventBox();
-        	avatarBox.add(avatar);
-        	Pixbuf avatarPixbuf; 
-	        try 
+	        if (isImageLoaded)
 	        {
-	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
+	        	avatar = new Gtk.Image();
+	        	avatarBox = new Gtk.EventBox();
+	        	avatarBox.add(avatar);
+	        	Pixbuf avatarPixbuf; 
+		        try 
+		        {
+		        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
+		        }	
+		        catch (Error e)
+		        {
+		        	GLib.error("Something wrong with file loading.\n");
+		        }
+				avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 
-			avatar.set_from_pixbuf(avatarPixbuf);	
+				avatar.set_from_pixbuf(avatarPixbuf);	
 
-			avatarAlignment.add(avatarBox);
-			this.pack_start(avatarAlignment, false, true);	
+				avatarAlignment.add(avatarBox);
+				this.pack_start(avatarAlignment, false, true);	
 
-			avatarBox.enter_notify_event.connect((event) => {
-			event.window.set_cursor (
-                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-            );
-            return false;
-		});
+				avatarBox.enter_notify_event.connect((event) => {
+					event.window.set_cursor (
+		                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+		            );
+		            return false;
+				});
+			}
 		}
 		textBox.add(textLabel);
 		textAlignment.add(textBox);
