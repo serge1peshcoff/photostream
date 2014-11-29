@@ -167,7 +167,10 @@ public string searchLocation(double latitude, double longitude, int distance = 1
 public void downloadFile(string url, string filename) throws Error
 {
 	var session = new Soup.Session ();
+    session.ssl_strict = false;
     var message = new Soup.Message ("GET", url);
+    message.tls_errors = GLib.TlsCertificateFlags.VALIDATE_ALL;
+
     session.send_message (message);
 
     size_t bytes;
@@ -175,8 +178,8 @@ public void downloadFile(string url, string filename) throws Error
     File file;
     FileIOStream stream;
 
-    if (message.status_code != 200)
-        error("Something wrong with downloading.");
+    if (message.status_code != Soup.Status.OK)
+        error("Something wrong with downloading: " + Soup.Status.get_phrase(message.status_code));
 
     try 
     {

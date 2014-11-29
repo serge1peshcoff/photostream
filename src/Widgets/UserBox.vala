@@ -86,7 +86,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 	{
 		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
 		File file = File.new_for_path(avatarFileName);
-		print("loading avatar " + user.profilePicture + "\n");
+
         if (!file.query_exists()) // avatar not downloaded, download
         	try
         	{
