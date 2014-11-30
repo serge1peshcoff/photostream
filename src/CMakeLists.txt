@@ -21,6 +21,7 @@ set(CLIENT_SOURCE
     Widgets/UserList.vala
     Widgets/UserBox.vala
     Widgets/MediaWindow.vala
+    Widgets/HashTagFeedBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

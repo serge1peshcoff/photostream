@@ -96,7 +96,6 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
         	{
         		return; // maybe fix this, maybe won't.
         	}
-        print("avatar loaded");
 
         Idle.add(() => {
         	Pixbuf avatarPixbuf; 

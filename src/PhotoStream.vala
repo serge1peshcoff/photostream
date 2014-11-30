@@ -43,6 +43,7 @@ public class PhotoStream.App : Granite.Application
     public Gtk.ScrolledWindow searchWindow;
 
     public UserWindowBox userWindowBox;
+    public HashTagFeedBox tagFeedBox;
 
     public PostList feedList; 
     public CommentsList commentsList;
@@ -185,6 +186,13 @@ public class PhotoStream.App : Granite.Application
         this.userList = new UserList();
         this.userListWindow.add_with_viewport(userList);
         stack.add_named(userListWindow, "userList");
+
+        this.tagFeedWindow = new Gtk.ScrolledWindow(null, null);
+        this.tagFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+        this.tagFeedBox = new HashTagFeedBox();
+        this.tagFeedWindow.add_with_viewport(tagFeedBox);
+        stack.add_named(tagFeedWindow, "tagFeed");
+
     }
 
     public void setLoginWindow()
@@ -201,7 +209,10 @@ public class PhotoStream.App : Granite.Application
         switch(uri[0])
         {
             case '#': // hashtag, stub
-
+            new Thread<int>("", () => {
+                loadTag(uri.substring(1, uri.length - 1));
+                return 0;
+            });
             break;
             case '@': // username
             new Thread<int>("", () => {
@@ -240,6 +251,47 @@ public class PhotoStream.App : Granite.Application
             error("Something wrong with parsing: " + e.message + ".\n");
         }
         loadUser(userList.nth(0).data.id, userList.nth(0).data);
+        return 0;
+    }
+
+    public int loadTag(string tagName)
+    {
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("tagFeed");
+            return false;
+        });
+        string responseTagInfo = getTagInfo(tagName);
+        string responseTagFeed = getTagRecent(tagName);
+        Tag receivedTag;
+        List<MediaInfo> tagFeedReceived = new List<MediaInfo>();
+
+        try
+        {
+            receivedTag = parseTag(responseTagInfo);
+            tagFeedReceived = parseFeed(responseTagFeed);
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+
+
+        //tagList.clear();
+        //foreach(Tag tagInList in tagListRequested)
+        //    tagList.prepend(tagInList);
+
+        tagFeedBox.loadTag(receivedTag);
+        tagFeedBox.loadFeed(tagFeedReceived);
+
+        Idle.add(() => {
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            this.stack.show_all();
+            return false;
+        });
+        
         return 0;
     }
 
@@ -340,13 +392,10 @@ public class PhotoStream.App : Granite.Application
         else
             error("Should've not reach here."); 
         List<User> likees = new List<User>();
-        string olderUsersLink;
 
         try
         {
             likees = parseUserList(response);
-            olderUsersLink = parsePagination(response);
-
         }
         catch (Error e) // wrong token
         {
