@@ -45,4 +45,18 @@ public class PhotoStream.Widgets.HashTagFeedBox : Gtk.Box
 		}
 
 	}
+
+	public void loadOlderFeed (List<MediaInfo> posts)
+	{
+		foreach (MediaInfo post in posts)
+			hashtagFeed.prepend(post);
+
+		foreach (PostBox box in hashtagFeed.boxes)
+			if (box.avatar.pixbuf == null)
+			{
+				box.loadAvatar();
+				box.loadImage();
+			}
+		this.show_all();
+	}
 }

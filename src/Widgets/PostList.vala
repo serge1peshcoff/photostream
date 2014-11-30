@@ -15,7 +15,8 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		this.activate_on_single_click = false;
 	}
 	public void addMoreButton()
-	{				
+	{
+		this.moreButton = new Gtk.Button.with_label("Load more...");				
 		this.moreButtonAlignment = new Gtk.Alignment (1,0,1,0);
         this.moreButtonAlignment.add(moreButton);
 		if(!this.moreButton.is_ancestor(this))

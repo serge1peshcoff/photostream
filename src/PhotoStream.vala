@@ -270,6 +270,7 @@ public class PhotoStream.App : Granite.Application
         {
             receivedTag = parseTag(responseTagInfo);
             tagFeedReceived = parseFeed(responseTagFeed);
+            tagFeedBox.hashtagFeed.olderFeedLink = parsePagination(responseTagFeed);
         }
         catch (Error e)
         {
@@ -277,15 +278,24 @@ public class PhotoStream.App : Granite.Application
         }
 
 
-
-        //tagList.clear();
-        //foreach(Tag tagInList in tagListRequested)
-        //    tagList.prepend(tagInList);
-
-        tagFeedBox.loadTag(receivedTag);
-        tagFeedBox.loadFeed(tagFeedReceived);
-
         Idle.add(() => {
+            tagFeedBox.hashtagFeed.clear();
+            if (tagFeedBox.hashtagFeed.olderFeedLink != "")
+            {
+                tagFeedBox.hashtagFeed.addMoreButton();
+                tagFeedBox.hashtagFeed.moreButton.clicked.connect(() => {
+                    new Thread<int>("", () => {
+                        loadOlderTagFeed();
+                        return 0;
+                    });
+                    
+                });
+            }
+
+            tagFeedBox.loadTag(receivedTag);
+            tagFeedBox.loadFeed(tagFeedReceived);
+
+        
             box.remove(loadingImage);
             box.pack_start(stack, true, true); 
             this.stack.show_all();
@@ -293,6 +303,28 @@ public class PhotoStream.App : Granite.Application
         });
         
         return 0;
+    }
+
+    public void loadOlderTagFeed()
+    {
+        string response = getOlderUserFeed(tagFeedBox.hashtagFeed.olderFeedLink);
+        List<MediaInfo> olderFeed;
+        try 
+        {
+            olderFeed = parseFeed(response);
+            tagFeedBox.hashtagFeed.olderFeedLink = parsePagination(response);
+            
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        Idle.add(() => {            
+            tagFeedBox.loadOlderFeed(olderFeed);
+            if (tagFeedBox.hashtagFeed.olderFeedLink == "")
+                tagFeedBox.hashtagFeed.deleteMoreButton();
+            return false;
+        });        
     }
 
     public int searchTag(string tag)
@@ -501,7 +533,7 @@ public class PhotoStream.App : Granite.Application
             user = parseUser(userInfo);            
             user.relationship = relationship;
         }
-        catch (Error e) // wrong token
+        catch (Error e)
         {
             if (e.message == "you cannot view this resource") // this profile is private
             {
@@ -528,7 +560,7 @@ public class PhotoStream.App : Granite.Application
             return 0;
         }
 
-        // if we got here, user it not private (aparently).
+        // if we got here, user it not private (apparently).
 
         string userFeed = getUserMedia(id);        
         List<MediaInfo> userFeedList = new List<MediaInfo>();        
@@ -538,13 +570,12 @@ public class PhotoStream.App : Granite.Application
             userFeedList = parseFeed(userFeed);
             this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
         }
-        catch (Error e) // wrong token
+        catch (Error e)
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }
 
         Idle.add(() => {
-
             userWindowBox.loadFeed(userFeedList);
             userWindowBox.load(user);
 
@@ -800,8 +831,7 @@ public class PhotoStream.App : Granite.Application
     }
 
     public int setFeedWidgets()
-    {   
-        print("loadFeed start.\n");     
+    {       
         Idle.add(() => { 
 
             setHeaderCallbacks();
