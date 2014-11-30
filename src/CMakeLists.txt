@@ -22,6 +22,7 @@ set(CLIENT_SOURCE
     Widgets/UserBox.vala
     Widgets/MediaWindow.vala
     Widgets/HashTagFeedBox.vala
+    Widgets/LocationFeedBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

@@ -34,6 +34,7 @@ public class PhotoStream.App : Granite.Application
     public PhotoStack stack;
     public Gtk.ScrolledWindow userFeedWindow;
     public Gtk.ScrolledWindow tagFeedWindow;
+    public Gtk.ScrolledWindow locationFeedWindow;
     public Gtk.ScrolledWindow tagSearchWindow;
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
@@ -44,6 +45,7 @@ public class PhotoStream.App : Granite.Application
 
     public UserWindowBox userWindowBox;
     public HashTagFeedBox tagFeedBox;
+    public LocationFeedBox locationFeedBox;
 
     public PostList feedList; 
     public CommentsList commentsList;
@@ -145,10 +147,6 @@ public class PhotoStream.App : Granite.Application
         }
 
         this.feedList = new PostList();
-        this.feedList.moreButton.clicked.connect(() => {
-            new Thread<int>("", loadOlderFeed);
-        });
-
         this.userFeedWindow.add_with_viewport (feedList);
 
         this.userWindow = new Gtk.ScrolledWindow(null, null);
@@ -192,6 +190,12 @@ public class PhotoStream.App : Granite.Application
         this.tagFeedBox = new HashTagFeedBox();
         this.tagFeedWindow.add_with_viewport(tagFeedBox);
         stack.add_named(tagFeedWindow, "tagFeed");
+
+        this.locationFeedWindow = new Gtk.ScrolledWindow(null, null);
+        this.locationFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+        this.locationFeedBox = new LocationFeedBox();
+        this.locationFeedWindow.add_with_viewport(locationFeedBox);
+        stack.add_named(locationFeedWindow, "location");
 
     }
 
@@ -323,6 +327,78 @@ public class PhotoStream.App : Granite.Application
             tagFeedBox.loadOlderFeed(olderFeed);
             if (tagFeedBox.hashtagFeed.olderFeedLink == "")
                 tagFeedBox.hashtagFeed.deleteMoreButton();
+            return false;
+        });        
+    }
+
+    public int loadLocation(int64 locationId)
+    {
+        Idle.add(() => {
+            stubLoading();
+            switchWindow("location");
+            return false;
+        });
+        string responseLocationInfo = getLocationInfo(locationId);
+        string responseLocationFeed = getLocationRecent(locationId);
+        Location receivedLocation;
+        List<MediaInfo> locationFeedReceived = new List<MediaInfo>();
+
+        try
+        {
+            receivedLocation = parseLocation(responseLocationInfo);
+            locationFeedReceived = parseFeed(responseLocationFeed);
+            locationFeedBox.locationFeed.olderFeedLink = parsePagination(responseLocationFeed);
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+
+        Idle.add(() => {
+            locationFeedBox.locationFeed.clear();
+            if (locationFeedBox.locationFeed.olderFeedLink != "")
+            {
+                locationFeedBox.locationFeed.addMoreButton();
+                locationFeedBox.locationFeed.moreButton.clicked.connect(() => {
+                    new Thread<int>("", () => {
+                        loadOlderLocationFeed();
+                        return 0;
+                    });
+                    
+                });
+            }
+
+            locationFeedBox.loadLocation(receivedLocation);
+            locationFeedBox.loadFeed(locationFeedReceived);
+        
+            box.remove(loadingImage);
+            box.pack_start(stack, true, true); 
+            this.stack.show_all();
+            return false;
+        });
+        
+        return 0;
+    }
+
+    public void loadOlderLocationFeed()
+    {
+        string response = getOlderUserFeed(locationFeedBox.locationFeed.olderFeedLink);
+        List<MediaInfo> olderFeed;
+        try 
+        {
+            olderFeed = parseFeed(response);
+            locationFeedBox.locationFeed.olderFeedLink = parsePagination(response);
+            
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        Idle.add(() => {            
+            locationFeedBox.loadOlderFeed(olderFeed);
+            if (locationFeedBox.locationFeed.olderFeedLink == "")
+                locationFeedBox.locationFeed.deleteMoreButton();
             return false;
         });        
     }
@@ -811,7 +887,6 @@ public class PhotoStream.App : Granite.Application
 
         userButton.clicked.connect(() => {
             uncheckButtonsExcept("self");
-            //print("1\n");
             new Thread<int>("", () => {
                 loadUser(selfUser.id);
                 return 0;
@@ -837,7 +912,11 @@ public class PhotoStream.App : Granite.Application
             setHeaderCallbacks();
 
             if (this.feedList.olderFeedLink != "")
-                this.feedList.addMoreButton();         
+                this.feedList.addMoreButton();   
+
+            this.feedList.moreButton.clicked.connect(() => {
+                new Thread<int>("", loadOlderFeed);
+            });      
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
@@ -895,22 +974,32 @@ public class PhotoStream.App : Granite.Application
         });
         foreach(CommentBox commentBox in postBox.commentList.comments)
             commentBox.textLabel.activate_link.connect(handleUris);
+
+        // for not crashing when using loadMissingLocation
+        int64 tmpLocationId = (postBox.post.location == null) ? 0 : postBox.post.location.id; 
+        bool locationMissing = false;
+
         if (postBox.post.location != null 
             && postBox.post.location.latitude == 0 
             && postBox.post.location.longitude == 0 
-            && postBox.post.location.name == "") // sometimes location contains only ID, for such cases
+            && postBox.post.location.name == ""
+            && postBox.post.location.id != 0) // sometimes location contains only ID, for such cases
+        {
+            locationMissing = true;
             new Thread<int>("", () => {
                 loadMissingLocation(postBox, postBox.post.location.id);
                 return 0;
             });
+        }
         if (postBox.commentList.loadMoreButton != null)
-            postBox.commentList.loadMoreButton.activate_link.connect(() => {
+            postBox.commentList.loadMoreButton.activate_link.connect(() => { 
                 new Thread<int>("", () => {
                     loadComments(postBox.post.id);
                     return 0;
                 });
                 return true;
             });
+
         postBox.avatarBox.button_release_event.connect(() =>{
             new Thread<int>("", () => {
                 loadUser(postBox.post.postedUser.id, postBox.post.postedUser);
@@ -918,6 +1007,29 @@ public class PhotoStream.App : Granite.Application
             });
             return false;
         });
+        if (postBox.locationEventBox != null)
+        {
+            postBox.locationEventBox.button_release_event.connect(() =>{
+                new Thread<int>("", () => {
+                    //if (locationMissing)
+                    //    print("location: " + tmpLocationId.to_string() + "\n");
+                    //else
+                    //    print("location: " + postBox.post.location.id.to_string() + "\n");
+                    if (!locationMissing && postBox.post.location.id == 0) // only coordinates available
+                    {
+                        // opening map in new window
+                        // stub, to do later
+                    }                        
+                    else if (locationMissing && tmpLocationId != 0)
+                        loadLocation(tmpLocationId);
+                    else
+                        loadLocation(postBox.post.location.id);
+                    
+                    return 0;
+                });
+                return false;
+            });
+        }
     }    
 
     public void switchWindow(string window)

@@ -167,6 +167,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		if (post.location != null)
 		{
 			this.locationEventBox = new Gtk.EventBox();
+			this.locationEventBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+			this.locationEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+	        this.locationEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 			loadLocation(post.location);
 		}
 

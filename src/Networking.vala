@@ -150,9 +150,9 @@ public string getLocationInfo(int64 id)
 {
     return getResponse("https://api.instagram.com/v1/locations/" + id.to_string() + "?access_token=" + PhotoStream.App.appToken);
 }
-public string getLocationRecent(string id)
+public string getLocationRecent(int64 id)
 {
-    return getResponse("https://api.instagram.com/v1/locations/" + id + "/media/recent?access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/locations/" + id.to_string() + "/media/recent?access_token=" + PhotoStream.App.appToken);
 }
 public string searchLocation(double latitude, double longitude, int distance = 1000)
 {
