@@ -1011,10 +1011,6 @@ public class PhotoStream.App : Granite.Application
         {
             postBox.locationEventBox.button_release_event.connect(() =>{
                 new Thread<int>("", () => {
-                    //if (locationMissing)
-                    //    print("location: " + tmpLocationId.to_string() + "\n");
-                    //else
-                    //    print("location: " + postBox.post.location.id.to_string() + "\n");
                     if (!locationMissing && postBox.post.location.id == 0) // only coordinates available
                     {
                         // opening map in new window

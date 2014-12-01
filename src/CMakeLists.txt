@@ -23,6 +23,7 @@ set(CLIENT_SOURCE
     Widgets/MediaWindow.vala
     Widgets/HashTagFeedBox.vala
     Widgets/LocationFeedBox.vala
+    Widgets/LocationMapWindow.vala
 )
 
 set (CLIENT_VALAC_OPTIONS
