@@ -41,6 +41,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public const int LIKE_SIZE = 25;
 	public const int LOCATION_SIZE = 25;
 
+	public bool windowOpened = false;
+
 	public CommentsList commentList;
 
 	public MediaInfo post;
@@ -127,7 +129,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
             return false;
 		});
 		imageEventBox.button_release_event.connect(() => {
-			openMedia();
+			if (!windowOpened)
+				openMedia();
 			return false;
 		});
 
@@ -250,6 +253,10 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	{
 		MediaWindow mediaWindow = new MediaWindow(post.media.url, post.type == PhotoStream.MediaType.VIDEO);
 		mediaWindow.show_all ();
+		windowOpened = true;
+		mediaWindow.destroy.connect(() => {
+			windowOpened = false;
+		});
 	}
 
 	public int switchLike()

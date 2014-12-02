@@ -22,16 +22,14 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
 		HOST = getHost(PhotoStream.App.REDIRECT_URI);
 
-		//this.webView = new WebView ();
-		new WebView
-
+		this.webView = new WebView ();
 		
 		this.title = "Login to Instagram";
 
 		print("Using WebKit version %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
 
 
-		/*this.webView.load_changed.connect ((loadEvent) => {
+		this.webView.load_changed.connect ((loadEvent) => {
 			if (loadEvent != LoadEvent.FINISHED)
 				return;
             var uri = webView.get_uri ();
@@ -60,15 +58,15 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
             	this.close();
             }
-        });	*/	
+        });
 
         this.show.connect (() => {
-            //this.webView.load_uri(INSTAGRAM_AUTH);
+            this.webView.load_uri(INSTAGRAM_AUTH);
         });			
 
 		var scrolled_window = new ScrolledWindow (null, null);
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
-        //scrolled_window.add (this.webView);
+        scrolled_window.add (this.webView);
 
         var box = new Box (Gtk.Orientation.VERTICAL, 0);       
 		box.pack_start (scrolled_window, true, true);

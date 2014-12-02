@@ -5,6 +5,7 @@ public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
 {
 
 	private WebView webView;
+	public static const string MAPS_API_KEY = "AIzaSyCnUHdNP9KhZa33NYdPbOBqkzyzEKlpsR8";
 	public LocationMapWindow () 
 	{
 		this.set_default_size (800, 700);
@@ -14,15 +15,9 @@ public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
 		this.webView = new WebKit.WebView ();
 		this.title = "Location";
 
-		//print("Using WebKit version %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
-
-		//this.webView.ready_to_show.connect (() => {
-        //   
-        //});		
-
-        //this.show.connect (() => {
-        //    //this.webView.open(INSTAGRAM_AUTH);
-        //});			
+        this.show.connect (() => {
+            loadHtml();
+        });			
 
 		var scrolled_window = new ScrolledWindow (null, null);
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
@@ -31,5 +26,28 @@ public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
         var box = new Box (Gtk.Orientation.VERTICAL, 0);       
 		box.pack_start (scrolled_window, true, true);
         add (box); 
+	}
+	private void loadHtml()
+	{
+		var file = File.new_for_path (PhotoStream.App.CACHE_HTML + "maps.html");
+		string html = "";
+        try 
+        {
+        	string line;
+        	var dis = new DataInputStream (file.read ());
+	        
+	        while ((line = dis.read_line (null)) != null)
+	            html += line;
+	    } 
+	    catch (Error e) 
+	    {
+	        error ("Something wrong with file loading: %s", e.message);
+	    }
+	    html = html.replace("YOUR_API_KEY", MAPS_API_KEY);
+	    this.webView.load_html(html, null);
+	}
+	private void loadMapsJavascript()
+	{
+
 	}
 }

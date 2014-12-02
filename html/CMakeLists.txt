@@ -1,0 +1,5 @@
+set(GENERIC_HTML
+    maps.html
+)
+
+install (FILES ${GENERIC_HTML} DESTINATION ${HTML_DIR})

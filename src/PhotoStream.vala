@@ -16,6 +16,7 @@ public class PhotoStream.App : Granite.Application
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";
+    public static string CACHE_HTML = "/usr/share/photostream/html/";
     public static List<MediaInfo> feedPosts;
     public bool isFeedLoaded = false;
     
@@ -329,6 +330,14 @@ public class PhotoStream.App : Granite.Application
                 tagFeedBox.hashtagFeed.deleteMoreButton();
             return false;
         });        
+    }
+
+    public int openLocationMap()
+    {
+        LocationMapWindow locationWindow = new LocationMapWindow();
+        locationWindow.show_all();
+
+        return 0;
     }
 
     public int loadLocation(int64 locationId)
@@ -1019,10 +1028,10 @@ public class PhotoStream.App : Granite.Application
                     else if (locationMissing && tmpLocationId != 0)
                         loadLocation(tmpLocationId);
                     else
-                        loadLocation(postBox.post.location.id);
-                    
+                        loadLocation(postBox.post.location.id);                                    
                     return 0;
                 });
+                openLocationMap();
                 return false;
             });
         }

@@ -15,6 +15,7 @@ set (DATADIR ${CMAKE_INSTALL_PREFIX}/share) #like /usr/share
 set (PKG_DATADIR ${DATADIR}/${CMAKE_PROJECT_NAME}) #like /usr/share/photostream
 set (ICON_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/icons) #like /usr/share/photostream/icons
 set (IMAGES_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/images) #like /usr/share/photostream/images
+set (HTML_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/html) #like /usr/share/photostream/html
 
 add_definitions ("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"") #that is added to the compiler
 
@@ -82,6 +83,7 @@ set (DEPS_LIBRARIES ${DEPS_LIBRARIES} -lm)
 add_subdirectory (schema)
 add_subdirectory (src)
 add_subdirectory (images)
+add_subdirectory (html)
 
 
 # Tests
