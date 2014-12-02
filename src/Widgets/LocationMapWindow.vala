@@ -3,7 +3,6 @@ using WebKit;
 
 public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
 {
-
 	private WebView webView;
 	public static const string MAPS_API_KEY = "AIzaSyCnUHdNP9KhZa33NYdPbOBqkzyzEKlpsR8";
 	public LocationMapWindow () 
@@ -45,9 +44,26 @@ public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
 	    }
 	    html = html.replace("YOUR_API_KEY", MAPS_API_KEY);
 	    this.webView.load_html(html, null);
+	    this.webView.load_changed.connect((loadEvent) => 
+	    {
+	    	if (loadEvent == LoadEvent.FINISHED)
+	    		loadMapsJavascript();
+
+	    });
 	}
 	private void loadMapsJavascript()
 	{
+		string mapsJs = "
+        var mapOptions = {
+          center: new google.maps.LatLng(%f, %f),
+          zoom: %d,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
+            mapOptions);".printf(-34.397, 150.644, 8);
+		this.webView.run_javascript.begin(mapsJs, null, () => {
+			print("js run.\n");
+		});
 
 	}
 }
