@@ -1,6 +1,6 @@
 using Gst;
 
-public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
+public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 {
 	public Gtk.Box windowBox;
 	public Gtk.Image image;
@@ -78,8 +78,8 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
         this.drawingArea = new Gtk.DrawingArea();
         this.windowBox.pack_start(drawingArea, true, true, 0);
 
-        this.drawingArea.realize.connect(() => {
-        	this.xid = (uint*)(((Gdk.X11.Window) this.drawingArea.get_window()).get_xid ());      	
+        this.realize.connect(() => {
+        	this.xid = (uint*)(((Gdk.X11.Window) this.get_window()).get_xid ());   
         }); 
 
         this.pipeline.get_bus().add_watch(0, (bus, message) => {
@@ -138,5 +138,10 @@ public class PhotoStream.Widgets.MediaWindow: Granite.Widgets.LightWindow
     {
         var indexStart = url.last_index_of("/") + 1;
         return url.substring(indexStart, url.length - indexStart);
+    }
+
+    protected override void destroy () 
+    {
+    	this.pipeline.set_state (State.READY);
     }
 }
