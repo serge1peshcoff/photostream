@@ -23,11 +23,12 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		HOST = getHost(PhotoStream.App.REDIRECT_URI);
 
 		this.webView = new WebView ();
+		this.webView.web_context.get_cookie_manager().set_persistent_storage(PhotoStream.App.CACHE_URL + "cookie.txt", 
+										CookiePersistentStorage.TEXT);
 		
 		this.title = "Login to Instagram";
 
 		print("Using WebKit version %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
-
 
 		this.webView.load_changed.connect ((loadEvent) => {
 			if (loadEvent != LoadEvent.FINISHED)

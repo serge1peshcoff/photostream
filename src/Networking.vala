@@ -179,19 +179,6 @@ public void downloadFile(string url, string filename) throws Error
     File file;
     FileIOStream stream;
 
-    //TlsCertificateFlags flags;
-    //TlsCertificate cert;
-    //message.get_https_status(out cert, out flags);
-
-    //print((flags == GLib.TlsCertificateFlags.UNKNOWN_CA ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.BAD_IDENTITY ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.NOT_ACTIVATED  ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.EXPIRED  ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.REVOKED ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.INSECURE  ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.GENERIC_ERROR ? "1" : "0"));
-    //print((flags == GLib.TlsCertificateFlags.VALIDATE_ALL ? "1" : "0") + "\n");
-
     if (message.status_code != Soup.Status.OK)
         error("Something wrong with downloading: " + Soup.Status.get_phrase(message.status_code));
 
@@ -211,4 +198,17 @@ public void downloadFile(string url, string filename) throws Error
 	{
 		GLib.error("Something wrong with file writing. Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n");
     }
+}
+
+
+public string getUserNews()
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("GET", "http://instagram.com/api/v1/news/inbox/");
+
+    var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
+    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+
+    session.send_message (message);
+    return (string) message.response_body.data;
 }
