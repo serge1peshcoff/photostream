@@ -77,3 +77,19 @@ public void printPost(MediaInfo post)
     print("id: %s\n", post.id);
     print("didILikeThis: %s\n\n", post.didILikeThis ? "true" : "false");
 }
+
+public void printActivityList(List<NewsActivity> activityList)
+{
+    foreach(NewsActivity activity in activityList)
+        printActivity(activity);
+}
+
+public void printActivity(NewsActivity activity)
+{
+    print("Type: %s\n", activity.activityType);
+    print("Username: %s\n", activity.username);
+    print("User profile pic: %s\n", activity.userProfilePicture);
+    print("Post id: %s\n", activity.postId);
+    print("Date: %" + uint64.FORMAT_MODIFIER + "d\n", activity.time);
+    print("Comment: %s\n\n", activity.comment);
+}

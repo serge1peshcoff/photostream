@@ -4,10 +4,11 @@ set(CLIENT_SOURCE
     MainWindow.vala
     LoginWindow.vala
     Networking.vala
-    JsonParse.vala
-    NewsParse.vala
+    Utils/JsonParse.vala
+    Utils/XmlParse.vala
     Utils/Debug.vala
     Utils/Objects.vala
+    Utils/NewsObjects.vala
     Utils/Settings.vala 
     Utils/TagsWrapping.vala
     Widgets/PhotoStack.vala  
