@@ -49,7 +49,7 @@ set (CORE_PKG
   glib-2.0>=2.32
   gio-2.0
   json-glib-1.0
-  webkit2gtk-4.0
+  webkit2gtk-4.0>=2.6.4
   libxml-2.0
   gdk-x11-3.0
   gstreamer-video-1.0

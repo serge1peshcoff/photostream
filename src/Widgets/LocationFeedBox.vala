@@ -11,9 +11,11 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
 	public Gtk.Alignment locationTitleAlignment;
 	public Gtk.Alignment locationImageAlignment;
 
-	public Gtk.LinkButton openLocationButton;
+	public Gtk.Button openInMapsButton;
+	public Gtk.Alignment openInMapsAlignment;
 
 	public const int LOCATION_SIZE = 25;
+	public bool locationHasCoords = true;
 
 	public Location location;
 
@@ -58,6 +60,18 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
 
 		this.pack_start(locationInfoBox, false, true);
 
+		this.openInMapsButton = new Button.with_label("Show in map");
+		
+		// by default creating "Show in map" button, delete it next if needed.
+		this.openInMapsAlignment = new Gtk.Alignment (0,0,0,1);
+        this.openInMapsAlignment.top_padding = 10;
+        this.openInMapsAlignment.right_padding = 10;
+        this.openInMapsAlignment.bottom_padding = 10;
+        this.openInMapsAlignment.left_padding = 10;	
+
+        this.openInMapsAlignment.add(openInMapsButton);
+        this.add(openInMapsAlignment); // by default adding button.
+
 		this.locationFeed = new PostList();
 		this.pack_end(locationFeed, true, true);
 	}
@@ -65,6 +79,17 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
 	{
 		this.location = location;
 		this.locationTitleLabel.set_markup("<span size=\"large\"><b>" + location.name + "</b></span>");
+		if (this.location.latitude == 0.0 && this.location.longitude == 0.0 && locationHasCoords) 
+		{
+			this.remove(openInMapsAlignment);
+			locationHasCoords = false;
+		}
+		else if (this.location.latitude != 0.0 && this.location.longitude != 0.0 && !locationHasCoords)
+		{
+			this.add(openInMapsAlignment);
+			locationHasCoords = true;
+		}
+
 	}
 
 	public void loadFeed(List<MediaInfo> posts)

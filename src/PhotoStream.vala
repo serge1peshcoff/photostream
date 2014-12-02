@@ -198,6 +198,9 @@ public class PhotoStream.App : Granite.Application
         this.locationFeedWindow.add_with_viewport(locationFeedBox);
         stack.add_named(locationFeedWindow, "location");
 
+        this.locationFeedBox.openInMapsButton.clicked.connect(() => {
+            openLocationMap(this.locationFeedBox.location);
+        });
     }
 
     public void setLoginWindow()
@@ -332,9 +335,9 @@ public class PhotoStream.App : Granite.Application
         });        
     }
 
-    public int openLocationMap()
+    public int openLocationMap(Location location)
     {
-        LocationMapWindow locationWindow = new LocationMapWindow();
+        LocationMapWindow locationWindow = new LocationMapWindow(location);
         locationWindow.show_all();
 
         return 0;
@@ -1021,17 +1024,17 @@ public class PhotoStream.App : Granite.Application
             postBox.locationEventBox.button_release_event.connect(() =>{
                 new Thread<int>("", () => {
                     if (!locationMissing && postBox.post.location.id == 0) // only coordinates available
-                    {
-                        // opening map in new window
-                        // stub, to do later
-                    }                        
+                        Idle.add(() => {
+                            openLocationMap(postBox.post.location); 
+                            return false;
+                        });                                           
                     else if (locationMissing && tmpLocationId != 0)
                         loadLocation(tmpLocationId);
                     else
                         loadLocation(postBox.post.location.id);                                    
                     return 0;
                 });
-                openLocationMap();
+                
                 return false;
             });
         }
