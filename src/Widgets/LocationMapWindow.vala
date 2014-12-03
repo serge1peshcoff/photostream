@@ -18,15 +18,10 @@ public class PhotoStream.LocationMapWindow : Gtk.ApplicationWindow
         this.set_size_request (800, 700);
 		this.resizable = false;
 
-		print("got here0\n");
-
 		this.webView = new WebKit.WebView ();
 		this.title = "Location";
 
-		print("got here %f %f\n", location.latitude, location.longitude);
-
         this.show.connect (() => {
-        	print("got here2\n");
             loadHtml();
         });			
 
