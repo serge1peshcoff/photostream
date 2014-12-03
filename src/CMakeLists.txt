@@ -1,8 +1,6 @@
 set(CLIENT_SOURCE
     main.vala
-    PhotoStream.vala
-    MainWindow.vala
-    LoginWindow.vala
+    PhotoStream.vala    
     Networking.vala
     Utils/JsonParse.vala
     Utils/XmlParse.vala
@@ -21,13 +19,15 @@ set(CLIENT_SOURCE
     Widgets/HashTagList.vala
     Widgets/HashTagBox.vala
     Widgets/UserList.vala
-    Widgets/UserBox.vala
-    Widgets/MediaWindow.vala
+    Widgets/UserBox.vala    
     Widgets/HashTagFeedBox.vala
     Widgets/LocationFeedBox.vala
-    Widgets/LocationMapWindow.vala
     Widgets/NewsList.vala
     Widgets/NewsBox.vala
+    Windows/LocationMapWindow.vala
+    Windows/MediaWindow.vala
+    Windows/MainWindow.vala
+    Windows/LoginWindow.vala
 )
 
 set (CLIENT_VALAC_OPTIONS
