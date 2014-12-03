@@ -34,6 +34,7 @@ public class PhotoStream.App : Granite.Application
 
     public PhotoStack stack;
     public Gtk.ScrolledWindow userFeedWindow;
+    public Gtk.ScrolledWindow userNewsWindow;
     public Gtk.ScrolledWindow tagFeedWindow;
     public Gtk.ScrolledWindow locationFeedWindow;
     public Gtk.ScrolledWindow tagSearchWindow;
@@ -52,6 +53,7 @@ public class PhotoStream.App : Granite.Application
     public CommentsList commentsList;
     public HashTagList tagList;
     public UserList userList;
+    public NewsList newsList;
 
     public static User selfUser;
 
@@ -201,6 +203,11 @@ public class PhotoStream.App : Granite.Application
         this.locationFeedBox.openInMapsButton.clicked.connect(() => {
             openLocationMap(this.locationFeedBox.location);
         });
+
+        this.userNewsWindow = new Gtk.ScrolledWindow(null, null);
+        this.newsList = new NewsList();
+        this.userNewsWindow.add_with_viewport(newsList);
+        stack.add_named(userNewsWindow, "news");
     }
 
     public void setLoginWindow()
@@ -712,6 +719,10 @@ public class PhotoStream.App : Granite.Application
     public int loadFeed()
     {
         loadSelfInfo();
+        new Thread<int>("", () => {
+            loadNews();
+            return 0;
+        });
         string response = getUserFeed();
         try 
         {
@@ -731,6 +742,18 @@ public class PhotoStream.App : Granite.Application
         new Thread<int>("", setFeedWidgets);      
         return 0;
     }  
+
+    public void loadNews()
+    {
+        string response = getUserNews();
+        List<NewsActivity> userNews = parseNews(response);
+
+        Idle.add(() => {
+            foreach(NewsActivity activity in userNews)
+                newsList.prepend(activity);
+            return false;
+        });
+    }
 
     public void loadSelfInfo()
     {
@@ -894,6 +917,7 @@ public class PhotoStream.App : Granite.Application
         });
 
         newsButton.clicked.connect(() => {
+            switchWindow("news");
             uncheckButtonsExcept("news");
         });        
 

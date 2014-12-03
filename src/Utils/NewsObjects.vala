@@ -4,9 +4,10 @@ namespace PhotoStream.Utils
 	{
 		public string username;
 		public string userProfilePicture;
+		public string imagePicture = "";
 		public string activityType; // either of follow/like/mention/comment
 		public string postId = "";
-		public int64 time;
+		public DateTime time;
 		public string comment = "";
 
 	}

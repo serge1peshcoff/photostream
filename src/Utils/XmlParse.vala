@@ -52,7 +52,7 @@ public NewsActivity parseActivity(Xml.Node* element)
 
 	var divWrapperElement = getChildWithName(liElement, "div");
 	var dateElement =  getChildWithClass(divWrapperElement, "timestamp");
-	activity.time = int64.parse(dateElement->get_prop("data-timestamp"));
+	activity.time = new DateTime.from_unix_local(int64.parse(dateElement->get_prop("data-timestamp")));
 
 	if (activity.activityType == "follow") // haven't got a post, return as it
 		return activity;
@@ -62,6 +62,9 @@ public NewsActivity parseActivity(Xml.Node* element)
 	var postElement = getChildWithClass(liElement, "gutter");
 	indexUrl = postElement->get_prop("href").index_of("=") + 1; // getting post ID
 	activity.postId = postElement->get_prop("href").substring(indexUrl, postElement->get_prop("href").length - indexUrl);
+
+	//print(postElement->children->name + "\n");
+	activity.imagePicture = postElement->children->get_prop("src");
 
 	if (activity.activityType == "like") // like image, nothing to do here
 		return activity;
