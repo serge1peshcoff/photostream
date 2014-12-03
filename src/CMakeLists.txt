@@ -11,6 +11,7 @@ set(CLIENT_SOURCE
     Utils/NewsObjects.vala
     Utils/Settings.vala 
     Utils/TagsWrapping.vala
+    Utils/StringFunctions.vala
     Widgets/PhotoStack.vala  
     Widgets/PostList.vala
     Widgets/PostBox.vala
@@ -25,6 +26,8 @@ set(CLIENT_SOURCE
     Widgets/HashTagFeedBox.vala
     Widgets/LocationFeedBox.vala
     Widgets/LocationMapWindow.vala
+    Widgets/NewsList.vala
+    Widgets/NewsBox.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

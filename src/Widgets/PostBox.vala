@@ -395,12 +395,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         }); 				
 	}
 
-	public string getFileName(string url)
-    {
-        var indexStart = url.last_index_of("/") + 1;
-        return url.substring(indexStart, url.length - indexStart);
-    }
-
     public void loadLocation(Location location)
     {
     	this.post.location = location;

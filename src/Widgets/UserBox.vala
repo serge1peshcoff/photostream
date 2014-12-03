@@ -120,12 +120,6 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
         });
 	}
 
-	public string getFileName(string url)
-    {
-        var indexStart = url.last_index_of("/") + 1;
-        return url.substring(indexStart, url.length - indexStart);
-    }
-
     public void loadRelationship()
 	{
 		if (user.id != PhotoStream.App.selfUser.id)

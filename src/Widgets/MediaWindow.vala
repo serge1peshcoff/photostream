@@ -134,12 +134,6 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 		}
 	}
 
-	public string getFileName(string url)
-    {
-        var indexStart = url.last_index_of("/") + 1;
-        return url.substring(indexStart, url.length - indexStart);
-    }
-
     protected override void destroy () 
     {
     	this.pipeline.set_state (State.READY);

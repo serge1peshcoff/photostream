@@ -288,12 +288,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         return 0;
     }
 
-	public string getFileName(string url)
-    {
-        var indexStart = url.last_index_of("/") + 1;
-        return url.substring(indexStart, url.length - indexStart);
-    }
-
     private void onCountsHover(EventCrossing event)
     {
     	event.window.set_cursor (
