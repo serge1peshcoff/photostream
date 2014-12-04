@@ -63,6 +63,11 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			return true;
 		});
 
+		this.webView.get_settings().set_enable_accelerated_2d_canvas(true);
+		this.webView.get_settings().set_enable_webgl(true);
+		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);
+		
+
         this.show.connect (() => {
             loadHtml();
         });			
@@ -184,6 +189,12 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 	public void loadNearbyLocations()
 	{
-		
+		var js = "
+		console.log(marker.getPosition().lat());
+		console.log(marker.getPosition().lng());
+		";
+		this.webView.run_javascript.begin(js, null, () => {
+			
+		});
 	}
 }

@@ -25,6 +25,9 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
+		this.searchQuery = new Gtk.Entry();
+		this.add(searchQuery);
+
 		this.radioBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.add(radioBox);
 
@@ -34,10 +37,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 		this.radioBox.add(tagsRadio);
 		this.radioBox.add(usersRadio);
-		this.radioBox.add(locationsRadio);
-
-		this.searchQuery = new Gtk.Entry();
-		this.pack_start(searchQuery, false, true);
+		this.radioBox.add(locationsRadio);		
 
 		this.stack = new Gtk.Stack();
 		this.pack_end(stack, true, true);
