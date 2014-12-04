@@ -2,10 +2,18 @@
   <schema id="tk.itprogramming1.photostream" path="/tk/itprogramming1/photostream/" gettext-domain="photostream">
 
     <key name="token" type="s">
-      <default l10n="messages">""</default>
+      <default>""</default>
       <summary>App token</summary>
       <description>
         Your Instagram token
+      </description>
+    </key>
+
+    <key name="last-news-checked" type="i">
+      <default>0</default>
+      <summary>Time of last news checking</summary>
+      <description>
+        Used in application inside news checking function to determine which news user had already seen.
       </description>
     </key>
 

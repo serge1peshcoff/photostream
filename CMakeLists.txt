@@ -53,6 +53,7 @@ set (CORE_PKG
   libxml-2.0
   gdk-x11-3.0
   gstreamer-video-1.0
+  libnotify
 )
 
 find_package (PkgConfig)

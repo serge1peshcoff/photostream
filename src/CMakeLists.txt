@@ -10,6 +10,7 @@ set(CLIENT_SOURCE
     Utils/Settings.vala 
     Utils/TagsWrapping.vala
     Utils/StringFunctions.vala
+    Utils/Notifications.vala
     Widgets/PhotoStack.vala  
     Widgets/PostList.vala
     Widgets/PostBox.vala
