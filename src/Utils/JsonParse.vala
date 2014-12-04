@@ -226,7 +226,7 @@ public void tryLoadMessage(Json.Parser parser, string message) throws Error
     }
     catch (Error e)
     {
-        GLib.error("Something wrong with JSON parsing.\n");
+        GLib.error("Something wrong with JSON parsing: %s.\n", e.message);
     }
 }
 
