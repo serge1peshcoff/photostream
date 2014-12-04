@@ -77,7 +77,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 		if (user.fullName == "")
 			userNameLabel.set_markup(wrapInTags("@" + user.username));
 		else
-			userNameLabel.set_markup("<b>" + user.fullName + "</b> (" + wrapInTags("@" + user.username) + ")");
+			userNameLabel.set_markup("<b>" + GLib.Markup.escape_text(user.fullName) + "</b> (" + wrapInTags("@" + user.username) + ")");
 
 		this.box.add(userNameLabel);
 	}

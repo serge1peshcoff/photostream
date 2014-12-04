@@ -28,7 +28,7 @@ public string getOlderUserFeed(string olderFeedLink)
 {
 	return getResponse(olderFeedLink);
 }
-public string searchUser(string user)
+public string searchUsers(string user)
 {
     return getResponse("https://api.instagram.com/v1/users/search?q=" + user + "&access_token=" + PhotoStream.App.appToken);
 }
