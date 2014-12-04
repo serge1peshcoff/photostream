@@ -26,10 +26,9 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 	}
 
 	public LocationMapWindow.with_location(Location location)
-	{
+	{		
 		this.location = location;
 		this.initFields();
-
 	}
 
 	public void initFields()

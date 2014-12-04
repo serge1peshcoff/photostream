@@ -26,10 +26,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
 		this.searchQuery = new Gtk.Entry();
-		this.add(searchQuery);
 
-		this.radioBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.add(radioBox);
+		this.radioBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);		
 
 		this.tagsRadio = new Gtk.RadioButton.with_label_from_widget(null, "Hashtags");
 		this.usersRadio = new Gtk.RadioButton.with_label_from_widget(tagsRadio, "Users");
@@ -57,6 +55,16 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		});
 
 		locationMapWindow = new LocationMapWindow();
+	}
+
+	public void addFields()
+	{
+		// don't know why, but if the pack_start of searchQuery is called in preloadWindows, 
+		// window doesn't show. so, this is why I'm doing it in separate function. 
+		// and this function is called in setFeedWidgets.
+		this.pack_start(searchQuery, false, true);
+		this.add(radioBox);
+		this.pack_end(stack, true, true);
 	}
 
 	private void switchView (Gtk.ToggleButton button) 
