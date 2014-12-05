@@ -12,9 +12,14 @@ public string getUserInfo(string id)
 {
     return getResponse("https://api.instagram.com/v1/users/" + id + "?access_token=" + PhotoStream.App.appToken);
 }
-public string getUserFeed()
+public string getUserFeed(string minId = "")
 {
-    return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
+    if (minId == "")
+        return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" + PhotoStream.App.appToken);
+    else
+        return getResponse("https://api.instagram.com/v1/users/self/feed?access_token=" 
+                                                                + PhotoStream.App.appToken
+                                                                + "&min_id=" + minId);
 }
 public string getUserMedia(string id)
 {

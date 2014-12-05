@@ -146,6 +146,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
 		titleLabel.set_justify(Gtk.Justification.LEFT);
 		titleLabel.set_halign(Gtk.Align.START);
+		titleLabel.set_valign(Gtk.Align.START);
+		titleLabel.xalign = 0;
+
 		titleAlignment.add(titleLabel);
 		box.add(titleAlignment);
 

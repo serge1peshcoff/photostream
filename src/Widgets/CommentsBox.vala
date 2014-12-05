@@ -38,6 +38,9 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.textLabel.set_line_wrap(true);
 		this.textLabel.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
 		this.textLabel.set_justify(Gtk.Justification.LEFT);
+		this.textLabel.set_halign(Gtk.Align.START);
+		this.textLabel.set_valign(Gtk.Align.START);
+		this.textLabel.xalign = 0;
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 

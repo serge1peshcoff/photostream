@@ -38,7 +38,6 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		this.radioBox.add(locationsRadio);		
 
 		this.stack = new Gtk.Stack();
-		this.pack_end(stack, true, true);
 
 		this.tagList = new HashTagList();
 		this.stack.add_named(tagList, "tags");

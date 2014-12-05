@@ -15,10 +15,14 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 	public Element audioConvert;
 	public uint* xid;
 
+	public bool video;
+
 	public MediaWindow(string fileName, bool video)
 	{
 		windowBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(windowBox);
+
+		this.video = video;
 
 		if (video)
 			loadVideo(fileName);
@@ -136,6 +140,7 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 
     protected override void destroy () 
     {
-    	this.pipeline.set_state (State.READY);
+    	if (video)
+    		this.pipeline.set_state (State.READY);
     }
 }
