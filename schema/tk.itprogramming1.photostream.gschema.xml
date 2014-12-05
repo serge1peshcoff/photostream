@@ -9,7 +9,7 @@
       </description>
     </key>
 
-    <key name="last-news-checked" type="i">
+    <key name="last-news-checked" type="x">
       <default>0</default>
       <summary>Time of last news checking</summary>
       <description>

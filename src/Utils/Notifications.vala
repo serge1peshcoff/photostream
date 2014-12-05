@@ -5,6 +5,7 @@ public void displayNewsNotifications(List<NewsActivity> activityList)
 {
 	int64 lastCheckedDate = loadDate();
 
+	activityList.reverse();
 	foreach (NewsActivity activity in activityList)
 	{
 		if (activity.time.to_unix() < lastCheckedDate)
@@ -51,8 +52,7 @@ public void displayNewsNotifications(List<NewsActivity> activityList)
 		catch (Error e)
 		{
 			error("Something wrong with notification displaying.");
-		}
-
-		setCurrentDate();
+		}		
 	}
+	setCurrentDate();
 }

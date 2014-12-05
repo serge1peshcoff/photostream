@@ -17,15 +17,15 @@ public string loadToken()
 public int64 loadDate()
 {
 	Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
-    int64 date = (int64)settings.get_int(PhotoStream.App.SCHEMA_LAST_CHECKED);
+    Variant date = settings.get_value(PhotoStream.App.SCHEMA_LAST_CHECKED);
 
-    return date;
+    return date.get_int64();
 }
 
 public void setCurrentDate()
 {
 	Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
-    settings.set_int(PhotoStream.App.SCHEMA_LAST_CHECKED, (int)new GLib.DateTime.now_local().to_unix());
+    settings.set_value(PhotoStream.App.SCHEMA_LAST_CHECKED, new Variant.int64(new GLib.DateTime.now_local().to_unix()));
 }
 
 public void createSchema()
