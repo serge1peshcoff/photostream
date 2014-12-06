@@ -14,6 +14,18 @@ public string loadToken()
     return token;
 }
 
+public string loadAddress()
+{        
+    Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
+    return settings.get_string(PhotoStream.App.SCHEMA_INSTAGRAM_IP);
+}
+
+public void setAddress(string ip)
+{
+    Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
+    settings.set_string(PhotoStream.App.SCHEMA_INSTAGRAM_IP, ip);
+}
+
 public int64 loadDate()
 {
 	Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);

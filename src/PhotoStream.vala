@@ -15,6 +15,7 @@ public class PhotoStream.App : Granite.Application
     public const string SCHEMA_TOKEN = "token";
     public const string SCHEMA_LAST_CHECKED = "last-news-checked";
     public const string SCHEMA_REFRESH_INTERVAL = "refresh-interval";
+    public const string SCHEMA_INSTAGRAM_IP = "instagram-api-ip";
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";

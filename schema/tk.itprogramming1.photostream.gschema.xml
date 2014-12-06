@@ -9,6 +9,14 @@
       </description>
     </key>
 
+    <key name="instagram-api-ip" type="s">
+      <default>""</default>
+      <summary>Server IP</summary>
+      <description>
+        Resolving takes a lot of time, to cache it.
+      </description>
+    </key>
+
     <key name="last-news-checked" type="x">
       <default>0</default>
       <summary>Time of last news checking</summary>

@@ -1,9 +1,25 @@
 public string getResponse (string host) 
-{
+{ 
+    var ip = loadAddress();
+    if (ip == "")
+        ip = resolveHost();
+
+    var newHost = replaceHostWithIp(host, ip);
+
     var session = new Soup.Session ();
-    var message = new Soup.Message ("GET", host);
+    session.ssl_strict = false;
+    session.user_agent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+
+    var message = new Soup.Message ("GET", newHost);
+    message.tls_errors = GLib.TlsCertificateFlags.VALIDATE_ALL;  
+
+    message.request_headers.append("Host", "api.instagram.com");
 
     session.send_message (message);
+
+    if (loadAddress() == "")
+        setAddress(ip);
+
     return (string) message.response_body.data;
 }
 
@@ -216,4 +232,11 @@ public string getUserNews()
 
     session.send_message (message);
     return (string) message.response_body.data;
+}
+
+public string resolveHost()
+{
+    Soup.Address apiAddress = new Soup.Address("api.instagram.com", 443);
+    apiAddress.resolve_sync();
+    return apiAddress.get_physical();
 }
