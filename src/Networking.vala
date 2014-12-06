@@ -115,9 +115,11 @@ public string postComment(string id, string comment)
 }
 public string deleteComment(string mediaId, string commentId)
 {
+    var ip = loadAddress();
     var session = new Soup.Session ();
-    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
+    var message = new Soup.Message ("DELETE", "https://" + ip + "/v1/media/" 
                     + mediaId + "/comments/" + commentId + "?access_token=" + PhotoStream.App.appToken);
+    message.request_headers.append("Host", "api.instagram.com");
 
     session.send_message (message);
     return (string) message.response_body.data;
@@ -131,8 +133,10 @@ public string getMediaLikes(string id)
 }
 public string likeMedia(string id)
 {
+    var ip = loadAddress();    
     var session = new Soup.Session ();
-    var message = new Soup.Message ("POST", "https://api.instagram.com/v1/media/" + id + "/likes");
+    var message = new Soup.Message ("POST", "https://" + ip + "/v1/media/" + id + "/likes");
+    message.request_headers.append("Host", "api.instagram.com");
 
     uint8[] requestString = ("access_token="  + PhotoStream.App.appToken).data;
 
@@ -143,9 +147,11 @@ public string likeMedia(string id)
 }
 public string dislikeMedia(string id)
 {
+    var ip = loadAddress();   
     var session = new Soup.Session ();
-    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
+    var message = new Soup.Message ("DELETE", "https://" + ip + "/v1/media/" 
                     + id + "/likes?access_token=" + PhotoStream.App.appToken);
+    message.request_headers.append("Host", "api.instagram.com");
 
     session.send_message (message);
 
