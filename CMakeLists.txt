@@ -11,13 +11,14 @@ set (VERSION "0.3.0")
 set (VERSION_INFO "Stable Release")
 
 include (GNUInstallDirs)
-set (DATADIR ${CMAKE_INSTALL_PREFIX}/share) #like /usr/share
-set (PKG_DATADIR ${DATADIR}/${CMAKE_PROJECT_NAME}) #like /usr/share/photostream
-set (ICON_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/icons) #like /usr/share/photostream/icons
-set (IMAGES_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/images) #like /usr/share/photostream/images
-set (HTML_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/html) #like /usr/share/photostream/html
+set (DATADIR ${CMAKE_INSTALL_PREFIX}/share) # like /usr/share
+set (PKG_DATADIR ${DATADIR}/${CMAKE_PROJECT_NAME}) # like /usr/share/photostream
+set (ICON_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/icons) # like /usr/share/photostream/icons
+set (IMAGES_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/images) # like /usr/share/photostream/images
+set (HTML_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/html) # like /usr/share/photostream/applications
+set (APPLICATIONS_DIR ${DATADIR}/applications) # like /usr/share/photostream/html
 
-add_definitions ("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"") #that is added to the compiler
+add_definitions ("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"") # that is added to the compiler
 
 # Comment this out to enable C compiler warnings
 add_definitions (-w)
@@ -85,6 +86,7 @@ add_subdirectory (schema)
 add_subdirectory (src)
 add_subdirectory (images)
 add_subdirectory (html)
+add_subdirectory (data)
 
 
 # Tests
