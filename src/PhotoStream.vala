@@ -61,23 +61,30 @@ public class PhotoStream.App : Granite.Application
     public int REFRESH_INTERVAL = 15;
 
     private bool headersCallbacksSet = false;
-    
-	protected override void activate () 
-	{      
+
+    construct {
         program_name        = "PhotoStream";
         exec_name           = "photostream";
         build_version       = "0.1";
         app_years           = "2014";
         app_icon            = "photostream";
         app_launcher        = "photostream.desktop";
-        application_id      = "tk.itprogramming1.photostream";
+        application_id      = "org.itprogramming1.photostream";
         main_url            = "http://itprogramming1.tk/photostream";
         about_authors       = {"Sergey Peshkov"};
         about_comments      = null;
         about_documenters   = {};
         about_translators   = null;
         about_license_type  = Gtk.License.GPL_3_0;
+    }
 
+    public App()
+    {
+        GLib.Object(application_id: this.application_id, flags: ApplicationFlags.HANDLES_OPEN);
+    }
+
+	protected override void activate () 
+	{  
         isPageLoaded = new Gee.HashMap<string, bool>(); 
 
         isPageLoaded["news"] = false;
