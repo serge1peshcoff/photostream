@@ -22,6 +22,12 @@ public int64 loadDate()
     return date.get_int64();
 }
 
+public int loadRefreshInterval()
+{
+    Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
+    return settings.get_int(PhotoStream.App.SCHEMA_REFRESH_INTERVAL);
+}
+
 public void setCurrentDate()
 {
 	Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);

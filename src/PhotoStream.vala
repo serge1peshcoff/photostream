@@ -14,6 +14,7 @@ public class PhotoStream.App : Granite.Application
     public const string SCHEMA_URI = "tk.itprogramming1.photostream";
     public const string SCHEMA_TOKEN = "token";
     public const string SCHEMA_LAST_CHECKED = "last-news-checked";
+    public const string SCHEMA_REFRESH_INTERVAL = "refresh-interval";
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";
@@ -58,7 +59,7 @@ public class PhotoStream.App : Granite.Application
     public static User selfUser;
     public Gee.HashMap<string, bool> isPageLoaded;
 
-    public int REFRESH_INTERVAL = 15;
+    public int REFRESH_INTERVAL;
 
     private bool headersCallbacksSet = false;
 
@@ -91,6 +92,8 @@ public class PhotoStream.App : Granite.Application
         isPageLoaded["user"] = false;
         isPageLoaded["feed"] = false;
         isPageLoaded["tagFeed"] = false;
+
+        REFRESH_INTERVAL = loadRefreshInterval();
 
 
         CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";

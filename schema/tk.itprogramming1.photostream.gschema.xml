@@ -16,6 +16,13 @@
         Used in application inside news checking function to determine which news user had already seen.
       </description>
     </key>
+    <key name="refresh-interval" type="i">
+      <default>120</default>
+      <summary>Feed refresh interval</summary>
+      <description>
+        The interval of refreshing user feed and news.
+      </description>
+    </key>
 
   </schema>
 </schemalist>
