@@ -13,6 +13,7 @@ public class PhotoStream.App : Granite.Application
     public const string CLIENT_SECRET = "4b54aac105534413b6885c2c48bcaa66";
     public const string SCHEMA_URI = "tk.itprogramming1.photostream";
     public const string SCHEMA_TOKEN = "token";
+    public const string SCHEMA_LAST_CHECKED = "last-news-checked";
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";
@@ -23,21 +24,20 @@ public class PhotoStream.App : Granite.Application
     public Gtk.HeaderBar header;
 
     public Gtk.ToggleToolButton feedButton;
-    public Gtk.ToggleToolButton exploreButton;
+    public Gtk.ToggleToolButton searchButton;
     public Gtk.ToggleToolButton photoButton;
     public Gtk.ToggleToolButton newsButton; 
     public Gtk.ToggleToolButton userButton;
 
     public Gtk.InfoBar bar;
     public Gtk.Box box;
-    public Gtk.Image loadingImage;
+    public Gtk.Spinner loadingSpinner;
 
     public PhotoStack stack;
     public Gtk.ScrolledWindow userFeedWindow;
     public Gtk.ScrolledWindow userNewsWindow;
     public Gtk.ScrolledWindow tagFeedWindow;
     public Gtk.ScrolledWindow locationFeedWindow;
-    public Gtk.ScrolledWindow tagSearchWindow;
     public Gtk.ScrolledWindow userWindow;
     public Gtk.ScrolledWindow postWindow;
     public Gtk.ScrolledWindow userListWindow;
@@ -48,14 +48,17 @@ public class PhotoStream.App : Granite.Application
     public UserWindowBox userWindowBox;
     public HashTagFeedBox tagFeedBox;
     public LocationFeedBox locationFeedBox;
+    public SearchWindowBox searchWindowBox;
 
     public PostList feedList; 
     public CommentsList commentsList;
-    public HashTagList tagList;
     public UserList userList;
     public NewsList newsList;
 
     public static User selfUser;
+    public Gee.HashMap<string, bool> isPageLoaded;
+
+    public int REFRESH_INTERVAL = 15;
 
     private bool headersCallbacksSet = false;
     
@@ -75,11 +78,19 @@ public class PhotoStream.App : Granite.Application
         about_translators   = null;
         about_license_type  = Gtk.License.GPL_3_0;
 
+        isPageLoaded = new Gee.HashMap<string, bool>(); 
+
+        isPageLoaded["news"] = false;
+        isPageLoaded["user"] = false;
+        isPageLoaded["feed"] = false;
+        isPageLoaded["tagFeed"] = false;
+
+
         CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";
         CACHE_AVATARS = CACHE_URL + "avatars/";
 
         mainWindow = new MainWindow ();
-        this.setHeader();
+        setHeader();
 
         bar = new Gtk.InfoBar();         
 
@@ -93,24 +104,13 @@ public class PhotoStream.App : Granite.Application
         preloadWindows();
 
         tryLogin();
+
+        //var newWindow = new LocationMapWindow();
+        //newWindow.show_all();
     }
 
     public void tryLogin()
-    {   
-        PixbufAnimation loadingPixbuf;
-        try 
-        {   
-            loadingPixbuf = new PixbufAnimation.from_file(CACHE_IMAGES + "loading.gif");            
-        }
-        catch (Error e)
-        {
-            error("Loading image went wrong.\n");
-        }
-
-        loadingImage = new Gtk.Image.from_animation(loadingPixbuf);
-        box.pack_start(loadingImage, true, true);
-        mainWindow.show_all ();
-
+    {
         appToken = loadToken();  
         if (appToken == "") //something went wrong. need to re-login
             this.setErrorWidgets("not-logged-in");          
@@ -122,21 +122,24 @@ public class PhotoStream.App : Granite.Application
 
     public void stubLoading()
     {
-        if (!loadingImage.is_ancestor(box))
-        {
-            box.remove(stack);
-            box.pack_start(loadingImage, true, true);
-        }
+        switchWindow("loading");
     }
 
     public void preloadWindows()
     {
         this.stack = new PhotoStack();
+
+        loadingSpinner = new Gtk.Spinner();
+        loadingSpinner.start();
+
+        stack.add_named(loadingSpinner, "loading");
+
         this.userFeedWindow = new Gtk.ScrolledWindow (null, null);
         this.userFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
         stack.add_named(userFeedWindow, "userFeed");
 
-        try {
+        try 
+        {
             File file = File.new_for_path(CACHE_URL);
             if (!file.query_exists())
                 file.make_directory_with_parents ();
@@ -145,7 +148,9 @@ public class PhotoStream.App : Granite.Application
             if (!file.query_exists())
                 file.make_directory_with_parents ();
 
-        } catch (Error e) {
+        } 
+        catch (Error e) 
+        {
             error("Error creating caching directories: %s\n", e.message);
         }
 
@@ -178,11 +183,6 @@ public class PhotoStream.App : Granite.Application
         this.commentWindow.add_with_viewport(commentsList);
         stack.add_named(commentWindow, "comments");
 
-        this.tagSearchWindow = new Gtk.ScrolledWindow(null, null);
-        this.tagList = new HashTagList();
-        this.tagSearchWindow.add_with_viewport(tagList);
-        stack.add_named(tagSearchWindow, "tags");
-
         this.userListWindow = new Gtk.ScrolledWindow(null, null);
         this.userList = new UserList();
         this.userListWindow.add_with_viewport(userList);
@@ -208,6 +208,23 @@ public class PhotoStream.App : Granite.Application
         this.newsList = new NewsList();
         this.userNewsWindow.add_with_viewport(newsList);
         stack.add_named(userNewsWindow, "news");
+
+        this.searchWindow = new Gtk.ScrolledWindow(null, null);
+        this.searchWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+        this.searchWindowBox = new SearchWindowBox();
+        this.searchWindow.add_with_viewport(searchWindowBox);
+        stack.add_named(searchWindow, "search");
+
+        this.searchWindowBox.locationMapWindow.locationLoaded.connect((location) => {
+            loadLocation(location.id);
+        });
+
+        switchWindow("loading");
+
+        box.pack_start(stack, true, true); 
+        this.stack.show_all();
+        this.mainWindow.show_all();
+        
     }
 
     public void setLoginWindow()
@@ -255,7 +272,8 @@ public class PhotoStream.App : Granite.Application
             stubLoading();
             return false;
         });
-        string response = searchUser(username);
+        isPageLoaded["user"] = false;
+        string response = searchUsers(username);
         List<User> userList;
         try
         {   
@@ -271,9 +289,9 @@ public class PhotoStream.App : Granite.Application
 
     public int loadTag(string tagName)
     {
+        isPageLoaded["tagFeed"] = false;
         Idle.add(() => {
-            stubLoading();
-            switchWindow("tagFeed");
+            stubLoading();            
             return false;
         });
         string responseTagInfo = getTagInfo(tagName);
@@ -310,9 +328,9 @@ public class PhotoStream.App : Granite.Application
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
 
-        
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
+            isPageLoaded["tagFeed"] = true;
+
+            switchWindow("tagFeed");
             this.stack.show_all();
             return false;
         });
@@ -344,7 +362,7 @@ public class PhotoStream.App : Granite.Application
 
     public int openLocationMap(Location location)
     {
-        LocationMapWindow locationWindow = new LocationMapWindow(location);
+        LocationMapWindow locationWindow = new LocationMapWindow.with_location(location);
         locationWindow.show_all();
 
         return 0;
@@ -353,8 +371,7 @@ public class PhotoStream.App : Granite.Application
     public int loadLocation(int64 locationId)
     {
         Idle.add(() => {
-            stubLoading();
-            switchWindow("location");
+            stubLoading();            
             return false;
         });
         string responseLocationInfo = getLocationInfo(locationId);
@@ -390,9 +407,8 @@ public class PhotoStream.App : Granite.Application
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
-        
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
+
+            switchWindow("location");
             this.stack.show_all();
             return false;
         });
@@ -422,46 +438,10 @@ public class PhotoStream.App : Granite.Application
         });        
     }
 
-    public int searchTag(string tag)
-    {
-
-        Idle.add(() => {
-            stubLoading();
-            switchWindow("tags");
-            return false;
-        });
-        string response = searchTags(tag);
-        List<Tag> tagListRequested = new List<Tag>();
-
-        try
-        {
-            tagListRequested = parseTagList(response);
-
-        }
-        catch (Error e) // wrong token
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-
-        tagList.clear();
-        foreach(Tag tagInList in tagListRequested)
-            tagList.prepend(tagInList);
-
-        Idle.add(() => {
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
-            this.stack.show_all();
-            return false;
-        });
-        
-        return 0;
-    }
-
     public int loadComments(string postId)
     {
         Idle.add(() => {
-            stubLoading();
-            switchWindow("comments");
+            stubLoading();            
             return false;
         });
         string response = getComments(postId);
@@ -493,8 +473,7 @@ public class PhotoStream.App : Granite.Application
         }
 
         Idle.add(() => {
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
+            switchWindow("comments");
             return false;
         });
         
@@ -504,9 +483,9 @@ public class PhotoStream.App : Granite.Application
 
     public int loadUsers(string postId, string type)
     {
+        isPageLoaded["user"] = false;
         Idle.add(() => {
-            stubLoading();
-            switchWindow("userList");
+            stubLoading();            
             return false;
         });
         string response;
@@ -533,9 +512,10 @@ public class PhotoStream.App : Granite.Application
             userList.clear();
             foreach(User user in likees)
                 userList.prepend(user);
+
+            isPageLoaded["user"] = true;
         
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
+            switchWindow("userList");
             this.box.show_all();   
 
             new Thread<int>("", () => {                  
@@ -602,15 +582,14 @@ public class PhotoStream.App : Granite.Application
     {
         Idle.add(() => {
             stubLoading();
-            switchWindow("user");
+            
             return false;
         });
 
         if (userWindowBox.user != null &&userWindowBox.user.id == id) // if user is already loaded, just open the user tab and return. no need to load.
         {
             Idle.add(() => {
-                box.remove(loadingImage);
-                box.pack_start(stack, true, true); 
+                switchWindow("user");
                 return false;
             });
             return 0;
@@ -645,8 +624,7 @@ public class PhotoStream.App : Granite.Application
                 userWindowBox.load(loadedUser);
                 userWindowBox.loadPrivate();
 
-                box.remove(loadingImage);
-                box.pack_start(stack, true, true); 
+                switchWindow("user");
                 this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
                     new Thread<int>("", loadOlderUserFeed);
                 });
@@ -677,8 +655,7 @@ public class PhotoStream.App : Granite.Application
             foreach (PostBox postBox in userWindowBox.userFeed.boxes)
                 connectPostBoxHandlers(postBox);
 
-            box.remove(loadingImage);
-            box.pack_start(stack, true, true); 
+            switchWindow("user");
             this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
                 new Thread<int>("", loadOlderUserFeed);
             });
@@ -751,6 +728,122 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             foreach(NewsActivity activity in userNews)
                 newsList.prepend(activity);
+
+            isPageLoaded["news"] = true;
+
+            foreach(NewsBox newsBox in newsList.boxes)
+            {
+                newsBox.avatarBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        loadUserFromUsername(newsBox.activity.username);
+                        return 0;
+                    });                    
+                    return false;
+                });
+                newsBox.postImageBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        // load single post, stub
+                        return 0;
+                    });                    
+                    return false;
+                });
+                newsBox.commentLabel.activate_link.connect(handleUris);
+            }
+            displayNewsNotifications(userNews);
+            return false;
+        });
+    }
+
+    public void refreshFeed()
+    {
+        var lastId = feedPosts.first().data.id;
+        string response = getUserFeed(lastId);
+
+        List<MediaInfo> newList;
+        try
+        {
+            newList = parseFeed(response);
+        }
+        catch (Error e) 
+        {
+            error("Something wrong with parsing: %s", e.message);
+        }
+
+        newList.reverse();
+
+        foreach (MediaInfo element in newList)
+        {
+            feedPosts.prepend(element);
+            Idle.add(() => {
+                feedList.append(element);
+                connectPostBoxHandlers(feedList.boxes.first().data);
+
+                new Thread<int>("", () => {
+                    feedList.boxes.last().data.loadAvatar();
+                    feedList.boxes.last().data.loadImage();
+                    return 0;
+                });               
+
+                this.mainWindow.show_all();
+
+                return false;
+            });
+            
+        }
+
+        GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshFeed();
+                return 0;
+            });                
+            return false;
+        });
+    }
+
+    public void refreshNews()
+    {
+        string response = getUserNews();
+
+        List<NewsActivity> newList = parseNews(response);
+        newList.reverse();
+
+        Idle.add(() => {
+            foreach (NewsActivity element in newList)
+            {
+                if (newsList.contains(element))
+                    continue;
+
+                newsList.append(element);
+                var newsBox = newsList.boxes.last().data;
+
+                newsBox.avatarBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        loadUserFromUsername(newsBox.activity.username);
+                        return 0;
+                    });                    
+                    return false;
+                });
+                newsBox.postImageBox.button_release_event.connect(() => {
+                    new Thread<int>("", () => {
+                        // load single post, stub
+                        return 0;
+                    });                    
+                    return false;
+                });
+                newsBox.commentLabel.activate_link.connect(handleUris);          
+
+                this.mainWindow.show_all();               
+            }     
+            newList.reverse();
+            displayNewsNotifications(newList);
+            return false;            
+        });        
+
+        GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshNews();
+                return 0;
+            });                
             return false;
         });
     }
@@ -841,7 +934,7 @@ public class PhotoStream.App : Granite.Application
             default:
                 break;
         }
-        box.remove(loadingImage);
+        box.remove(loadingSpinner);
         box.pack_start(bar, false, true);
         bar.response.connect(this.response);
         mainWindow.show_all ();
@@ -860,13 +953,6 @@ public class PhotoStream.App : Granite.Application
         feedButton.set_label ("Feed");
         feedButton.set_sensitive (false);
         centered_toolbar.add (feedButton);        
-
-        exploreButton = new Gtk.ToggleToolButton ();
-        exploreButton.set_icon_widget (new Gtk.Image.from_icon_name ("midori", Gtk.IconSize.LARGE_TOOLBAR));
-        exploreButton.set_tooltip_text ("Explore");
-        exploreButton.set_label ("Explore");
-        exploreButton.set_sensitive (false);
-        centered_toolbar.add (exploreButton);
 
         photoButton = new Gtk.ToggleToolButton ();
         photoButton.set_icon_widget (new Gtk.Image.from_icon_name ("camera", Gtk.IconSize.LARGE_TOOLBAR));
@@ -887,7 +973,14 @@ public class PhotoStream.App : Granite.Application
         userButton.set_tooltip_text ("You");
         userButton.set_label ("You");
         userButton.set_sensitive (false);
-        centered_toolbar.add (userButton);        
+        centered_toolbar.add (userButton);   
+
+        searchButton = new Gtk.ToggleToolButton ();
+        searchButton.set_icon_widget (new Gtk.Image.from_icon_name ("search", Gtk.IconSize.LARGE_TOOLBAR));
+        searchButton.set_tooltip_text ("Search");
+        searchButton.set_label ("Search");
+        searchButton.set_sensitive (false);
+        centered_toolbar.add (searchButton);     
 
         header.set_custom_title (centered_toolbar);
     }
@@ -898,18 +991,22 @@ public class PhotoStream.App : Granite.Application
             return;
 
         feedButton.set_sensitive (true);
-        exploreButton.set_sensitive (true);
+        searchButton.set_sensitive (true);
         photoButton.set_sensitive (true);
         newsButton.set_sensitive (true);
         userButton.set_sensitive (true);
 
         feedButton.clicked.connect(() => {
-            switchWindow("userFeed");
+            if (isPageLoaded["feed"])
+                switchWindow("userFeed");
+            else
+                switchWindow("loading");
             uncheckButtonsExcept("feed");
         });
 
-        exploreButton.clicked.connect(() => {
-            uncheckButtonsExcept("explore");
+        searchButton.clicked.connect(() => {
+            switchWindow("search");
+            uncheckButtonsExcept("search");
         });
 
         photoButton.clicked.connect(() => {
@@ -923,10 +1020,13 @@ public class PhotoStream.App : Granite.Application
 
         userButton.clicked.connect(() => {
             uncheckButtonsExcept("self");
-            new Thread<int>("", () => {
-                loadUser(selfUser.id);
-                return 0;
-            });            
+            if (isPageLoaded["feed"])
+                new Thread<int>("", () => {
+                    loadUser(selfUser.id);
+                    return 0;
+                }); 
+            else
+                switchWindow("loading");             
         });
 
         headersCallbacksSet = true;
@@ -937,13 +1037,16 @@ public class PhotoStream.App : Granite.Application
         //feedButton.active = (notUncheck == "feed");
         //userButton.active = (notUncheck == "self");
         //photoButton.active = (notUncheck == "photo");
-        //exploreButton.active = (notUncheck == "explore");
+        //searchButton.active = (notUncheck == "explore");
         //newsButton.active = (notUncheck == "news");
     }
 
     public int setFeedWidgets()
     {       
         Idle.add(() => { 
+
+            if (!headersCallbacksSet)
+                this.searchWindowBox.addFields();
 
             setHeaderCallbacks();
 
@@ -957,6 +1060,8 @@ public class PhotoStream.App : Granite.Application
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
                     feedList.prepend(post);
+
+            isPageLoaded["feed"] = true;
                        
 
             new Thread<int>("", loadImages);
@@ -965,10 +1070,23 @@ public class PhotoStream.App : Granite.Application
                 connectPostBoxHandlers(postBox);
 
             if (!isFeedLoaded)
-            {
-                box.remove(loadingImage);
-                box.pack_start(stack, true, true);
-            }
+                switchWindow("userFeed");
+
+            GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+                new Thread<int>("", () => {
+                    refreshFeed();
+                    return 0;
+                });                
+                return false;
+            });
+
+            GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshNews();
+                return 0;
+            });                
+            return false;
+        });
 
             mainWindow.show_all();
             isFeedLoaded = true;

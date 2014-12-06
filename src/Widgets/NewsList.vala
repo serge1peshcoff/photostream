@@ -21,6 +21,17 @@ public class PhotoStream.Widgets.NewsList : Gtk.ListBox
 		boxes.append(box);		
 	}
 
+	public bool contains (NewsActivity activity)
+	{
+		foreach (NewsBox activityInList in boxes)
+			if (activityInList.activity.time == activity.time
+				&& activityInList.activity.username == activity.username
+				&& activityInList.activity.activityType == activity.activityType)
+				return true;
+
+		return false;
+	}
+
 	public new void prepend(NewsActivity post)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
