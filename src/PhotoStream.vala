@@ -725,7 +725,7 @@ public class PhotoStream.App : Granite.Application
 
         // if we got here then we've got no errors, yay!
         if(box.get_children().find(bar) != null)
-            box.remove(bar);  
+            box.remove(bar); 
 
         new Thread<int>("", setFeedWidgets);      
         return 0;
@@ -760,6 +760,7 @@ public class PhotoStream.App : Granite.Application
                 });
                 newsBox.commentLabel.activate_link.connect(handleUris);
             }
+            this.mainWindow.show_all();
             displayNewsNotifications(userNews);
             return false;
         });
@@ -1055,7 +1056,6 @@ public class PhotoStream.App : Granite.Application
     public int setFeedWidgets()
     {       
         Idle.add(() => { 
-
             if (!headersCallbacksSet)
                 this.searchWindowBox.addFields();
 
@@ -1070,15 +1070,16 @@ public class PhotoStream.App : Granite.Application
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
+                {
                     feedList.prepend(post);
+                    connectPostBoxHandlers(feedList.boxes.last().data);
+                }
 
             isPageLoaded["feed"] = true;
                        
 
             new Thread<int>("", loadImages);
-
-            foreach(PostBox postBox in this.feedList.boxes)
-                connectPostBoxHandlers(postBox);
+                    
 
             if (!isFeedLoaded)
                 switchWindow("userFeed");
@@ -1092,12 +1093,12 @@ public class PhotoStream.App : Granite.Application
             });
 
             GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
-            new Thread<int>("", () => {
-                refreshNews();
-                return 0;
-            });                
-            return false;
-        });
+                new Thread<int>("", () => {
+                    refreshNews();
+                    return 0;
+                });                
+                return false;
+            });
 
             mainWindow.show_all();
             isFeedLoaded = true;

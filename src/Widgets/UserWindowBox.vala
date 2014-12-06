@@ -174,6 +174,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.followsCount.set_markup("<b>" + (user.followed == -1 ? "?" : user.followed.to_string()) + "</b>\nfollows");
 		this.followersCount.set_markup("<b>" + (user.followers == -1 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
 
+		this.feedWindow.get_vadjustment().set_value(0);
+
 		this.loadRelationship();
 		
 	}
