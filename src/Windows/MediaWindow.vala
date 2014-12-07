@@ -13,8 +13,6 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 	public Element decode;
 	public Element videoConvert;
 	public Element audioConvert;
-	public uint* xid;
-
 	public bool video;
 
 	public MediaWindow(string fileName, bool video)
@@ -51,7 +49,7 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 		this.decode = ElementFactory.make ("decodebin", "decode");
         this.videoConvert = ElementFactory.make ("videoconvert", "videoConvert");
         this.audioConvert = ElementFactory.make ("audioconvert", "audioConvert");
-        this.videoSink = ElementFactory.make ("xvimagesink", "videoSink");
+        this.videoSink = ElementFactory.make ("gdkpixbufsink", "videoSink");
         this.audioSink = ElementFactory.make ("autoaudiosink", "audioSink");
         this.pipeline.add_many (this.src, this.decode, this.videoConvert, this.audioConvert, 
         												this.audioSink, this.videoSink);
@@ -82,21 +80,18 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
         this.drawingArea = new Gtk.DrawingArea();
         this.windowBox.pack_start(drawingArea, true, true, 0);
 
-        this.realize.connect(() => {
-        	this.xid = (uint*)(((Gdk.X11.Window) this.get_window()).get_xid ());   
-        }); 
-
         this.pipeline.get_bus().add_watch(0, (bus, message) => {
-        	if(Gst.Video.is_video_overlay_prepare_window_handle_message (message)) 
-        	{
-				Gst.Video.Overlay overlay = message.src as Gst.Video.Overlay;
-				assert (overlay != null);
+			GLib.Value videoValue = GLib.Value(typeof(Gdk.Pixbuf));
+			Gdk.Pixbuf videoPixbuf;
+			videoSink.get_property("last-pixbuf", ref videoValue);
+			videoPixbuf = videoValue as Gdk.Pixbuf;
 
-				overlay.set_window_handle (this.xid);
-				this.show_all();
-			}
+			this.image.set_from_pixbuf(videoPixbuf);			
 			return true;
         });
+        this.image = new Gtk.Image();
+        windowBox.add(image);
+        this.show_all();
 
         this.pipeline.set_state (State.PLAYING);        
 	}
