@@ -3,5 +3,5 @@ Name=PhotoStream
 Comment=An unofficial Instagram client for Linux
 Categories=GTK;Network;X-SuSE-Core-Internet;
 Exec=photostream
-Terminal=true
+Terminal=false
 Type=Application

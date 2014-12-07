@@ -18,8 +18,11 @@ public List<NewsActivity> parseNews(string message)
     var divElement = getChildWithName(bodyElement, "div");
 
     for (Xml.Node* iter = divElement->children; iter != null; iter = iter->next)
+    {
+
     	if (iter->name != "text")
     		returnList.append(parseActivity(iter)); // ul class="activity" as argument
+    }
 
     return returnList;
 }
@@ -27,7 +30,6 @@ public List<NewsActivity> parseNews(string message)
 public NewsActivity parseActivity(Xml.Node* element)
 {
 	NewsActivity activity = new NewsActivity();
-
 
 	var liElement = getChildWithName(element, "li");
 	var usernameElement = getChildWithClass(liElement, "profile-pic");

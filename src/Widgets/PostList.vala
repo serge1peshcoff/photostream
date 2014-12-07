@@ -19,13 +19,14 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 	}
 	public void addMoreButton()
 	{				
-		
+		print("addedMOre\n");
 		if(!this.moreButton.is_ancestor(this))
 			base.prepend(this.moreButtonAlignment);
 	}
 	public void deleteMoreButton()
 	{
-		this.remove(this.get_children().last().data);
+		print("removed\n");
+		this.remove(this.moreButtonAlignment);
 	}
 	public bool contains(MediaInfo post)
 	{

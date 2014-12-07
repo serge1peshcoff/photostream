@@ -103,9 +103,10 @@ public class PhotoStream.App : Granite.Application
         mainWindow = new MainWindow ();
         setHeader();
 
-        bar = new Gtk.InfoBar();         
-
+        bar = new Gtk.InfoBar();  
+        
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+        //box.pack_start(bar, false, true); 
         mainWindow.add(box);
 
         mainWindow.show_all ();
@@ -122,13 +123,15 @@ public class PhotoStream.App : Granite.Application
 
     public void tryLogin()
     {
-        appToken = loadToken();  
+        appToken = loadToken();
+
+        File file = File.new_for_path(CACHE_URL + "cookie.txt");  
         if (appToken == "") //something went wrong. need to re-login
             this.setErrorWidgets("not-logged-in");          
+        else if (!file.query_exists())
+            this.setErrorWidgets("wrong-login"); 
         else
-        {
             new Thread<int>("", loadFeed);
-        }
     }
 
     public void stubLoading()
@@ -232,7 +235,7 @@ public class PhotoStream.App : Granite.Application
 
         switchWindow("loading");
 
-        box.pack_start(stack, true, true); 
+        box.pack_end(stack, true, true); 
         this.stack.show_all();
         this.mainWindow.show_all();
         
@@ -724,7 +727,7 @@ public class PhotoStream.App : Granite.Application
         }
 
         // if we got here then we've got no errors, yay!
-        if(box.get_children().find(bar) != null)
+        if(bar.is_ancestor(box))
             box.remove(bar); 
 
         new Thread<int>("", setFeedWidgets);      
@@ -924,9 +927,8 @@ public class PhotoStream.App : Granite.Application
 
     public void setErrorWidgets(string reason)
     { 
-        if(box.get_children().find(bar) != null)
-            box.remove(bar);
-        bar = new Gtk.InfoBar();     
+        if(bar.is_ancestor(box))
+            box.remove(bar);   
             
         bar.message_type = Gtk.MessageType.ERROR;
         Gtk.Container content = bar.get_content_area ();
@@ -946,7 +948,6 @@ public class PhotoStream.App : Granite.Application
             default:
                 break;
         }
-        box.remove(loadingSpinner);
         box.pack_start(bar, false, true);
         bar.response.connect(this.response);
         mainWindow.show_all ();

@@ -298,8 +298,10 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         likePixbuf = likePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
         likeImage.set_from_pixbuf(likePixbuf);
 
-        if (beforeLikes != post.likes.length())
-        	likesText = post.likesCount.to_string() + " likes.";
+        if (beforeLikes != post.likes.length() && post.likesCount != 0)
+			likesText = "<a href=\"getLikes\">" + post.likesCount.to_string() + " likes.</a>";
+		else if (beforeLikes != post.likes.length() && post.likesCount == 0)
+			likesText = post.likesCount.to_string() + " likes.";
         else if (this.post.likesCount != 1) // if only self liked this
         	likesText = "<a href=\"@" + PhotoStream.App.selfUser.username + "\">" + PhotoStream.App.selfUser.username + "</a>, " + likesText;
         else

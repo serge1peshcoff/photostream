@@ -132,11 +132,9 @@ public string getMediaLikes(string id)
     return getResponse("https://api.instagram.com/v1/media/" + id + "/likes?access_token=" + PhotoStream.App.appToken);
 }
 public string likeMedia(string id)
-{
-    var ip = loadAddress();    
+{  
     var session = new Soup.Session ();
-    var message = new Soup.Message ("POST", "https://" + ip + "/v1/media/" + id + "/likes");
-    message.request_headers.append("Host", "api.instagram.com");
+    var message = new Soup.Message ("POST", "https://api.instagram.com/v1/media/" + id + "/likes");
 
     uint8[] requestString = ("access_token="  + PhotoStream.App.appToken).data;
 
@@ -147,9 +145,8 @@ public string likeMedia(string id)
 }
 public string dislikeMedia(string id)
 {
-    var ip = loadAddress();   
     var session = new Soup.Session ();
-    var message = new Soup.Message ("DELETE", "https://" + ip + "/v1/media/" 
+    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
                     + id + "/likes?access_token=" + PhotoStream.App.appToken);
     message.request_headers.append("Host", "api.instagram.com");
 
@@ -213,9 +210,10 @@ public void downloadFile(string url, string filename) throws Error
     {
 	    file = File.new_for_path(filename);
 	    if (file.query_exists())  
-	    	file.delete(); 
+	    	//file.delete();
+            return;
 
-	    stream = file.create_readwrite(FileCreateFlags.REPLACE_DESTINATION);
+	    stream = file.create_readwrite(FileCreateFlags.PRIVATE);
 	    FileOutputStream os = stream.output_stream as FileOutputStream;
 
     	os.write_all(message.response_body.data, out bytes);
