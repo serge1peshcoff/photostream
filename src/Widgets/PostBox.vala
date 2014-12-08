@@ -231,25 +231,25 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		box.add(likeToolbar);
 		commentList = new CommentsList();
-		//if (post.commentsCount != 0)
-		//{
-			this.commentsAlignment = new Gtk.Alignment (1,1,1,1);
-	        this.commentsAlignment.top_padding = 3;
-	        this.commentsAlignment.right_padding = 6;
-	        this.commentsAlignment.bottom_padding = 3;
-	        this.commentsAlignment.left_padding = 6;
 
-	        this.commentList.set_halign(Gtk.Align.START);
-	        this.commentList.postId = post.id;
+		this.commentsAlignment = new Gtk.Alignment (1,1,1,1);
+        this.commentsAlignment.top_padding = 3;
+        this.commentsAlignment.right_padding = 6;
+        this.commentsAlignment.bottom_padding = 3;
+        this.commentsAlignment.left_padding = 6;
 
-			if(post.commentsCount !=  post.comments.length())
-				commentList.addMoreButton(post.commentsCount);
-			foreach(Comment comment in post.comments)
-				commentList.prepend(comment, false);
+        this.commentList.set_halign(Gtk.Align.START);
+        this.commentList.postId = post.id;
 
-			commentsAlignment.add(commentList);
-			box.pack_end(commentsAlignment, true, true);
-		//}
+		if(post.commentsCount !=  post.comments.length())
+			commentList.addMoreButton(post.commentsCount);
+		foreach(Comment comment in post.comments)
+			commentList.prepend(comment);
+
+		this.commentList.addCommentBox();
+
+		commentsAlignment.add(commentList);
+		box.pack_end(commentsAlignment, true, true);
 	}	
 
 	public void openMedia()
