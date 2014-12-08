@@ -192,8 +192,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		console.log(marker.getPosition().lat());
 		console.log(marker.getPosition().lng());
 		";
-		this.webView.run_javascript.begin(js, null, () => {
-			
+		this.webView.run_javascript.begin(js, null, (obj, res) => {
+
 		});
 	}
 }

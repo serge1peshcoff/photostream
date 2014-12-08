@@ -109,9 +109,45 @@ public string getComments(string id)
 }
 public string postComment(string id, string comment)
 {
-    // stub, waiting for Instagram to allow me to use this endpoint. 
-    // UPD: they rejected me. don't know what to do.
-    return "";
+    var idTruncated = id.substring(0, id.index_of("_"));
+    var url = "http://instagram.com/web/comments/" + idTruncated + "/add/";
+
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("POST", url);  
+    session.user_agent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";  
+
+    var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
+    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+
+    message.request_headers.append("Host", "instagram.com");
+    message.request_headers.append("Connection", "keep-alive");
+    message.request_headers.append("Origin", "http://instagram.com");
+    message.request_headers.append("X-Instagram-AJAX", "1");
+    message.request_headers.append("X-Requested-With", "XMLHttpRequest");
+    message.request_headers.append("DNT", "1");
+    message.request_headers.append("Referer", "instagram.com");
+    message.request_headers.append("Accept-Encoding", "gzip, deflate");            // without all this headers it won't pass.
+    message.request_headers.append("Accept-Language", "ru,en-US;q=0.8,en;q=0.6");  // thanks a lot to Wireshark, awesome thing.
+
+    var cookies = cookieJarText.all_cookies();
+    string csrftoken = "";
+
+    foreach (Soup.Cookie cookie in cookies)
+        if (cookie.get_name() == "csrftoken")
+        {
+            csrftoken = cookie.get_value();
+            break; // don't ask.
+        }
+
+    message.request_headers.append("X-CSRFToken", csrftoken);
+
+
+    uint8[] requestString = ("comment_text="  + Soup.URI.encode(comment, null)).data;
+
+    message.request_body.append_take(requestString);
+    session.send_message (message);
+
+    return (string)message.response_body.data;
 }
 public string deleteComment(string mediaId, string commentId)
 {

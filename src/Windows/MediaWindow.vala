@@ -4,6 +4,7 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 {
 	public Gtk.Box windowBox;
 	public Gtk.Image image;
+	public Gtk.EventBox eventBox;
 
 	public Gtk.DrawingArea drawingArea;
 	public Pipeline pipeline;
@@ -14,11 +15,19 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 	public Element videoConvert;
 	public Element audioConvert;
 	public bool video;
+	public bool videoPlaying = false;
+	public bool finishedPlaying = false;
 
 	public MediaWindow(string fileName, bool video)
 	{
+		this.set_resizable(false);
+		eventBox = new Gtk.EventBox();
 		windowBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		this.add(windowBox);
+
+		eventBox.add(windowBox);
+		this.add(eventBox);
+
+		this.eventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);		
 
 		this.video = video;
 
@@ -81,6 +90,12 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
         this.windowBox.pack_start(drawingArea, true, true, 0);
 
         this.pipeline.get_bus().add_watch(0, (bus, message) => {
+        	if (message.type == MessageType.EOS)
+        	{
+        		finishedPlaying = true;
+        		this.pipeline.set_state(State.READY);
+        		return true;
+        	}
 			GLib.Value videoValue = GLib.Value(typeof(Gdk.Pixbuf));
 			Gdk.Pixbuf videoPixbuf;
 			videoSink.get_property("last-pixbuf", ref videoValue);
@@ -93,7 +108,15 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
         windowBox.add(image);
         this.show_all();
 
-        this.pipeline.set_state (State.PLAYING);        
+        this.eventBox.button_release_event.connect((event) => {
+        	if (event.button == 1)
+        		switchVideoPlayback();
+
+        	return false;
+        });
+
+        this.pipeline.set_state (State.PLAYING); 
+        videoPlaying = true;       
 	}
 
 	private void padAddedHandler(Gst.Element src, Gst.Pad new_pad)
@@ -109,16 +132,12 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 		{
 			stdout.printf ("  It has audio type '%s', loading.\n", new_pad_type);
 			linkPads(new_pad, audioSinkPad, new_pad_type);
-			//if (videoSinkPad.is_linked())
-			//	playVideo();
 			return ;
 		}
 		else
 		{
 			stdout.printf ("  It has video type '%s', loading.\n", new_pad_type);
 			linkPads(new_pad, videoSinkPad, new_pad_type);
-			//if (audioSinkPad.is_linked())
-			//	playVideo();
 			return ;
 		}
 	}
@@ -131,6 +150,25 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 		} else {
 			stdout.printf ("  Link succeeded (type '%s').\n", new_pad_type);
 		}
+	}
+
+	public void switchVideoPlayback()
+	{
+		if (finishedPlaying)
+		{			
+			this.pipeline.set_state(State.PLAYING);
+			finishedPlaying = false;
+		}
+		if (videoPlaying == true)
+		{
+			this.pipeline.set_state(State.PAUSED);
+		}
+		else
+		{			
+			this.pipeline.set_state(State.PLAYING);
+		}
+
+		videoPlaying = !videoPlaying;
 	}
 
     protected override void destroy () 

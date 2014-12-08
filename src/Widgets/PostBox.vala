@@ -247,7 +247,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 				commentList.prepend(comment, false);
 
 			commentsAlignment.add(commentList);
-			//commentsList.
 			box.pack_end(commentsAlignment, false, false);
 		}
 	}	

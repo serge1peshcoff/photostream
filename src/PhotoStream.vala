@@ -106,7 +106,6 @@ public class PhotoStream.App : Granite.Application
         bar = new Gtk.InfoBar();  
         
         box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-        //box.pack_start(bar, false, true); 
         mainWindow.add(box);
 
         mainWindow.show_all ();
@@ -116,9 +115,6 @@ public class PhotoStream.App : Granite.Application
         preloadWindows();
 
         tryLogin();
-
-        //var newWindow = new LocationMapWindow();
-        //newWindow.show_all();
     }
 
     public void tryLogin()
@@ -1076,11 +1072,9 @@ public class PhotoStream.App : Granite.Application
                     connectPostBoxHandlers(feedList.boxes.last().data);
                 }
 
-            isPageLoaded["feed"] = true;
-                       
+            isPageLoaded["feed"] = true;                       
 
-            new Thread<int>("", loadImages);
-                    
+            new Thread<int>("", loadImages);                    
 
             if (!isFeedLoaded)
                 switchWindow("userFeed");

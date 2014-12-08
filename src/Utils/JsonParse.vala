@@ -117,24 +117,28 @@ public Location parseLocationFromObject(Json.Object locationObject) throws Error
 public List<Comment> parseCommentsFromObject(Json.Object commentObject) throws Error 
 {
     List<Comment> commentsList = new List<Comment>();
-    foreach(var comment in commentObject.get_array_member("data").get_elements())
-    {        
-        Comment infoComment = new Comment();
-        infoComment.creationTime = new DateTime.from_unix_utc(comment.get_object().get_int_member("created_time"));
-        infoComment.text = comment.get_object().get_string_member("text");
-        infoComment.id = comment.get_object().get_string_member("id");
-        
-        var commentedUser = comment.get_object().get_member("from").get_object();
-        infoComment.user = new User();
-        infoComment.user.username = commentedUser.get_string_member("username");
-        infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
-        infoComment.user.id = commentedUser.get_string_member("id");
-        infoComment.user.fullName = commentedUser.get_string_member("full_name");
-
-        commentsList.append(infoComment);              
-    }
+    foreach(var comment in commentObject.get_array_member("data").get_elements())       
+        commentsList.append(parseCommentFromObject(comment.get_object()));              
     return commentsList;
 }
+
+public Comment parseCommentFromObject(Json.Object comment) throws Error 
+{   
+    Comment infoComment = new Comment();
+    infoComment.creationTime = new DateTime.from_unix_utc((int)comment.get_string_member("created_time"));
+    infoComment.text = comment.get_string_member("text");
+    infoComment.id = comment.get_string_member("id");
+    
+    var commentedUser = comment.get_member("from").get_object();
+    infoComment.user = new User();
+    infoComment.user.username = commentedUser.get_string_member("username");
+    infoComment.user.profilePicture = commentedUser.get_string_member("profile_picture");
+    infoComment.user.id = commentedUser.get_string_member("id");
+    infoComment.user.fullName = commentedUser.get_string_member("full_name");
+
+    return infoComment;          
+}
+
 
 public List<Comment> parseComments(string message) throws Error
 {
@@ -145,6 +149,16 @@ public List<Comment> parseComments(string message) throws Error
     checkErrors(root_object);
 
     return parseCommentsFromObject(root_object);  
+}
+
+public Comment parseCommentFromReply(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+
+    return parseCommentFromObject(root_object);  
 }
 
 public User parseUserFromObject(Json.Object userObject) throws Error
