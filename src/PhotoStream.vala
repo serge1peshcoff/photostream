@@ -483,6 +483,7 @@ public class PhotoStream.App : Granite.Application
         }
 
         Idle.add(() => {
+            commentsList.postId = postId;
             switchWindow("comments");
             return false;
         });

@@ -52,7 +52,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(box);
 
-		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
 		set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
         set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
@@ -231,8 +231,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		box.add(likeToolbar);
 		commentList = new CommentsList();
-		if (post.commentsCount != 0)
-		{
+		//if (post.commentsCount != 0)
+		//{
 			this.commentsAlignment = new Gtk.Alignment (1,1,1,1);
 	        this.commentsAlignment.top_padding = 3;
 	        this.commentsAlignment.right_padding = 6;
@@ -240,6 +240,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	        this.commentsAlignment.left_padding = 6;
 
 	        this.commentList.set_halign(Gtk.Align.START);
+	        this.commentList.postId = post.id;
 
 			if(post.commentsCount !=  post.comments.length())
 				commentList.addMoreButton(post.commentsCount);
@@ -247,8 +248,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 				commentList.prepend(comment, false);
 
 			commentsAlignment.add(commentList);
-			box.pack_end(commentsAlignment, false, false);
-		}
+			box.pack_end(commentsAlignment, true, true);
+		//}
 	}	
 
 	public void openMedia()

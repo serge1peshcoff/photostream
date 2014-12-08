@@ -4,6 +4,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public GLib.List<CommentBox> comments;
 	public Gtk.LinkButton loadMoreButton;
 	public Gtk.Box moreBox;
+	public string postId;
+	public Gtk.Entry commentBox;
 
 	public void addMoreButton(int64 commentsCount)
 	{
@@ -17,9 +19,22 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public CommentsList()
 	{
 		this.comments = new GLib.List<CommentBox>();
-
 		this.set_selection_mode (Gtk.SelectionMode.NONE);
 
+		this.commentBox = new Gtk.Entry();
+		Idle.add(() => {
+			base.insert(commentBox, -1);
+			this.show_all();
+			return false;
+		});
+
+		this.commentBox.activate.connect(() => {
+			new Thread<int>("", () => {
+				postCommentCallback();
+				return 0;
+			});			
+		});
+		
 	}
 	public void append(Comment post, bool withAvatar)
 	{
@@ -40,5 +55,26 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		foreach (var child in this.get_children())
 			this.remove(child);
 		this.comments = new List<CommentBox>();
+
+		base.insert(commentBox, -1);
+		this.show_all();
+	}
+	private void postCommentCallback()
+	{
+		string response = postComment(postId, commentBox.get_text());
+		Comment commentReply;
+		try
+		{
+			commentReply = parseCommentFromReply(response);
+		}
+		catch (Error e)
+		{
+			error("Something wrong with JSON parsing.");
+		}
+		Idle.add(() => {
+			this.prepend(commentReply, false);
+			this.show_all();
+			return false;
+		});
 	}
 }
