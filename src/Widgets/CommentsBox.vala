@@ -11,6 +11,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	public Gtk.Box textBox;
 	public Gtk.Label textLabel;
 	public Gtk.EventBox avatarBox;
+	public Gtk.EventBox textEventBox;
 	public Gtk.Image avatar;
 	public int AVATAR_SIZE = 35;
 
@@ -33,6 +34,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
         this.avatarAlignment.left_padding = 0;
 
         this.textBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+        this.textEventBox = new Gtk.EventBox();
 		this.textLabel = new Gtk.Label("");
 		this.textLabel.set_markup("<b>" + wrapInTags("@" + comment.user.username) + "</b> " + wrapInTags(comment.text));
 		this.textLabel.set_line_wrap(true);
@@ -43,6 +45,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.textLabel.xalign = 0;
 
 		set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.textEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
 
 		if (withAvatar)
 		{
@@ -88,7 +91,8 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 			}
 		}
 		textBox.add(textLabel);
-		textAlignment.add(textBox);
+		textEventBox.add(textBox);
+		textAlignment.add(textEventBox);		
 		this.pack_end(textAlignment, false, true);
 
 		this.show_all();

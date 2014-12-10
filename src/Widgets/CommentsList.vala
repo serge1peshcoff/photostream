@@ -49,7 +49,11 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	{
 		CommentBox box = new CommentBox(post, loadAvatars);
 		base.prepend(box);
-		comments.append(box);		
+		comments.append(box);
+		box.textEventBox.button_release_event.connect(() => {
+			mentionUser(box.comment.user.username);
+			return false;
+		});		
 	}
 
 	public new void prepend(Comment post)
@@ -57,6 +61,15 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		CommentBox box = new CommentBox(post, loadAvatars);
 		base.insert (box, -1);
 		comments.append(box);
+		box.textEventBox.button_release_event.connect(() => {
+			mentionUser(box.comment.user.username);
+			return false;
+		});
+	}
+
+	public void mentionUser(string username)
+	{
+		commentBox.set_text(commentBox.get_text() + "@" + username + " ");
 	}
 
 	public void clear()
