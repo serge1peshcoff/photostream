@@ -80,11 +80,29 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		switch (button.label)
 		{
 			case "Hashtags":
-				stack.set_visible_child_name("tags");
+				if (currentWindow != "users")
+					return;
+
+				if (tagsRequest != usersRequest)
+				{
+					searchTag(usersRequest);
+					tagsRequest = usersRequest;
+				}
+				else
+					stack.set_visible_child_name("tags");
 				currentWindow = "tags";
 				break;
 			case "Users":
-				stack.set_visible_child_name("users");
+				if (currentWindow != "tags")
+					return;
+
+				if (tagsRequest != usersRequest)
+				{
+					searchUser(tagsRequest);
+					usersRequest = tagsRequest;
+				}
+				else
+					stack.set_visible_child_name("users");
 				currentWindow = "users";
 				break;
 			case "Locations":
@@ -105,9 +123,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 				hashtagSearch = hashtagSearch.substring(1, hashtagSearch.length - 1);
 
 			new Thread<int>("", () => {
-				searchTag(hashtagSearch);
+				searchTag(hashtagSearch);				
 				return 0;
 			});
+			tagsRequest = hashtagSearch;
 		}
 		else if (currentWindow == "users")
 		{
@@ -116,9 +135,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 				usernameSearch = usernameSearch.substring(1, usernameSearch.length - 1);
 
 			new Thread<int>("", () => {
-				searchUser(usernameSearch);
+				searchUser(usernameSearch);				
 				return 0;
 			});
+			usersRequest = usernameSearch;
 		}
 	}
 
