@@ -4,7 +4,6 @@ using Gdk;
 
 public class PhotoStream.App : Granite.Application 
 {
-
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
     public static string appToken = "";
@@ -86,35 +85,41 @@ public class PhotoStream.App : Granite.Application
     }
 
 	protected override void activate () 
-	{  
-        isPageLoaded = new Gee.HashMap<string, bool>(); 
+	{
+        if (get_windows() == null) 
+        { 
+            isPageLoaded = new Gee.HashMap<string, bool>(); 
 
-        isPageLoaded["news"] = false;
-        isPageLoaded["user"] = false;
-        isPageLoaded["feed"] = false;
-        isPageLoaded["tagFeed"] = false;
+            isPageLoaded["news"] = false;
+            isPageLoaded["user"] = false;
+            isPageLoaded["feed"] = false;
+            isPageLoaded["tagFeed"] = false;
 
-        REFRESH_INTERVAL = loadRefreshInterval();
+            REFRESH_INTERVAL = loadRefreshInterval();
 
 
-        CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";
-        CACHE_AVATARS = CACHE_URL + "avatars/";
+            CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";
+            CACHE_AVATARS = CACHE_URL + "avatars/";
 
-        mainWindow = new MainWindow ();
-        setHeader();
+            mainWindow = new MainWindow ();
+            setHeader();
 
-        bar = new Gtk.InfoBar();  
-        
-        box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-        mainWindow.add(box);
+            bar = new Gtk.InfoBar();  
+            
+            box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+            mainWindow.add(box);
 
-        mainWindow.show_all ();
-        mainWindow.destroy.connect (Gtk.main_quit);
-        mainWindow.set_application(this); 
+            mainWindow.show_all ();
+            mainWindow.set_application(this); 
 
-        preloadWindows();
+            preloadWindows();
 
-        tryLogin();
+            tryLogin();
+        }
+        else
+        {
+            this.mainWindow.show_all();
+        }
     }
 
     public void tryLogin()
@@ -700,11 +705,6 @@ public class PhotoStream.App : Granite.Application
 
         return 0;
     } 
-
-    protected override void shutdown () 
-    {
-        base.shutdown();
-    }
 
     public int loadFeed()
     {

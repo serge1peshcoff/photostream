@@ -13,6 +13,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	public Gtk.ScrolledWindow usersWindow;
 	public Gtk.ScrolledWindow locationWindow;
 
+	public Gtk.Spinner spinner;
+
 	public Gtk.Box radioBox;
 
 	public HashTagList tagList;
@@ -20,6 +22,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	public LocationMapWindow locationMapWindow;
 
 	public string currentWindow = "tags";
+	public string tagsRequest = "";
+	public string usersRequest = "";
 
 	public SearchWindowBox()
 	{
@@ -52,6 +56,11 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		this.searchQuery.activate.connect(() => {
 			this.typed();
 		});
+
+		spinner = new Gtk.Spinner();
+		spinner.start();
+
+		this.stack.add_named(spinner, "loading");
 
 		locationMapWindow = new LocationMapWindow();
 	}
@@ -122,8 +131,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
     {
 
         Idle.add(() => {
-            //stubLoading();
-            //switchWindow("tags");
+            stack.set_visible_child_name("loading");
             return false;
         });
         string response = searchTags(tag);
@@ -143,8 +151,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
         	tagList.clear();
 	        foreach(Tag tagInList in tagListRequested)
 	            tagList.prepend(tagInList);  	
-            //box.remove(loadingImage);
-            //box.pack_start(stack, true, true); 
+            
+            stack.set_visible_child_name("tags");
             this.show_all();
             return false;
         });
@@ -155,8 +163,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
     {
 
         Idle.add(() => {
-            //stubLoading();
-            //switchWindow("tags");
+            stack.set_visible_child_name("loading");
             return false;
         });
         string response = searchUsers(username);
@@ -212,8 +219,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	            return 0;
         	}); 
 
-            //box.remove(loadingImage);
-            //box.pack_start(stack, true, true); 
+            stack.set_visible_child_name("users"); 
             this.show_all();
             return false;
         });
