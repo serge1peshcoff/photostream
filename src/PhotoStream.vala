@@ -52,6 +52,7 @@ public class PhotoStream.App : Granite.Application
     public SearchWindowBox searchWindowBox;
 
     public PostList feedList; 
+    public PostList postList; 
     public CommentsList commentsList;
     public UserList userList;
     public NewsList newsList;
@@ -234,6 +235,11 @@ public class PhotoStream.App : Granite.Application
             loadLocation(location.id);
         });
 
+        this.postWindow = new Gtk.ScrolledWindow(null, null);
+        this.postList = new PostList();
+        this.postWindow.add_with_viewport(postList);
+        stack.add_named(postWindow, "post");
+
         switchWindow("loading");
 
         box.pack_end(stack, true, true); 
@@ -373,6 +379,45 @@ public class PhotoStream.App : Granite.Application
                 tagFeedBox.hashtagFeed.deleteMoreButton();
             return false;
         });        
+    }
+
+    public int loadPost(string id)
+    {
+        Idle.add(() => {
+            stubLoading();            
+            return false;
+        });
+        string responsePostInfo = getMediaData(id);
+        MediaInfo receivedPost;
+
+        try
+        {
+            receivedPost = parseMediaPost(responsePostInfo);
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+
+        Idle.add(() => {
+            postList.clear();
+            
+            postList.prepend(receivedPost);
+
+            new Thread<int>("", () => {
+                postList.boxes.last().data.loadAvatar();
+                postList.boxes.last().data.loadImage();
+                return 0;
+            });  
+            connectPostBoxHandlers(postList.boxes.last().data);          
+
+            switchWindow("post");
+            this.stack.show_all();
+            return false;
+        });
+        
+        return 0;
     }
 
     public int openLocationMap(Location location)
@@ -745,23 +790,8 @@ public class PhotoStream.App : Granite.Application
             isPageLoaded["news"] = true;
 
             foreach(NewsBox newsBox in newsList.boxes)
-            {
-                newsBox.avatarBox.button_release_event.connect(() => {
-                    new Thread<int>("", () => {
-                        loadUserFromUsername(newsBox.activity.username);
-                        return 0;
-                    });                    
-                    return false;
-                });
-                newsBox.postImageBox.button_release_event.connect(() => {
-                    new Thread<int>("", () => {
-                        // load single post, stub
-                        return 0;
-                    });                    
-                    return false;
-                });
-                newsBox.commentLabel.activate_link.connect(handleUris);
-            }
+                connectNewsBoxHandlers(newsBox);
+
             this.mainWindow.show_all();
             displayNewsNotifications(userNews);
             return false;
@@ -828,23 +858,7 @@ public class PhotoStream.App : Granite.Application
                     continue;
 
                 newsList.append(element);
-                var newsBox = newsList.boxes.last().data;
-
-                newsBox.avatarBox.button_release_event.connect(() => {
-                    new Thread<int>("", () => {
-                        loadUserFromUsername(newsBox.activity.username);
-                        return 0;
-                    });                    
-                    return false;
-                });
-                newsBox.postImageBox.button_release_event.connect(() => {
-                    new Thread<int>("", () => {
-                        // load single post, stub
-                        return 0;
-                    });                    
-                    return false;
-                });
-                newsBox.commentLabel.activate_link.connect(handleUris);          
+                connectNewsBoxHandlers(newsList.boxes.last().data);         
 
                 this.mainWindow.show_all();               
             }     
@@ -1190,7 +1204,26 @@ public class PhotoStream.App : Granite.Application
                 return false;
             });
         }
-    }    
+    }  
+
+    public void connectNewsBoxHandlers(NewsBox newsBox)
+    {
+        newsBox.avatarBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                loadUserFromUsername(newsBox.activity.username);
+                return 0;
+            });                    
+            return false;
+        });
+        newsBox.postImageBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                loadPost(newsBox.activity.postId);
+                return 0;
+            });                    
+            return false;
+        });
+        newsBox.commentLabel.activate_link.connect(handleUris); 
+    }  
 
     public void switchWindow(string window)
     {

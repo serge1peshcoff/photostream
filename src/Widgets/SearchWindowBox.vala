@@ -162,7 +162,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             tagListRequested = parseTagList(response);
 
         }
-        catch (Error e) // wrong token
+        catch (Error e) 
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }         
@@ -194,7 +194,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             userListRequested = parseUserList(response);
 
         }
-        catch (Error e) // wrong token
+        catch (Error e) 
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }

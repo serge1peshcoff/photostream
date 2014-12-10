@@ -21,7 +21,6 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 
 	public int AVATAR_SIZE = 50;
 
-
 	public NewsActivity activity;
 
 	public NewsBox(NewsActivity activity)
