@@ -100,15 +100,15 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
                 post.postedUser.username + "</span>"
                 );
 		userNameLabel.set_line_wrap(true);
-		dateLabel = new Gtk.Label(post.creationTime.format("%e.%m.%Y %H:%M"));
-		
+		dateLabel = new Gtk.Label("");
+		dateLabel.set_markup("<i>" + post.creationTime.format("%e.%m.%Y %H:%M") + "</i>");		
 
 		userNameAlignment.add(userNameLabel);		
 		userToolbar.add(userNameAlignment);
-		userToolbar.add(dateLabel);
+		userToolbar.pack_end(dateLabel, false, true);
 		box.pack_start(userToolbar, false, true);
 
-		this.imageAlignment = new Gtk.Alignment (0,0,0,1);
+		this.imageAlignment = new Gtk.Alignment (0.5f,0,0,1);
         this.imageAlignment.top_padding = 6;
         this.imageAlignment.right_padding = 6;
         this.imageAlignment.bottom_padding = 0;
@@ -134,7 +134,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			return false;
 		});
 
-		this.titleAlignment = new Gtk.Alignment (0,0,1,1);
+		this.titleAlignment = new Gtk.Alignment (0,0,1,0);
         this.titleAlignment.top_padding = 6;
         this.titleAlignment.right_padding = 6;
         this.titleAlignment.bottom_padding = 0;
@@ -145,8 +145,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_line_wrap(true);
 		titleLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
 		titleLabel.set_justify(Gtk.Justification.LEFT);
-		titleLabel.set_halign(Gtk.Align.START);
-		titleLabel.set_valign(Gtk.Align.START);
+		titleLabel.set_max_width_chars(40);
 		titleLabel.xalign = 0;
 
 		titleAlignment.add(titleLabel);

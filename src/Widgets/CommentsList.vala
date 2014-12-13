@@ -6,6 +6,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public Gtk.Box moreBox;
 	public string postId;
 	public Gtk.Entry commentBox;
+	public Gtk.Alignment commentsBoxAlignment;
 
 	public bool loadAvatars;
 
@@ -24,6 +25,12 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	{
 		this.comments = new GLib.List<CommentBox>();
 		this.set_selection_mode (Gtk.SelectionMode.NONE);
+
+		this.commentsBoxAlignment = new Gtk.Alignment (1,0,1,1);
+        this.commentsBoxAlignment.top_padding = 1;
+        this.commentsBoxAlignment.right_padding = 0;
+        this.commentsBoxAlignment.bottom_padding = 1;
+        this.commentsBoxAlignment.left_padding = 0;
 
 		this.commentBox = new Gtk.Entry();
 
@@ -100,7 +107,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public void addCommentBox()
 	{
 		Idle.add(() => {
-			base.insert(commentBox, -1);
+			this.commentsBoxAlignment.add(commentBox);
+			base.insert(commentsBoxAlignment, -1);
 			this.show_all();
 			return false;
 		});
