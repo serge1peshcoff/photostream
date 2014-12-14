@@ -237,6 +237,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         foreach (MediaInfo post in feedList)
             userFeed.prepend(post);
 
+        if (this.userFeed.olderFeedLink == "")
+            this.userFeed.deleteMoreButton();
+
         new Thread<int>("", loadImages);
 	        
     	this.show_all();

@@ -342,7 +342,7 @@ public class PhotoStream.App : Granite.Application
                     });
                     
                 });
-                
+
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
 
@@ -1077,6 +1077,9 @@ public class PhotoStream.App : Granite.Application
                     feedList.prepend(post);
                     connectPostBoxHandlers(feedList.boxes.last().data);
                 }
+
+            if (feedList.olderFeedLink == "")
+                feedList.deleteMoreButton();
 
             isPageLoaded["feed"] = true;                       
 

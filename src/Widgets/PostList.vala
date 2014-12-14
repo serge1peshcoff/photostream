@@ -22,8 +22,11 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 
 	public void deleteMoreButton()
 	{
-		if(this.moreButtonAlignment.is_ancestor(this))
-			this.remove(this.moreButtonAlignment);
+		if (this.moreButtonAlignment.is_ancestor(this))
+		{
+			Gtk.ListBoxRow buttonRow = (Gtk.ListBoxRow)this.get_children().last().data;
+			buttonRow.remove(moreButtonAlignment);
+		}
 	}
 	public bool contains(MediaInfo post)
 	{
@@ -54,9 +57,14 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 	public void clear()
 	{
 		foreach (var child in this.get_children())
-			if (!(((Gtk.ListBoxRow) child).get_child() is Gtk.Alignment))
+			if (!(((Gtk.ListBoxRow) child).get_child() is Gtk.Alignment)) // we don't want to remove "add more" button, right?
 				this.remove(child);
 
 		this.boxes = new List<PostBox>();
+
+		if (!this.moreButtonAlignment.is_ancestor(this) && this.olderFeedLink != "")
+			base.prepend(this.moreButtonAlignment);
+
+		
 	}
 }
