@@ -44,6 +44,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		});
 
 		Idle.add(() => {
+			this.commentBox.set_size_request(625, -1);
 			this.commentsBoxAlignment.add(commentBox);
 			base.insert(commentsBoxAlignment, -1);
 			this.show_all();
