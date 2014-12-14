@@ -512,7 +512,7 @@ public class PhotoStream.App : Granite.Application
             commentsListRequested = parseComments(response);
 
         }
-        catch (Error e) // wrong token
+        catch (Error e)
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }
@@ -532,8 +532,6 @@ public class PhotoStream.App : Granite.Application
                         return false;
                     });
             }
-
-            commentsList.addCommentBox();
 
             commentsList.postId = postId;
             switchWindow("comments");

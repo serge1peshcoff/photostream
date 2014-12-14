@@ -8,6 +8,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public Gtk.Entry commentBox;
 	public Gtk.Alignment commentsBoxAlignment;
 
+	public int commentsPosted = 0;
+
 	public bool loadAvatars;
 
 	public CommentsList()
@@ -35,12 +37,18 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		this.commentBox = new Gtk.Entry();
 
 		this.commentBox.activate.connect(() => {
-			print("comment\n");
 			new Thread<int>("", () => {
 				postCommentCallback();
 				return 0;
 			});			
 		});
+
+		Idle.add(() => {
+			this.commentsBoxAlignment.add(commentBox);
+			base.insert(commentsBoxAlignment, -1);
+			this.show_all();
+			return false;
+		});		
 	}
 
 	public void addMoreButton(int64 commentsCount)
@@ -57,6 +65,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		CommentBox box = new CommentBox(post, loadAvatars);
 		base.prepend(box);
 		comments.append(box);
+		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
 			mentionUser(box.comment.user.username);
 			return false;
@@ -65,13 +74,15 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 
 	public new void prepend(Comment post)
 	{
-		CommentBox box = new CommentBox(post, loadAvatars);
-		base.insert (box, -1);
+		CommentBox box = new CommentBox(post, loadAvatars);	
+		base.insert (box, commentsPosted);
 		comments.append(box);
+		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
 			mentionUser(box.comment.user.username);
 			return false;
 		});
+		this.show_all();
 	}
 
 	public void mentionUser(string username)
@@ -82,12 +93,19 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public void clear()
 	{
 		foreach (var child in this.get_children())
-			this.remove(child);
+			if (((Gtk.ListBoxRow) child).get_child() is CommentBox)
+				Idle.add (() => {
+					this.remove(child);
+					return false;
+				});
+
 		this.comments = new List<CommentBox>();	
 	}
 	private void postCommentCallback()
 	{
-		print("callback\n");
+		if (commentBox.get_text().strip() == "")
+			return;
+
 		string response = postComment(postId, commentBox.get_text());
 		Comment commentReply;
 		try
@@ -98,17 +116,9 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		{
 			error("Something wrong with JSON parsing.");
 		}
+
 		Idle.add(() => {
 			this.prepend(commentReply);
-			this.show_all();
-			return false;
-		});
-	}
-	public void addCommentBox()
-	{
-		Idle.add(() => {
-			this.commentsBoxAlignment.add(commentBox);
-			base.insert(commentsBoxAlignment, -1);
 			this.show_all();
 			return false;
 		});

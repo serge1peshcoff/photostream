@@ -7,6 +7,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public Gtk.Alignment avatarAlignment;
 	public Gtk.Alignment userNameAlignment;
+	public Gtk.Alignment dateAlignment;
 	public Gtk.Alignment imageAlignment;
 	public Gtk.Alignment titleAlignment;
 	public Gtk.Alignment locationAlignment;
@@ -38,8 +39,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public string likesText;
 	public const int AVATAR_SIZE = 70;
 	public const int IMAGE_SIZE = 400;
-	public const int LIKE_SIZE = 25;
-	public const int LOCATION_SIZE = 25;
+	public const int LIKE_SIZE = 20;
+	public const int LOCATION_SIZE = 20;
 
 	public bool windowOpened = false;
 
@@ -100,12 +101,20 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
                 post.postedUser.username + "</span>"
                 );
 		userNameLabel.set_line_wrap(true);
+
+		this.dateAlignment = new Gtk.Alignment (0,0,0,1);
+        this.dateAlignment.top_padding = 6;
+        this.dateAlignment.right_padding = 6;
+        this.dateAlignment.bottom_padding = 0;
+        this.dateAlignment.left_padding = 6;
+
 		dateLabel = new Gtk.Label("");
 		dateLabel.set_markup("<i>" + post.creationTime.format("%e.%m.%Y %H:%M") + "</i>");		
 
-		userNameAlignment.add(userNameLabel);		
+		userNameAlignment.add(userNameLabel);	
+		dateAlignment.add(dateLabel);	
 		userToolbar.add(userNameAlignment);
-		userToolbar.pack_end(dateLabel, false, true);
+		userToolbar.pack_end(dateAlignment, false, true);
 		box.pack_start(userToolbar, false, true);
 
 		this.imageAlignment = new Gtk.Alignment (0.5f,0,0,1);
@@ -244,8 +253,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			commentList.addMoreButton(post.commentsCount);
 		foreach(Comment comment in post.comments)
 			commentList.prepend(comment);
-
-		this.commentList.addCommentBox();
 
 		commentsAlignment.add(commentList);
 		box.pack_end(commentsAlignment, true, true);
