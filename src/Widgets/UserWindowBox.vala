@@ -233,8 +233,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			box.add(userFeed);
 
 		userFeed.clear();   
-		if (this.userFeed.olderFeedLink != "")
-			userFeed.addMoreButton();
 
         foreach (MediaInfo post in feedList)
             userFeed.prepend(post);

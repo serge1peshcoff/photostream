@@ -14,21 +14,14 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 
 		this.moreButtonAlignment = new Gtk.Alignment (1,0,1,0);
         this.moreButtonAlignment.add(moreButton);
+        base.prepend(this.moreButtonAlignment);
 
 		this.set_selection_mode (Gtk.SelectionMode.NONE);
 		this.activate_on_single_click = false;
 	}
 
-
-	public void addMoreButton()
-	{				
-		print("addedMore\n");
-		if(!this.moreButtonAlignment.is_ancestor(this))
-			base.prepend(this.moreButtonAlignment);
-	}
 	public void deleteMoreButton()
 	{
-		print("removed\n");
 		if(this.moreButtonAlignment.is_ancestor(this))
 			this.remove(this.moreButtonAlignment);
 	}
@@ -61,7 +54,9 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 	public void clear()
 	{
 		foreach (var child in this.get_children())
-			this.remove(child);
+			if (!(((Gtk.ListBoxRow) child).get_child() is Gtk.Alignment))
+				this.remove(child);
+
 		this.boxes = new List<PostBox>();
 	}
 }

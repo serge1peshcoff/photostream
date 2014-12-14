@@ -335,8 +335,6 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             tagFeedBox.hashtagFeed.clear();
             if (tagFeedBox.hashtagFeed.olderFeedLink != "")
-            {
-                tagFeedBox.hashtagFeed.addMoreButton();
                 tagFeedBox.hashtagFeed.moreButton.clicked.connect(() => {
                     new Thread<int>("", () => {
                         loadOlderTagFeed();
@@ -344,8 +342,7 @@ public class PhotoStream.App : Granite.Application
                     });
                     
                 });
-            }
-
+                
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
 
@@ -454,8 +451,6 @@ public class PhotoStream.App : Granite.Application
         Idle.add(() => {
             locationFeedBox.locationFeed.clear();
             if (locationFeedBox.locationFeed.olderFeedLink != "")
-            {
-                locationFeedBox.locationFeed.addMoreButton();
                 locationFeedBox.locationFeed.moreButton.clicked.connect(() => {
                     new Thread<int>("", () => {
                         loadOlderLocationFeed();
@@ -463,7 +458,6 @@ public class PhotoStream.App : Granite.Application
                     });
                     
                 });
-            }
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
@@ -1072,9 +1066,6 @@ public class PhotoStream.App : Granite.Application
                 this.searchWindowBox.addFields();
 
             setHeaderCallbacks();
-
-            if (this.feedList.olderFeedLink != "")
-                this.feedList.addMoreButton();   
 
             this.feedList.moreButton.clicked.connect(() => {
                 new Thread<int>("", loadOlderFeed);
