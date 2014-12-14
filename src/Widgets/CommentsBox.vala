@@ -65,6 +65,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	        if (isImageLoaded)
 	        {
 	        	avatar = new Gtk.Image();
+	        	avatar.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
 	        	avatarBox = new Gtk.EventBox();
 	        	avatarBox.add(avatar);
 	        	Pixbuf avatarPixbuf; 

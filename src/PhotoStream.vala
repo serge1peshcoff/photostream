@@ -399,7 +399,8 @@ public class PhotoStream.App : Granite.Application
 
         Idle.add(() => {
             postList.clear();
-            
+            postList.deleteMoreButton();
+                        
             postList.prepend(receivedPost);
 
             new Thread<int>("", () => {

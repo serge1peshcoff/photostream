@@ -78,6 +78,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		avatarBox = new Gtk.EventBox();
 		avatar = new Gtk.Image();
+		avatar.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
 		avatarBox.add(avatar);
 		avatarAlignment.add(avatarBox);
 		userToolbar.pack_start(avatarAlignment, false, true);
@@ -126,6 +127,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         imageEventBox = new Gtk.EventBox();
 		imageBox = new Gtk.Fixed();
 		image = new Gtk.Image();
+		image.set_size_request(IMAGE_SIZE, IMAGE_SIZE);
 		imageBox.put(image, 0, 0);
 		imageEventBox.add(imageBox);
 		imageAlignment.add(imageEventBox);
