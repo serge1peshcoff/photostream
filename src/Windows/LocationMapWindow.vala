@@ -196,4 +196,9 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 		});
 	}
+	public override bool delete_event(Gdk.EventAny event)
+	{
+		this.hide();
+		return true;
+	} 
 }

@@ -63,6 +63,9 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		this.stack.add_named(spinner, "loading");
 
 		locationMapWindow = new LocationMapWindow();
+		locationMapWindow.destroy_event.connect(() => {
+			return true;
+		});
 	}
 
 	public void addFields()
@@ -77,11 +80,15 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 	private void switchView (Gtk.ToggleButton button) 
 	{
+		if (button.get_active() == false)
+			return; // to not execute 2 times, for untoggled and toggled button.
+
+
 		switch (button.label)
 		{
 			case "Hashtags":
-				if (currentWindow != "users")
-					return;
+				//if (currentWindow != "users")
+				//	return;
 
 				if (tagsRequest != usersRequest)
 				{
@@ -93,8 +100,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 				currentWindow = "tags";
 				break;
 			case "Users":
-				if (currentWindow != "tags")
-					return;
+				//if (currentWindow != "tags")
+				//	return;
 
 				if (tagsRequest != usersRequest)
 				{
@@ -165,7 +172,9 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
         catch (Error e) 
         {
             error("Something wrong with parsing: " + e.message + ".\n");
-        }         
+        }   
+
+        tagsRequest = tag;      
 
         Idle.add(() => { 
         	tagList.clear();
@@ -199,6 +208,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             error("Something wrong with parsing: " + e.message + ".\n");
         }
 
+        usersRequest = username;
         
 
         Idle.add(() => {
