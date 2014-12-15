@@ -44,7 +44,6 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         this.set_size_request (625, 700);  
         
         this.set_resizable(false);
-        this.resize(425, 500);
 
 	}    
 }

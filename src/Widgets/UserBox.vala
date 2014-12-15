@@ -69,6 +69,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 		this.user = user;
 
 		this.avatarImage = new Gtk.Image();
+		this.avatarImage.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
 		this.avatarBox = new Gtk.EventBox();
 		avatarBox.add(avatarImage);
 		this.box.add(avatarBox);

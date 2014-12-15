@@ -25,12 +25,25 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Pixbuf followPixbuf;
 	public Pixbuf requestedPixbuf;
 
-	public Box userCountsBox;	
+	public Box userCountsBox;
+	public Box mediaCountBox;	
+	public Box followsCountBox;
+	public Box followersCountBox;
+	public Alignment mediaCountBoxAlignment;
+	public Alignment followsCountBoxAlignment;
+	public Alignment followersCountBoxAlignment;
+
 	public Label mediaCount;
 	public Label followsCount;
 	public Label followersCount;
-	public EventBox followsCountBox;
-	public EventBox followersCountBox;
+	
+
+	public Label mediaCountText;
+	public Label followsCountText;
+	public Label followersCountText;
+
+	public EventBox followsCountEventBox;
+	public EventBox followersCountEventBox;
 
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
@@ -71,19 +84,57 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		}
 
 		this.userCountsBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.mediaCount = new Label("0 media.");
-		this.followsCount = new Label("0 follows.");
-		this.followersCount = new Label("0 followers.");
+		this.mediaCount = new Label("0");
+		this.followsCount = new Label("0");
+		this.followersCount = new Label("0");
 
-		this.followsCountBox = new EventBox();
-		this.followersCountBox = new EventBox();
+		this.mediaCountText = new Label("");
+		this.followsCountText = new Label("");
+		this.followersCountText = new Label("");
 
-        this.followsCountBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
-		this.followsCountBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
-        this.followsCountBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
-        this.followersCountBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
-		this.followersCountBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
-        this.followersCountBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+		this.mediaCountText.set_markup("media");
+		this.followsCountText.set_markup("follows");
+		this.followersCountText.set_markup("followers");
+
+		this.followsCountEventBox = new EventBox();
+		this.followersCountEventBox = new EventBox();
+
+		this.mediaCountBox = new Box(Gtk.Orientation.VERTICAL, 0);
+		this.mediaCountBox.add(mediaCount);
+		this.mediaCountBox.add(mediaCountText);
+		this.mediaCountBoxAlignment = new Gtk.Alignment (0,0,0,1);
+        this.mediaCountBoxAlignment.top_padding = 3;
+        this.mediaCountBoxAlignment.right_padding = 6;
+        this.mediaCountBoxAlignment.bottom_padding = 0;
+        this.mediaCountBoxAlignment.left_padding = 6;
+        this.mediaCountBoxAlignment.add(mediaCountBox);	
+
+		this.followsCountBox = new Box(Gtk.Orientation.VERTICAL, 0);
+		this.followsCountBox.add(followsCount);
+		this.followsCountBox.add(followsCountText);
+		this.followsCountBoxAlignment = new Gtk.Alignment (0,0,0,1);
+        this.followsCountBoxAlignment.top_padding = 3;
+        this.followsCountBoxAlignment.right_padding = 6;
+        this.followsCountBoxAlignment.bottom_padding = 0;
+        this.followsCountBoxAlignment.left_padding = 6;
+        this.followsCountBoxAlignment.add(followsCountBox);
+
+		this.followersCountBox = new Box(Gtk.Orientation.VERTICAL, 0);
+		this.followersCountBox.add(followersCount);
+		this.followersCountBox.add(followersCountText);
+		this.followersCountBoxAlignment = new Gtk.Alignment (0,0,0,1);
+        this.followersCountBoxAlignment.top_padding = 3;
+        this.followersCountBoxAlignment.right_padding = 6;
+        this.followersCountBoxAlignment.bottom_padding = 0;
+        this.followersCountBoxAlignment.left_padding = 6;
+        this.followersCountBoxAlignment.add(followersCountBox);
+
+        this.followsCountEventBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.followsCountEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.followsCountEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+        this.followersCountEventBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.followersCountEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.followersCountEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
 		this.feedWindow = new ScrolledWindow(null, null);
 		this.userFeed = new PostList();
@@ -116,18 +167,18 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.box.pack_start(userInfoBox, false, true);
 
-		this.followsCountBox.add(followsCount);
-		this.followersCountBox.add(followersCount);
-		this.userCountsBox.pack_start(mediaCount, false, true);
-		this.userCountsBox.add(followsCountBox);
-		this.userCountsBox.add(followersCountBox);
+		this.followsCountEventBox.add(followsCountBoxAlignment);
+		this.followersCountEventBox.add(followersCountBoxAlignment);
+		this.userCountsBox.pack_start(mediaCountBoxAlignment, false, true);
+		this.userCountsBox.add(followsCountEventBox);
+		this.userCountsBox.add(followersCountEventBox);
 		this.box.add(userCountsBox);
 
-		this.followsCountBox.enter_notify_event.connect((event) => {
+		this.followsCountEventBox.enter_notify_event.connect((event) => {
 			onCountsHover(event);
 			return false;
 		});
-		this.followersCountBox.enter_notify_event.connect((event) => {
+		this.followersCountEventBox.enter_notify_event.connect((event) => {
 			onCountsHover(event);
 			return false;
 		});
@@ -164,15 +215,15 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
         string userNameString;
         if (user.fullName == "")
-        	userNameString = "@" +  user.username;
+        	userNameString = "<i>@" +  user.username + "</i>";
         else
-        	userNameString = "<b>" + user.fullName + "</b> (@" + user.username + ")";
+        	userNameString = "<span size=\"large\"><b>" + user.fullName + "</b></span> (<i>@" + user.username + "</i>)";
 
 		this.userName.set_markup(userNameString);
 
-		this.mediaCount.set_markup("<b>" + (user.mediaCount == -1 ? "?" : user.mediaCount.to_string()) + "</b>\nmedia");
-		this.followsCount.set_markup("<b>" + (user.followed == -1 ? "?" : user.followed.to_string()) + "</b>\nfollows");
-		this.followersCount.set_markup("<b>" + (user.followers == -1 ? "?" : user.followers.to_string()) + "</b>\nfollowers");
+		this.mediaCount.set_markup("<span size=\"large\"><b>" + (user.mediaCount == -1 ? "?" : user.mediaCount.to_string()) + "</b></span>");
+		this.followsCount.set_markup("<span size=\"large\"><b>" + (user.followed == -1 ? "?" : user.followed.to_string()) + "</b></span>");
+		this.followersCount.set_markup("<span size=\"large\"><b>" + (user.followers == -1 ? "?" : user.followers.to_string()) + "</b></span>");
 
 		this.feedWindow.get_vadjustment().set_value(0);
 

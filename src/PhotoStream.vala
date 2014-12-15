@@ -178,7 +178,7 @@ public class PhotoStream.App : Granite.Application
         this.userWindow.add_with_viewport (userWindowBox);
         stack.add_named(userWindow, "user");
 
-        userWindowBox.followersCountBox.button_release_event.connect(() => {
+        userWindowBox.followersCountEventBox.button_release_event.connect(() => {
             new Thread<int>("", () => {
                 loadUsers(userWindowBox.user.id, "followers");
                 return 0;
@@ -186,7 +186,7 @@ public class PhotoStream.App : Granite.Application
             return false;
         });
 
-        userWindowBox.followsCountBox.button_release_event.connect(() => {
+        userWindowBox.followsCountEventBox.button_release_event.connect(() => {
             new Thread<int>("", () => {
                 loadUsers(userWindowBox.user.id, "follows");
                 return 0;

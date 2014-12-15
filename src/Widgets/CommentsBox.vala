@@ -39,7 +39,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		this.textLabel.set_markup("<b>" + wrapInTags("@" + comment.user.username) + "</b> " + wrapInTags(comment.text));
 		this.textLabel.set_line_wrap(true);
 		this.textLabel.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-		this.textLabel.set_max_width_chars(60);
+		this.textLabel.set_max_width_chars(40);
 		this.textLabel.set_justify(Gtk.Justification.LEFT);
 		this.textLabel.set_halign(Gtk.Align.START);
 		this.textLabel.set_valign(Gtk.Align.START);
