@@ -21,6 +21,7 @@ public class PhotoStream.App : Granite.Application
     public static string CACHE_HTML = "/usr/share/photostream/html/";
     public static List<MediaInfo> feedPosts;
     public bool isFeedLoaded = false;
+    public static bool isMainWindowShown = false;
     
     public Gtk.HeaderBar header;
 
@@ -87,6 +88,7 @@ public class PhotoStream.App : Granite.Application
 
 	protected override void activate () 
 	{
+        isMainWindowShown = true;
         if (get_windows() == null) 
         { 
             isPageLoaded = new Gee.HashMap<string, bool>(); 
@@ -785,7 +787,8 @@ public class PhotoStream.App : Granite.Application
             foreach(NewsBox newsBox in newsList.boxes)
                 connectNewsBoxHandlers(newsBox);
 
-            this.mainWindow.show_all();
+            if (isMainWindowShown)
+                this.mainWindow.show_all();
             displayNewsNotifications(userNews);
             return false;
         });
@@ -821,7 +824,8 @@ public class PhotoStream.App : Granite.Application
                     return 0;
                 });               
 
-                this.mainWindow.show_all();
+                if (isMainWindowShown)
+                    this.mainWindow.show_all();
 
                 return false;
             });
@@ -853,7 +857,8 @@ public class PhotoStream.App : Granite.Application
                 newsList.append(element);
                 connectNewsBoxHandlers(newsList.boxes.last().data);         
 
-                this.mainWindow.show_all();               
+                if (isMainWindowShown)
+                    this.mainWindow.show_all();               
             }     
             newList.reverse();
             displayNewsNotifications(newList);
@@ -956,7 +961,8 @@ public class PhotoStream.App : Granite.Application
         }
         box.pack_start(bar, false, true);
         bar.response.connect(this.response);
-        mainWindow.show_all ();
+        if (isMainWindowShown)
+            mainWindow.show_all ();
     }
     public void setHeader()
     {
@@ -1105,7 +1111,8 @@ public class PhotoStream.App : Granite.Application
                 return false;
             });
 
-            mainWindow.show_all();
+            if (isMainWindowShown)
+                mainWindow.show_all();
             isFeedLoaded = true;
 
             return false;
@@ -1234,5 +1241,5 @@ public class PhotoStream.App : Granite.Application
             break;
 
         }        
-    }   
+    }      
 }

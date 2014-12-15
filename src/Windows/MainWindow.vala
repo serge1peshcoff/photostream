@@ -46,4 +46,10 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         this.set_resizable(false);
 
 	}    
+    public override bool delete_event(Gdk.EventAny event)
+    {
+        this.hide();
+        PhotoStream.App.isMainWindowShown = false;
+        return true;
+    }  
 }
