@@ -167,15 +167,15 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 			usersOnPhoto = new List<Gtk.Popover>();
 			foreach (TaggedUser userInPhoto in post.taggedUsers)
 			{
-				Gtk.Box tmpBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
-				imageBox.put(tmpBox, (int)(userInPhoto.x * IMAGE_SIZE), (int)(userInPhoto.y * IMAGE_SIZE));
+				//Gtk.Box tmpBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+				//imageBox.put(tmpBox, (int)(userInPhoto.x * IMAGE_SIZE), (int)(userInPhoto.y * IMAGE_SIZE));
 
 				//Gtk.Popover userPopover = new Gtk.Popover(tmpBox);
-				Gtk.Button userPopover = new Gtk.Button.with_label(userInPhoto.user.username);
+				//Gtk.Button userPopover = new Gtk.Button.with_label(userInPhoto.user.username);
 				//userPopover.add(new Gtk.Label(userInPhoto.user.username));
 				//userPopover.set_modal(false);
 				//this.usersOnPhoto.append(userPopover);
-				tmpBox.add(userPopover);
+				//tmpBox.add(userPopover);
 
 			}
 		}

@@ -79,6 +79,11 @@ namespace PhotoStream.Utils
 		public string tag;
 		public int64 mediaCount;
 	}
+	public class HistoryEntry
+	{
+		public string type;
+		public string id;
+	}
 }
 
 class PhotoStream.MediaType

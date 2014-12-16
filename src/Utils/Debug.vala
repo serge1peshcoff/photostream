@@ -93,3 +93,17 @@ public void printActivity(NewsActivity activity)
     print("Date: %" + uint64.FORMAT_MODIFIER + "d\n", activity.time);
     print("Comment: %s\n\n", activity.comment);
 }
+
+public void printHistory (List<HistoryEntry> history)
+{
+    print("===\n");
+    foreach(HistoryEntry entry in history)
+        printHistoryEntry(entry);
+    print("===\n");
+}
+
+public void printHistoryEntry (HistoryEntry entry)
+{
+    print("Type: %s\n", entry.type);
+    print("Id: %s\n", entry.id);
+}

@@ -25,6 +25,8 @@ public class PhotoStream.App : Granite.Application
     
     public Gtk.HeaderBar header;
 
+    public Gtk.ToolButton backButton;
+
     public Gtk.ToggleToolButton feedButton;
     public Gtk.ToggleToolButton searchButton;
     public Gtk.ToggleToolButton photoButton;
@@ -65,6 +67,8 @@ public class PhotoStream.App : Granite.Application
 
     private bool headersCallbacksSet = false;
 
+    public GLib.List<HistoryEntry> history;
+
     construct {
         program_name        = "PhotoStream";
         exec_name           = "photostream";
@@ -97,6 +101,8 @@ public class PhotoStream.App : Granite.Application
             isPageLoaded["user"] = false;
             isPageLoaded["feed"] = false;
             isPageLoaded["tagFeed"] = false;
+
+            history = new GLib.List<HistoryEntry>();
 
             REFRESH_INTERVAL = loadRefreshInterval();
 
@@ -349,6 +355,7 @@ public class PhotoStream.App : Granite.Application
             tagFeedBox.loadFeed(tagFeedReceived);
 
             isPageLoaded["tagFeed"] = true;
+            addHistoryEntry("tag", tagName);
 
             switchWindow("tagFeed");
             this.stack.show_all();
@@ -410,7 +417,9 @@ public class PhotoStream.App : Granite.Application
                 postList.boxes.last().data.loadImage();
                 return 0;
             });  
-            connectPostBoxHandlers(postList.boxes.last().data);          
+            connectPostBoxHandlers(postList.boxes.last().data);   
+
+            addHistoryEntry("post", id);       
 
             switchWindow("post");
             this.stack.show_all();
@@ -464,6 +473,8 @@ public class PhotoStream.App : Granite.Application
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
+
+            addHistoryEntry("location", locationId.to_string());
 
             switchWindow("location");
             this.stack.show_all();
@@ -530,6 +541,8 @@ public class PhotoStream.App : Granite.Application
                     });
             }
 
+            addHistoryEntry("comments", postId);
+
             commentsList.postId = postId;
             switchWindow("comments");
             return false;
@@ -572,6 +585,7 @@ public class PhotoStream.App : Granite.Application
                 userList.prepend(user);
 
             isPageLoaded["user"] = true;
+            addHistoryEntry(type, postId);
         
             switchWindow("userList");
             this.box.show_all();   
@@ -658,6 +672,8 @@ public class PhotoStream.App : Granite.Application
         User user = new User();
         bool isPrivate = false;
         Relationship relationship = null;
+
+        addHistoryEntry("user", id);
 
         try
         {
@@ -768,6 +784,8 @@ public class PhotoStream.App : Granite.Application
         // if we got here then we've got no errors, yay!
         if(bar.is_ancestor(box))
             box.remove(bar); 
+
+        addHistoryEntry("feed", "");
 
         new Thread<int>("", setFeedWidgets);      
         return 0;
@@ -970,6 +988,11 @@ public class PhotoStream.App : Granite.Application
         header.set_show_close_button (true);
         this.mainWindow.set_titlebar (header);
 
+        backButton = new Gtk.ToolButton(new Gtk.Image.from_icon_name ("back", Gtk.IconSize.LARGE_TOOLBAR), "Go back");
+        backButton.set_tooltip_text ("Go back");
+        backButton.set_sensitive (false);
+        this.header.pack_start(backButton);
+
         Gtk.Box centered_toolbar = new Gtk.Box (Gtk.Orientation.HORIZONTAL, 0);
 
         feedButton = new Gtk.ToggleToolButton ();
@@ -1027,24 +1050,29 @@ public class PhotoStream.App : Granite.Application
             else
                 switchWindow("loading");
             uncheckButtonsExcept("feed");
+            addHistoryEntry("feed", "");
         });
 
         searchButton.clicked.connect(() => {
             switchWindow("search");
+            addHistoryEntry("search", "");
             uncheckButtonsExcept("search");
         });
 
         photoButton.clicked.connect(() => {
             uncheckButtonsExcept("photo");
+            //addHistoryEntry("photo", "");
         });
 
         newsButton.clicked.connect(() => {
             switchWindow("news");
+            addHistoryEntry("news", "");
             uncheckButtonsExcept("news");
         });        
 
         userButton.clicked.connect(() => {
             uncheckButtonsExcept("self");
+            addHistoryEntry("user", selfUser.id);
             if (isPageLoaded["feed"])
                 new Thread<int>("", () => {
                     loadUser(selfUser.id);
@@ -1052,6 +1080,9 @@ public class PhotoStream.App : Granite.Application
                 }); 
             else
                 switchWindow("loading");             
+        });
+        backButton.clicked.connect(() => {
+            stepBackHistory();
         });
 
         headersCallbacksSet = true;
@@ -1241,5 +1272,66 @@ public class PhotoStream.App : Granite.Application
             break;
 
         }        
-    }      
+    }  
+    public void addHistoryEntry(string type, string id)
+    {
+        if (history.length() != 0 && history.last().data.type == type && history.last().data.id == id)
+            return;
+
+        var entry = new HistoryEntry();
+        entry.type = type;
+        entry.id = id;
+        history.append(entry);
+
+        printHistory(history);
+
+        if (this.history.length() > 1)
+            this.backButton.set_sensitive(true);
+    } 
+    public void stepBackHistory()
+    {
+        var lastEntry = history.last().data;
+        history.remove(lastEntry);
+
+        if (history.length() <= 1)
+            this.backButton.set_sensitive(false);
+
+
+        var lastEntryType = history.last().data.type;
+        var lastEntryId = history.last().data.id;
+        
+
+        switch (lastEntryType)
+        {
+            case "user":
+                new Thread<int>("", () => {
+                    loadUser(lastEntryId);
+                    return 0;
+                });
+                break;
+            case "likes":
+            case "follows":
+            case "followers":
+                new Thread<int>("", () => {
+                    loadUsers(lastEntryId, lastEntryType);
+                    return 0;
+                });
+                break;
+            case "comments":
+                new Thread<int>("", () => {
+                    loadComments(lastEntryId);
+                    return 0;
+                });
+                break;
+            case "feed":
+                switchWindow("userFeed");
+                break;
+            case "news":
+                switchWindow("news");
+                break;
+            default:
+                error("Should've not reached here: %s", lastEntryType);
+        }
+
+    }   
 }
