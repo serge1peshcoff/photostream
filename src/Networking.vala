@@ -279,3 +279,70 @@ public string resolveHost()
     apiAddress.resolve_sync();
     return apiAddress.get_physical();
 }
+
+public string postPicture(string fileUrl)
+{
+    var url = "http://i.instagram.com/api/v1/upload/photo";
+    var boundary = "7qkvEgAJ8y7NzsBpKQ0Y8BsfJLse2C";
+
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("POST", url);  
+    session.user_agent = "Instagram 6.11.2 Android (15/4.0.4; 240dpi; 480x800; HTC/htc_wwe; HTC Incredible S; vivo; vivo; en_US)";  
+
+    var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
+    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+
+    message.request_headers.append("Content-Type", "multipart/form-data; boundary=" + boundary);
+    message.request_headers.append("Host", "i.instagram.com");
+    message.request_headers.append("X-IG-Connection-Type", "USBNET");
+    message.request_headers.append("X-IG-Capabilities", "AQ");
+    message.request_headers.append("Accept-Encoding", "gzip");
+
+    var cookies = cookieJarText.all_cookies();
+    string csrftoken = "";
+
+    foreach (Soup.Cookie cookie in cookies)
+        if (cookie.get_name() == "csrftoken")
+        {
+            csrftoken = cookie.get_value();
+            break; // don't ask.
+        }
+
+    string request = "";
+    request += "--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"_csrftoken\"\r\n\r\n";
+    request += csrftoken;
+    request += "\r\n--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"upload_id\"\r\n\r\n";
+    request += "1418503191214";
+    request += "\r\n--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"photo\"; filename=\"file\"\r\n";
+    request += "Content-Type: application/octet-stream\r\n";
+    request += "Content-Transfer-Encoding: binary\r\n\r\n";
+    uint8[] requestString = request.data;
+
+    var file = File.new_for_path (fileUrl);
+
+    if (!file.query_exists ())
+        error("File '%s' doesn't exist.\n", file.get_path ());
+
+    try 
+    {
+        var dis = new DataInputStream (file.read ());
+        int64 size = file.query_info ("*", FileQueryInfoFlags.NONE).get_size();
+        for (int64 i = 0; i < size; i++)
+            requestString += dis.read_byte();
+    } 
+    catch (Error e) 
+    {
+        error ("%s", e.message);
+    }
+
+    print((string)requestString + "\n");
+
+
+    message.request_body.append_take(requestString);
+    session.send_message (message);
+
+    return (string)message.response_body.data;
+}

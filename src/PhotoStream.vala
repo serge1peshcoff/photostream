@@ -26,6 +26,11 @@ public class PhotoStream.App : Granite.Application
     public Gtk.HeaderBar header;
 
     public Gtk.ToolButton backButton;
+    public Gtk.MenuButton settingsButton;
+
+    public Gtk.Menu menu;
+    public Gtk.MenuItem aboutMenuItem;
+    public Gtk.MenuItem quitMenuItem;
 
     public Gtk.ToggleToolButton feedButton;
     public Gtk.ToggleToolButton searchButton;
@@ -87,7 +92,7 @@ public class PhotoStream.App : Granite.Application
 
     public App()
     {
-        GLib.Object(application_id: this.application_id, flags: ApplicationFlags.HANDLES_OPEN);
+        //this.create_appmenu(new Gtk.Menu());
     }
 
 	protected override void activate () 
@@ -988,7 +993,7 @@ public class PhotoStream.App : Granite.Application
         header.set_show_close_button (true);
         this.mainWindow.set_titlebar (header);
 
-        backButton = new Gtk.ToolButton(new Gtk.Image.from_icon_name ("back", Gtk.IconSize.LARGE_TOOLBAR), "Go back");
+        backButton = new Gtk.ToolButton(new Gtk.Image.from_icon_name ("go-previous", Gtk.IconSize.LARGE_TOOLBAR), "Go back");
         backButton.set_tooltip_text ("Go back");
         backButton.set_sensitive (false);
         this.header.pack_start(backButton);
@@ -1031,6 +1036,19 @@ public class PhotoStream.App : Granite.Application
         centered_toolbar.add (searchButton);     
 
         header.set_custom_title (centered_toolbar);
+
+        menu = new Gtk.Menu();
+        aboutMenuItem = new Gtk.MenuItem.with_label("About...");
+        quitMenuItem = new Gtk.MenuItem.with_label("Quit");
+        menu.add(aboutMenuItem);
+        menu.add(quitMenuItem);
+        this.menu.show_all();
+
+        settingsButton = new Gtk.MenuButton();
+        settingsButton.set_relief (Gtk.ReliefStyle.NONE);
+        settingsButton.set_tooltip_text ("Settings");
+        settingsButton.set_popup(menu);
+        this.header.pack_end(settingsButton);
     }
 
     public void setHeaderCallbacks()
@@ -1083,6 +1101,13 @@ public class PhotoStream.App : Granite.Application
         });
         backButton.clicked.connect(() => {
             stepBackHistory();
+        });
+
+        aboutMenuItem.activate.connect(() => {
+            show_about(this.mainWindow);
+        });
+        quitMenuItem.activate.connect(() => {
+            this.mainWindow.destroy();
         });
 
         headersCallbacksSet = true;
@@ -1144,7 +1169,7 @@ public class PhotoStream.App : Granite.Application
 
             if (isMainWindowShown)
                 mainWindow.show_all();
-            isFeedLoaded = true;
+            isFeedLoaded = true;            
 
             return false;
         });
@@ -1283,8 +1308,6 @@ public class PhotoStream.App : Granite.Application
         entry.id = id;
         history.append(entry);
 
-        printHistory(history);
-
         if (this.history.length() > 1)
             this.backButton.set_sensitive(true);
     } 
@@ -1325,6 +1348,9 @@ public class PhotoStream.App : Granite.Application
                 break;
             case "feed":
                 switchWindow("userFeed");
+                break;
+            case "search":
+                switchWindow("search");
                 break;
             case "news":
                 switchWindow("news");
