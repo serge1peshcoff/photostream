@@ -395,6 +395,9 @@ public class PhotoStream.App : Granite.Application
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
 
+            foreach(PostBox box in tagFeedBox.hashtagFeed.boxes)
+                connectPostBoxHandlers(box);
+
             isPageLoaded["tagFeed"] = true;
             addHistoryEntry("tag", tagName);
 
@@ -514,6 +517,9 @@ public class PhotoStream.App : Granite.Application
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
+
+            foreach(PostBox box in locationFeedBox.locationFeed.boxes)
+                connectPostBoxHandlers(box);
 
             addHistoryEntry("location", locationId.to_string());
 
@@ -1347,6 +1353,8 @@ public class PhotoStream.App : Granite.Application
         entry.id = id;
         history.append(entry);
 
+        printHistory(history);
+
         if (this.history.length() > 1)
             this.backButton.set_sensitive(true);
     } 
@@ -1357,7 +1365,6 @@ public class PhotoStream.App : Granite.Application
 
         if (history.length() <= 1)
             this.backButton.set_sensitive(false);
-
 
         var lastEntryType = history.last().data.type;
         var lastEntryId = history.last().data.id;
@@ -1376,6 +1383,7 @@ public class PhotoStream.App : Granite.Application
             case "followers":
                 new Thread<int>("", () => {
                     loadUsers(lastEntryId, lastEntryType);
+                    return 0;
                 });
                 break;
             case "comments":
@@ -1390,6 +1398,12 @@ public class PhotoStream.App : Granite.Application
             case "tag":
                 new Thread<int>("", () => {
                     loadTag(lastEntryId);
+                    return 0;
+                });
+                break;
+            case "location":
+                new Thread<int>("", () => {
+                    loadLocation(int64.parse(lastEntryId));
                     return 0;
                 });
                 break;
