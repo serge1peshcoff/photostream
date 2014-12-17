@@ -275,27 +275,42 @@ public class PhotoStream.App : Granite.Application
         switch(uri[0])
         {
             case '#': // hashtag, stub
-            new Thread<int>("", () => {
-                loadTag(uri.substring(1, uri.length - 1));
-                return 0;
-            });
-            break;
+                new Thread<int>("", () => {
+                    loadTag(uri.substring(1, uri.length - 1));
+                    return 0;
+                });
+                break;
             case '@': // username
-            new Thread<int>("", () => {
-                loadUserFromUsername(uri.substring(1, uri.length - 1));
-                return 0;
-            });
-            break;
+                new Thread<int>("", () => {
+                    loadUserFromUsername(uri.substring(1, uri.length - 1));
+                    return 0;
+                });
+                break;
             default: // apparently this is URL
-            Regex protocolRegex = new Regex("/^[a-zA-Z]+://");
-            if (!protocolRegex.match(uri))
-            {
-                string newUri = "http://" + uri;
-                Gtk.show_uri(null, newUri, Gdk.CURRENT_TIME); 
-                return true; // overwriting default behaviour because I can't change uri, so need to open a new uri with http:// at the beginning.
-            }
-            else
-                return false;   
+                Regex protocolRegex;
+                try
+                {
+                   protocolRegex = new Regex("/^[a-zA-Z]+://");
+                } 
+                catch (Error e)
+                {
+                    error("Something wrong with regexes: %s", e.message);
+                }
+                if (!protocolRegex.match(uri))
+                {
+                    string newUri = "http://" + uri;
+                    try
+                    {
+                        Gtk.show_uri(null, newUri, Gdk.CURRENT_TIME); 
+                    }
+                    catch (Error e)
+                    {
+                        error("Something wrong with url showing: %s", e.message);
+                    }
+                    return true; // overwriting default behaviour because I can't change uri, so need to open a new uri with http:// at the beginning.
+                }
+                else
+                    return false;   
         }
         return true; // if removed, the compiler complaints
     }

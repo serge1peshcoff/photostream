@@ -52,10 +52,17 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 
 			    session.send_message (message);
 
-			    var token = parseToken((string)message.response_body.data);			    
+			    string token;
+			    try
+			    {
+			    	token = parseToken((string)message.response_body.data);		
+			    }
+			    catch (Error e)
+			    {
+			    	error("Something wrong with received token: %s", e.message);
+			    }	    
 
-            	var settings = new GLib.Settings ("tk.itprogramming1.photostream");
-            	settings.set_string("token", token);
+            	setToken(token);
 
             	this.close();
             }

@@ -14,6 +14,12 @@ public string loadToken()
     return token;
 }
 
+public void setToken(string token)
+{
+    var settings = new GLib.Settings ("tk.itprogramming1.photostream");
+    settings.set_string("token", token);
+} 
+
 public string loadAddress()
 {        
     Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
