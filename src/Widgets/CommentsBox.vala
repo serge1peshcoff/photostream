@@ -13,6 +13,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	public Gtk.EventBox avatarBox;
 	public Gtk.EventBox textEventBox;
 	public Gtk.Image avatar;
+	public Gtk.ToolButton removeCommentButton;
 	public int AVATAR_SIZE = 35;
 
 	public CommentBox(Comment comment, bool withAvatar)
@@ -21,7 +22,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 		this.comment = comment;
 
-		this.textAlignment = new Gtk.Alignment (0,1,1,1);
+		this.textAlignment = new Gtk.Alignment (0,0.5f,1,0);
         this.textAlignment.top_padding = 1;
         this.textAlignment.right_padding = 0;
         this.textAlignment.bottom_padding = 1;
@@ -92,10 +93,17 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 				});
 			}
 		}
+
+		this.removeCommentButton = new Gtk.ToolButton(new Gtk.Image.from_icon_name ("dialog-cancel", Gtk.IconSize.LARGE_TOOLBAR), "Go back");
+
+
 		textBox.add(textLabel);
 		textEventBox.add(textBox);
 		textAlignment.add(textEventBox);		
-		this.pack_end(textAlignment, false, true);
+		this.add(textAlignment);
+		if (PhotoStream.App.selfUser.id == comment.user.id)
+			this.pack_end(removeCommentButton, false, true);
+		this.set_size_request(625, -1);
 
 		this.show_all();
 	}

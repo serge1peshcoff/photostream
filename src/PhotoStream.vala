@@ -1115,11 +1115,14 @@ public class PhotoStream.App : Granite.Application
 
     public void uncheckButtonsExcept(string notUncheck)
     {
-        //feedButton.active = (notUncheck == "feed");
-        //userButton.active = (notUncheck == "self");
-        //photoButton.active = (notUncheck == "photo");
-        //searchButton.active = (notUncheck == "explore");
-        //newsButton.active = (notUncheck == "news");
+        Idle.add(() => {
+            //feedButton.active = (notUncheck == "feed");
+            //userButton.active = (notUncheck == "self");
+            //photoButton.active = (notUncheck == "photo");
+            //searchButton.active = (notUncheck == "search");
+            //newsButton.active = (notUncheck == "news");
+            return false;
+        });
     }
 
     public int setFeedWidgets()

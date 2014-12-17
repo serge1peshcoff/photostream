@@ -151,9 +151,8 @@ public string postComment(string id, string comment)
 }
 public string deleteComment(string mediaId, string commentId)
 {
-    var ip = loadAddress();
     var session = new Soup.Session ();
-    var message = new Soup.Message ("DELETE", "https://" + ip + "/v1/media/" 
+    var message = new Soup.Message ("DELETE", "https://api.instagram.com/v1/media/" 
                     + mediaId + "/comments/" + commentId + "?access_token=" + PhotoStream.App.appToken);
     message.request_headers.append("Host", "api.instagram.com");
 

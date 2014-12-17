@@ -64,6 +64,12 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public void append(Comment post)
 	{
 		CommentBox box = new CommentBox(post, loadAvatars);
+		box.removeCommentButton.clicked.connect(() => {
+			new Thread<int>("", () => {
+				removeComment(box);
+				return 0;
+			});			
+		});
 		base.prepend(box);
 		comments.append(box);
 		commentsPosted++;
@@ -76,6 +82,12 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public new void prepend(Comment post)
 	{
 		CommentBox box = new CommentBox(post, loadAvatars);	
+		box.removeCommentButton.clicked.connect(() => {
+			new Thread<int>("", () => {
+				removeComment(box);
+				return 0;
+			});			
+		});
 		base.insert (box, commentsPosted);
 		comments.append(box);
 		commentsPosted++;
@@ -107,7 +119,10 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		if (commentBox.get_text().strip() == "")
 			return;
 
-		string response = postComment(postId, commentBox.get_text());
+		string commentContains = commentBox.get_text();
+		commentBox.set_text("");
+
+		string response = postComment(postId, commentContains);
 		Comment commentReply;
 		try
 		{
@@ -121,6 +136,29 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		Idle.add(() => {
 			this.prepend(commentReply);
 			this.show_all();
+			return false;
+		});
+	}
+	public void removeComment(CommentBox box)
+	{
+		string response = deleteComment(postId, box.comment.id);
+		try
+		{
+			parseErrors(response);
+		}
+		catch (Error e)
+		{
+			error("Something wrong with JSON parsing.");
+		}
+
+		Idle.add(() => {
+			foreach (var child in this.get_children())
+				if ((CommentBox)((Gtk.ListBoxRow)child).get_child() == box)
+				{
+					((Gtk.ListBoxRow)child).remove(box);
+					break;
+				}
+			comments.remove(box);
 			return false;
 		});
 	}

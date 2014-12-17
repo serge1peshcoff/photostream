@@ -348,3 +348,12 @@ public Relationship parseRelationship(string message) throws Error
 
     return relationship;
 }
+
+public void parseErrors(string message) throws Error
+{
+    var parser = new Json.Parser ();
+    tryLoadMessage(parser, message);
+
+    var root_object = parser.get_root().get_object();
+    checkErrors(root_object);
+}

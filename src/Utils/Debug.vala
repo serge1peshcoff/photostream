@@ -51,16 +51,8 @@ public void printPost(MediaInfo post)
 
     print("\nComments:\n ");
     foreach (Comment comment in post.comments)
-    {
-        print("\tCreation time: %" + uint64.FORMAT_MODIFIER + "d\n", comment.creationTime);
-        print("\tText: %s\n", comment.text);      
-        print("\tComment ID: %" + uint64.FORMAT_MODIFIER + "d\n", comment.id);
-        print("\tUser:\n");
-        print("\t\tusername: %s\n", comment.user.username);
-        print("\t\tprofilePicture: %s\n", comment.user.profilePicture);
-        print("\t\tid: %" + uint64.FORMAT_MODIFIER + "d\n", comment.user.id);
-        print("\t\tfullName: %s\n\n", comment.user.fullName);
-    }
+        printComment(comment);
+
     print("Filter: %s\n", post.filter);
     print("Creation time: %" + uint64.FORMAT_MODIFIER + "d\n", post.creationTime);
     print("Tagged users: \n");
@@ -76,6 +68,18 @@ public void printPost(MediaInfo post)
 
     print("id: %s\n", post.id);
     print("didILikeThis: %s\n\n", post.didILikeThis ? "true" : "false");
+}
+
+public void printComment(Comment comment)
+{
+    print("\tCreation time: %" + uint64.FORMAT_MODIFIER + "d\n", comment.creationTime);
+    print("\tText: %s\n", comment.text);      
+    print("\tComment ID: %" + uint64.FORMAT_MODIFIER + "d\n", comment.id);
+    print("\tUser:\n");
+    print("\t\tusername: %s\n", comment.user.username);
+    print("\t\tprofilePicture: %s\n", comment.user.profilePicture);
+    print("\t\tid: %" + uint64.FORMAT_MODIFIER + "d\n", comment.user.id);
+    print("\t\tfullName: %s\n\n", comment.user.fullName);
 }
 
 public void printActivityList(List<NewsActivity> activityList)
