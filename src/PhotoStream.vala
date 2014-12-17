@@ -1376,7 +1376,6 @@ public class PhotoStream.App : Granite.Application
             case "followers":
                 new Thread<int>("", () => {
                     loadUsers(lastEntryId, lastEntryType);
-                    return 0;
                 });
                 break;
             case "comments":
@@ -1387,6 +1386,12 @@ public class PhotoStream.App : Granite.Application
                 break;
             case "feed":
                 switchWindow("userFeed");
+                break;
+            case "tag":
+                new Thread<int>("", () => {
+                    loadTag(lastEntryId);
+                    return 0;
+                });
                 break;
             case "search":
                 switchWindow("search");
