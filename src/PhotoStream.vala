@@ -6,6 +6,7 @@ public class PhotoStream.App : Granite.Application
 {
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
+    public SettingsWindow settingsWindow;
     public static string appToken = "";
     public const string REDIRECT_URI = "http://www.google.com/photostream";
     public const string CLIENT_ID = "e139a947d6de45a88297366282c27137";
@@ -29,6 +30,7 @@ public class PhotoStream.App : Granite.Application
     public Gtk.MenuButton settingsButton;
 
     public Gtk.Menu menu;
+    public Gtk.MenuItem settingsMenuItem;
     public Gtk.MenuItem aboutMenuItem;
     public Gtk.MenuItem quitMenuItem;
 
@@ -289,6 +291,14 @@ public class PhotoStream.App : Granite.Application
         this.loginWindow.show_all ();
         this.loginWindow.destroy.connect(tryLogin);
         this.loginWindow.set_application(this);
+    }
+
+    public void setSettingsWindow()
+    {
+        this.settingsWindow = new SettingsWindow ();
+
+        this.settingsWindow.show_all ();
+        this.settingsWindow.set_application(this);
     }
 
     public bool handleUris(string uri)
@@ -1080,8 +1090,11 @@ public class PhotoStream.App : Granite.Application
         header.set_custom_title (centered_toolbar);
 
         menu = new Gtk.Menu();
+        settingsMenuItem = new Gtk.MenuItem.with_label("Settings...");
         aboutMenuItem = new Gtk.MenuItem.with_label("About...");
         quitMenuItem = new Gtk.MenuItem.with_label("Quit");
+        menu.add(settingsMenuItem);
+        menu.add(new Gtk.SeparatorMenuItem());
         menu.add(aboutMenuItem);
         menu.add(quitMenuItem);
         this.menu.show_all();
@@ -1145,6 +1158,9 @@ public class PhotoStream.App : Granite.Application
             stepBackHistory();
         });
 
+        settingsMenuItem.activate.connect(() => {
+            this.setSettingsWindow();
+        });
         aboutMenuItem.activate.connect(() => {
             show_about(this.mainWindow);
         });
@@ -1352,8 +1368,6 @@ public class PhotoStream.App : Granite.Application
         entry.type = type;
         entry.id = id;
         history.append(entry);
-
-        printHistory(history);
 
         if (this.history.length() > 1)
             this.backButton.set_sensitive(true);

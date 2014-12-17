@@ -30,6 +30,7 @@ set(CLIENT_SOURCE
     Windows/MediaWindow.vala
     Windows/MainWindow.vala
     Windows/LoginWindow.vala
+    Windows/SettingsWindow.vala
 )
 
 set (CLIENT_VALAC_OPTIONS
