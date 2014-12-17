@@ -247,6 +247,27 @@ public class PhotoStream.App : Granite.Application
         this.searchWindowBox.locationMapWindow.locationLoaded.connect((location) => {
             loadLocation(location.id);
         });
+        this.searchWindowBox.usersLoaded.connect(() => {
+            foreach (var box in searchWindowBox.userList.boxes)
+                box.userNameLabel.activate_link.connect(handleUris);
+        });
+        this.searchWindowBox.userAvatarLoaded.connect((box) => {
+            box.avatarBox.button_release_event.connect(() => {
+                loadUser(box.user.id, box.user);
+                return false;
+            });
+            box.avatarBox.enter_notify_event.connect((event) => {
+                event.window.set_cursor (
+                    new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+                );
+                return false;
+            }); 
+        });
+        this.searchWindowBox.tagsLoaded.connect(() => {
+            foreach (var box in searchWindowBox.tagList.boxes)
+                box.hashtagNameLabel.activate_link.connect(handleUris);
+        });
+
 
         this.postWindow = new Gtk.ScrolledWindow(null, null);
         this.postList = new PostList();

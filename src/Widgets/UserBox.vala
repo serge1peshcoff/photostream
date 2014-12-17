@@ -166,7 +166,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 	    	relationshipImage.clear();
 	}
 
-	   private void onHover(EventCrossing event)
+	private void onHover(EventCrossing event)
     {
     	event.window.set_cursor (
             new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")

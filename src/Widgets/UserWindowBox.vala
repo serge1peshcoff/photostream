@@ -215,9 +215,10 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
         string userNameString;
         if (user.fullName == "")
-        	userNameString = "<i>@" +  user.username + "</i>";
+        	userNameString = "<i>@" +  GLib.Markup.escape_text(user.username) + "</i>";
         else
-        	userNameString = "<span size=\"large\"><b>" + user.fullName + "</b></span> (<i>@" + user.username + "</i>)";
+        	userNameString = "<span size=\"large\"><b>" + GLib.Markup.escape_text(user.fullName)
+        					 + "</b></span> (<i>@" + GLib.Markup.escape_text(user.username) + "</i>)";
 
 		this.userName.set_markup(userNameString);
 

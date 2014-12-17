@@ -2,6 +2,11 @@ using PhotoStream.Utils;
 
 public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 {
+	public signal void usersLoaded();
+	public signal void userRelationshipLoaded(UserBox box);
+	public signal void userAvatarLoaded(UserBox box);
+	public signal void tagsLoaded();
+
 	public Gtk.Entry searchQuery;
 	public Gtk.Stack stack;
 
@@ -92,7 +97,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 				if (tagsRequest != usersRequest)
 				{
-					searchTag(usersRequest);
+					new Thread<int>("", () => {
+						searchTag(usersRequest);				
+						return 0;
+					});
 					tagsRequest = usersRequest;
 				}
 				else
@@ -105,7 +113,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 				if (tagsRequest != usersRequest)
 				{
-					searchUser(tagsRequest);
+					new Thread<int>("", () => {
+						searchUser(tagsRequest);				
+						return 0;
+					});
 					usersRequest = tagsRequest;
 				}
 				else
@@ -159,6 +170,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
         Idle.add(() => {
             stack.set_visible_child_name("loading");
+            this.show_all();
             return false;
         });
         string response = searchTags(tag);
@@ -183,6 +195,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             
             stack.set_visible_child_name("tags");
             this.show_all();
+
+            tagsLoaded();
             return false;
         });
         
@@ -193,6 +207,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
         Idle.add(() => {
             stack.set_visible_child_name("loading");
+            this.show_all();
             return false;
         });
         string response = searchUsers(username);
@@ -216,9 +231,14 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	        foreach(User userInList in userListRequested)
 	            userList.prepend(userInList);
 
+	        usersLoaded();
+
 	        new Thread<int>("", () => {                  
 	            foreach(UserBox userBox in userList.boxes)
-	                userBox.loadAvatar();                    
+	            {
+	                userBox.loadAvatar();  
+	                userAvatarLoaded(userBox);                  
+	            }
 	            return 0;
 	        });
 	        new Thread<int>("", () => {                  
@@ -243,6 +263,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
                     userBox.user.relationship = usersRelationship;
                     Idle.add(() => {
                         userBox.loadRelationship();
+                        userRelationshipLoaded(userBox);
                         return false;
                     });                 
 	            }
@@ -250,7 +271,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
         	}); 
 
             stack.set_visible_child_name("users"); 
-            this.show_all();
+            this.show_all();            
             return false;
         });
         
