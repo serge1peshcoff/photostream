@@ -84,6 +84,13 @@ namespace PhotoStream.Utils
 		public string type;
 		public string id;
 	}
+	public class Settings
+	{
+		public string email;
+		public string phoneNumber;
+		public string sex;
+		public bool recommend;
+	}
 }
 
 class PhotoStream.MediaType

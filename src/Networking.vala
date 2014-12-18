@@ -272,6 +272,18 @@ public string getUserNews()
     return (string) message.response_body.data;
 }
 
+public string getUserSettings()
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("GET", "http://instagram.com/accounts/edit");
+
+    var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
+    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+
+    session.send_message (message);
+    return (string) message.response_body.data;
+}
+
 public string resolveHost()
 {
     Soup.Address apiAddress = new Soup.Address("api.instagram.com", 443);

@@ -1245,7 +1245,6 @@ public class PhotoStream.App : Granite.Application
 
             return false;
         });
-
         
         return 0;
     } 

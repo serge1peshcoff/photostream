@@ -114,5 +114,51 @@ public Xml.Node* getChildWithClass(Xml.Node* node, string classNeeded)
 	}
 
 	return null;
+}
+public Xml.Node* getChildWithNameAttr(Xml.Node* node, string name)
+{
+	for (Xml.Node* iter = node->children; iter != null; iter = iter->next)
+		if (iter->get_prop("name") == name)
+			return iter;	
 
+	return null;
+
+}
+
+public PhotoStream.Utils.Settings parseSettings(string message)
+{
+	var settings = new PhotoStream.Utils.Settings();
+	string emailPattern = "<input type=\"email\" name=\"email\" value=\"";
+	string phonePattern = "<input type=\"tel\" name=\"phone_number\" value=\"";
+
+	var startIndex = message.index_of(emailPattern) + emailPattern.length;
+	var endIndex = message.index_of("\"", startIndex + 1);
+	settings.email = message.substring(startIndex, endIndex - startIndex);
+
+	startIndex = message.index_of(phonePattern) + phonePattern.length;
+	if (message.index_of(phonePattern) != -1) 
+	{
+		endIndex = message.index_of("\"", startIndex + 1);
+		settings.phoneNumber = message.substring(startIndex, endIndex - startIndex);
+	}
+	else // not found, means phone is not present
+		settings.phoneNumber = "";
+
+	if (message.index_of("<option value=\"1\" selected=\"selected\"") != -1) 
+		settings.sex = "male";
+	else if (message.index_of("<option value=\"2\" selected=\"selected\"") != -1) 
+		settings.sex = "female";
+	else
+		settings.sex = "";
+
+	if (message.index_of("id=\"chaining_enabled\"
+    checked") != -1)
+		settings.recommend = true;
+	else
+		settings.recommend = false;
+
+	//print(message.index_of("id=\"chaining_enabled\"").to_string() + "\n");
+	//print(message.substring(message.index_of("id=\"chaining_enabled\""), 50) + "\n");
+
+	return settings;
 }
