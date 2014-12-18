@@ -9,8 +9,10 @@ Uses libraries:
 * granite
 * libsoup - for networking stuff
 * json-glib - for parsing JSON data received through API
-* webkitgtk-3.0 - for logging in
-* libxml-2.0 - for parsing user news
+* webkit2gtk-4.0 - for logging in
+* libxml-2.0 - for parsing user news and settings
+
+webkit2gtk-4.0 which is in Ubuntu 14.04 repositories is too older, you need at least version 2.6.4, so you need to fetch the latest release from the http://webkitgtk.org/, download and compile it yourself.
 
 Inspired a lot by Birdie Twitter client.
 
