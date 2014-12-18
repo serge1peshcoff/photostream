@@ -287,9 +287,13 @@ public class PhotoStream.App : Granite.Application
     public void setLoginWindow()
     {
         this.loginWindow = new LoginWindow ();
+        bar.response.disconnect(this.response);
 
         this.loginWindow.show_all ();
-        this.loginWindow.destroy.connect(tryLogin);
+        this.loginWindow.destroy.connect(() => {
+            bar.response.connect(this.response);
+            tryLogin();
+        });
         this.loginWindow.set_application(this);
     }
 
@@ -299,6 +303,13 @@ public class PhotoStream.App : Granite.Application
 
         this.settingsWindow.show_all ();
         this.settingsWindow.set_application(this);
+        this.settingsWindow.destroy.connect(() => {
+            if(loadToken() == "") // user has logged off
+                Idle.add(() => {
+                    this.mainWindow.destroy();
+                    return false;
+                });                
+        });          
     }
 
     public bool handleUris(string uri)

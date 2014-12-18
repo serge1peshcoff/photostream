@@ -65,10 +65,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	{
 		CommentBox box = new CommentBox(post, loadAvatars);
 		box.removeCommentButton.clicked.connect(() => {
-			new Thread<int>("", () => {
-				removeComment(box);
-				return 0;
-			});			
+			removeComment(box);		
 		});
 		base.prepend(box);
 		comments.append(box);
@@ -83,10 +80,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	{
 		CommentBox box = new CommentBox(post, loadAvatars);	
 		box.removeCommentButton.clicked.connect(() => {
-			new Thread<int>("", () => {
-				removeComment(box);
-				return 0;
-			});			
+			removeComment(box);		
 		});
 		base.insert (box, commentsPosted);
 		comments.append(box);
@@ -139,7 +133,29 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 			return false;
 		});
 	}
-	public void removeComment(CommentBox box)
+
+	private void removeComment(CommentBox box)
+    {
+		Gtk.MessageDialog msg = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL, 
+												Gtk.MessageType.QUESTION, Gtk.ButtonsType.OK_CANCEL, 
+												"Are you sure you want to remove this comment: \n" + box.comment.text + "?");
+		msg.response.connect ((response_id) => {
+			bool allowedToUnfollow = (response_id == Gtk.ResponseType.OK);
+
+			msg.destroy();
+
+			if (!allowedToUnfollow)
+				return;
+			else
+				new Thread<int>("", () => {
+	        		removeCommentReally(box);
+	        		return 0;
+	        	});				
+		});
+		msg.show ();
+	}
+
+	public void removeCommentReally(CommentBox box)
 	{
 		string response = deleteComment(postId, box.comment.id);
 		try

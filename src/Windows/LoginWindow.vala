@@ -14,6 +14,10 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 											 + "&response_type=code";
 	private string HOST;
 
+	public Gtk.Spinner spinner;
+	public Gtk.Box box;
+	public Gtk.ScrolledWindow scrolledWindow;
+
 	public LoginWindow () 
 	{
 		this.set_default_size (800, 700);
@@ -38,33 +42,18 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
             
             if (host == this.HOST)
             {
-            	var session = new Soup.Session ();
-			    var message = new Soup.Message ("POST", "https://api.instagram.com/oauth/access_token");
+            	this.spinner = new Gtk.Spinner();
+            	spinner.start();            	
 
-			    uint8[] requestString = ("client_id=" + PhotoStream.App.CLIENT_ID 
-			    						 + "&client_secret=" + PhotoStream.App.CLIENT_SECRET
-			    						 + "&grant_type=authorization_code"
-			    						 + "&redirect_uri=" + PhotoStream.App.REDIRECT_URI
-			    						 + "&code=" + getCode(uri)).data;
+            	box.remove(scrolledWindow);
+            	box.pack_start(spinner, true, true);
 
-			    message.request_body.append_take(requestString);
-
-
-			    session.send_message (message);
-
-			    string token;
-			    try
-			    {
-			    	token = parseToken((string)message.response_body.data);		
-			    }
-			    catch (Error e)
-			    {
-			    	error("Something wrong with received token: %s", e.message);
-			    }	    
-
-            	setToken(token);
-
-            	this.close();
+            	this.show_all();
+            	
+            	new Thread<int>("", () => {
+            		confirmToken(uri);
+            		return 0;
+            	});
             }
         });
 
@@ -72,12 +61,12 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
             this.webView.load_uri(INSTAGRAM_AUTH);
         });			
 
-		var scrolled_window = new ScrolledWindow (null, null);
-		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
-        scrolled_window.add (this.webView);
+		scrolledWindow = new ScrolledWindow (null, null);
+		scrolledWindow.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
+        scrolledWindow.add (this.webView);
 
-        var box = new Box (Gtk.Orientation.VERTICAL, 0);       
-		box.pack_start (scrolled_window, true, true);
+        box = new Box (Gtk.Orientation.VERTICAL, 0);       
+		box.pack_start (scrolledWindow, true, true);
         add (box); 
 	}
 	public string getHost(string uri)
@@ -91,5 +80,36 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 	{
 		var indexStart = uri.index_of("=") + 1;
 		return uri.substring(indexStart, uri.length - indexStart);
+	}
+
+	public void confirmToken(string uri)
+	{
+		var session = new Soup.Session ();
+	    var message = new Soup.Message ("POST", "https://api.instagram.com/oauth/access_token");
+
+	    uint8[] requestString = ("client_id=" + PhotoStream.App.CLIENT_ID 
+	    						 + "&client_secret=" + PhotoStream.App.CLIENT_SECRET
+	    						 + "&grant_type=authorization_code"
+	    						 + "&redirect_uri=" + PhotoStream.App.REDIRECT_URI
+	    						 + "&code=" + getCode(uri)).data;
+
+	    message.request_body.append_take(requestString);
+	    session.send_message (message);
+
+	    string token;
+	    try
+	    {
+	    	token = parseToken((string)message.response_body.data);		
+	    }
+	    catch (Error e)
+	    {
+	    	error("Something wrong with received token: %s", e.message);
+	    }	    
+
+	    Idle.add(() => {
+	    	setToken(token);
+	    	this.close();
+	    	return false;
+	    });    	
 	}
 }

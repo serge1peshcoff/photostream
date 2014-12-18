@@ -11,8 +11,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 	public Gtk.Stack settingsStack;
 
-
-
 	public SettingsWindow () 
 	{
 		this.set_title("Settings");
@@ -28,6 +26,9 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.manageAppsItem = new Granite.Widgets.SourceList.Item("Manage applications");
 		this.logOutItem = new Granite.Widgets.SourceList.Item("Log out");
 
+		logOutItem.activated.connect(() => {
+			logOutConfirm();
+		});
 
 		pane = new Granite.Widgets.ThinPaned();
 		sourceList = new Granite.Widgets.SourceList();
@@ -41,5 +42,41 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		pane.pack1 (sourceList, false, false);
 		pane.pack2 (settingsStack, true, false);
 		this.add(pane);	
+	}
+
+	public void logOutConfirm()
+	{
+		Gtk.MessageDialog msg = new Gtk.MessageDialog (null, Gtk.DialogFlags.MODAL, 
+													Gtk.MessageType.QUESTION, Gtk.ButtonsType.OK_CANCEL, 
+													"Are you sure you want to log out?");
+		msg.response.connect ((response_id) => {
+			bool allowedToUnfollow = (response_id == Gtk.ResponseType.OK);
+
+			msg.destroy();
+
+			if (!allowedToUnfollow)
+				return;
+			else
+				new Thread<int>("", () => {
+	        		logOut();
+	        		return 0;
+	        	});				
+		});
+		msg.show ();
+	}
+
+	public void logOut()
+	{
+		setToken("");
+		File file = File.new_for_path(PhotoStream.App.CACHE_URL + "cookie.txt"); 
+		try
+		{
+			file.delete();
+		}
+		catch (Error e)
+		{
+			error("Something wrong with file removing: %s", e.message);
+		}
+		this.destroy();
 	}
 }
