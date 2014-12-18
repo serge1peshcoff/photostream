@@ -39,7 +39,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Gtk.Entry username;
 	public Gtk.Entry phoneNumber;
 	public Gtk.ComboBox sex;
-	public Gtk.Entry about;
+	public Gtk.TextView about;
 	public Gtk.Entry website;
 	public Gtk.CheckButton recommend; 
 	public Gtk.Button sumbitSettingsButton;
@@ -128,9 +128,15 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		sex.add_attribute (renderer, "text", 0);
 		sex.active = 0;
 
-		this.about = new Gtk.Entry();
+		this.about = new Gtk.TextView();
 		this.website = new Gtk.Entry();
 		this.recommend = new Gtk.CheckButton();
+
+		Gtk.Allocation allocation;
+		this.fullNameLabel.get_allocation(out allocation);
+		this.about.set_size_request(650 - allocation.width, 100); // to fill all entries
+		this.about.set_editable(true);
+
 
 		fullNameAlignment.add(fullName);
 		emailAlignment.add(email);
@@ -190,7 +196,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         Idle.add(() => {
         	this.fullName.set_text(PhotoStream.App.selfUser.fullName);
         	this.username.set_text(PhotoStream.App.selfUser.username);
-        	this.about.set_text(PhotoStream.App.selfUser.bio);
+        	this.about.buffer.text = PhotoStream.App.selfUser.bio;
         	this.website.set_text(PhotoStream.App.selfUser.website);
         	this.email.set_text(settingsParsed.email);
         	this.phoneNumber.set_text(settingsParsed.phoneNumber);

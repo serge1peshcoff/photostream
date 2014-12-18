@@ -24,10 +24,16 @@ public class PhotoStream.Widgets.NewsList : Gtk.ListBox
 	public bool contains (NewsActivity activity)
 	{
 		foreach (NewsBox activityInList in boxes)
-			if (activityInList.activity.time == activity.time
+		{
+			//print("%s vs %s, %s vs %s, %s vs %s\n", 
+			//	activityInList.activity.time.to_string(),  activity.time.to_string(), 
+			//	activityInList.activity.username, activity.username, 
+			//	activityInList.activity.activityType, activity.activityType);
+			if (activityInList.activity.time.to_string() == activity.time.to_string()
 				&& activityInList.activity.username == activity.username
 				&& activityInList.activity.activityType == activity.activityType)
 				return true;
+		}
 
 		return false;
 	}

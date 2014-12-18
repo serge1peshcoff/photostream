@@ -1128,7 +1128,9 @@ public class PhotoStream.App : Granite.Application
         newsButton.set_sensitive (true);
         userButton.set_sensitive (true);
 
-        feedButton.clicked.connect(() => {
+        feedButton.toggled.connect(() => {
+            if (!feedButton.get_active())
+                return;
             if (isPageLoaded["feed"])
                 switchWindow("userFeed");
             else
@@ -1137,24 +1139,32 @@ public class PhotoStream.App : Granite.Application
             addHistoryEntry("feed", "");
         });
 
-        searchButton.clicked.connect(() => {
+        searchButton.toggled.connect(() => {
+            if (!searchButton.get_active())
+                return;
             switchWindow("search");
             addHistoryEntry("search", "");
             uncheckButtonsExcept("search");
         });
 
-        photoButton.clicked.connect(() => {
+        photoButton.toggled.connect(() => {
+            if (!photoButton.get_active())
+                return;
             uncheckButtonsExcept("photo");
             //addHistoryEntry("photo", "");
         });
 
-        newsButton.clicked.connect(() => {
+        newsButton.toggled.connect(() => {
+            if (!newsButton.get_active())
+                return;
             switchWindow("news");
             addHistoryEntry("news", "");
             uncheckButtonsExcept("news");
         });        
 
-        userButton.clicked.connect(() => {
+        userButton.toggled.connect(() => {
+            if (!userButton.get_active())
+                return;
             uncheckButtonsExcept("self");
             addHistoryEntry("user", selfUser.id);
             if (isPageLoaded["feed"])
@@ -1185,11 +1195,11 @@ public class PhotoStream.App : Granite.Application
     public void uncheckButtonsExcept(string notUncheck)
     {
         Idle.add(() => {
-            //feedButton.active = (notUncheck == "feed");
-            //userButton.active = (notUncheck == "self");
-            //photoButton.active = (notUncheck == "photo");
-            //searchButton.active = (notUncheck == "search");
-            //newsButton.active = (notUncheck == "news");
+            feedButton.set_active(notUncheck == "feed");
+            userButton.set_active(notUncheck == "self");
+            photoButton.set_active(notUncheck == "photo");
+            searchButton.set_active(notUncheck == "search");
+            newsButton.set_active(notUncheck == "news");
             return false;
         });
     }
