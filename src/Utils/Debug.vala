@@ -16,12 +16,7 @@ public void printPost(MediaInfo post)
     print("Type: %s\n", post.type == PhotoStream.MediaType.IMAGE ? "image" : "video");
     print("Location: %s\n", post.location == null ? "(null)" : "");
     if (post.location != null)
-    {
-        print("\tLatitude: %f\n", post.location.latitude);
-        print("\tlongitude: %f\n", post.location.longitude);
-        print("\tid: %" + uint64.FORMAT_MODIFIER + "d\n", post.location.id);
-        print("\tname: %s\n\n", post.location.name);
-    }
+        printLocation(post.location);
 
     print("Likes: %" + uint64.FORMAT_MODIFIER + "d\n ", post.likesCount);
     foreach (User user in post.likes)
@@ -68,6 +63,14 @@ public void printPost(MediaInfo post)
 
     print("id: %s\n", post.id);
     print("didILikeThis: %s\n\n", post.didILikeThis ? "true" : "false");
+}
+
+public void printLocation(Location location)
+{
+    print("\tLatitude: %f\n", location.latitude);
+    print("\tlongitude: %f\n", location.longitude);
+    print("\tid: %" + uint64.FORMAT_MODIFIER + "d\n", location.id);
+    print("\tname: %s\n\n", location.name);
 }
 
 public void printComment(Comment comment)

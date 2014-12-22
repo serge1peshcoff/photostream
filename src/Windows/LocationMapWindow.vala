@@ -15,9 +15,15 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 	private WebView webView;
 	public static const string MAPS_API_KEY = "AIzaSyCnUHdNP9KhZa33NYdPbOBqkzyzEKlpsR8";
-	public static const int ZOOM_INITIAL = 15;
+	public static const int ZOOM_INITIAL = 13;
 	public static const int RANGE_INITIAL = 1000;
+	public static const double LATITUDE_INITIAL = 55.75;
+	public static const double LONGITUDE_INITIAL = 37.36;
 	public Location location;
+	public List<Location> locationList;
+	public string prevTitle = "";
+
+	private int currentNumber = 0;
 
 	public signal void locationOpened();
 
@@ -65,8 +71,7 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 		this.webView.get_settings().set_enable_accelerated_2d_canvas(true);
 		this.webView.get_settings().set_enable_webgl(true);
-		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);
-		
+		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);		
 
         this.show.connect (() => {
             loadHtml();
@@ -84,6 +89,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
         this.scale.value_changed.connect(() => {
         	redrawCircle();
         });
+
+        checkTitle();
 	}
 
 	private void loadHtml()
@@ -146,10 +153,10 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			    title: \"%s\"
 			});		
 
-			".printf(this.location == null ? 50.0 : this.location.latitude, 
-					this.location == null ? 30.0 : this.location.longitude, 
+			".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
+					this.location == null ? LONGITUDE_INITIAL : this.location.longitude, 
 					this.location == null ? "true" : "false", 
-					this.location == null ? "User marker" : this.location.name);
+					this.location == null ? "User marker" : this.location.name.replace("\"", "\\\""));
 			if (location == null)
 				mapsJs += "
 
@@ -187,8 +194,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
         var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
-            mapOptions);".printf(location == null ? 50.0 : location.latitude, 
-								location == null ? 30.0 : location.longitude, 
+            mapOptions);".printf(location == null ? LATITUDE_INITIAL : location.latitude, 
+								location == null ? LONGITUDE_INITIAL : location.longitude, 
 								ZOOM_INITIAL);
         this.webView.run_javascript.begin(mapsJs, null, (obj, res) => {
 			try
@@ -216,12 +223,18 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		    title: \"%s\"
 		});	
 
+		google.maps.event.addListener(marker, \"dblclick\", function (e) { 
+               document.title = \"open \" +  %d;
+            });
+
 		markers.push(marker);	
 
 		".printf(location == null ? 50.0 : location.latitude, 
 				location == null ? 30.0 : location.longitude, 
 				location == null ? "true" : "false", 
-				location == null ? "User marker" : location.name.replace("\"", "\\\""));
+				location == null ? "User marker" : location.name.replace("\"", "\\\""), 
+				currentNumber);
+		currentNumber++;
 
 		this.webView.run_javascript.begin(markerJs, null, (obj, res) => {
 			try
@@ -250,18 +263,17 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 	public void loadNearbyLocations()
 	{
 		var js = "
-		document.title = userMarker.getPosition().lat() + \" \" + userMarker.getPosition().lng();
+		document.title = \"location \" + userMarker.getPosition().lat() + \" \" + userMarker.getPosition().lng();
 		";
 		this.webView.run_javascript.begin(js, null, (obj, res) => {
-			string[] values =  webView.get_title().split(" ");
-
-			double latitude = double.parse(values[0]);
-			double longitude = double.parse(values[1]);
-
-			new Thread<int>("", () => {
-				loadLocationsList(latitude, longitude);
-				return 0;
-			});
+			try
+			{
+				this.webView.run_javascript.end(res);
+			}
+			catch (Error e)
+			{
+				error("Something wrong with Javascript.");
+			}
 		});
 	}
 	public override bool delete_event(Gdk.EventAny event)
@@ -273,7 +285,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 	public void loadLocationsList(double latitude, double longitude)
 	{
 		string response = searchLocation(latitude, longitude, (int)this.scale.get_value());
-		List<Location> locationList = parseLocationList(response);
+		locationList = parseLocationList(response);
+		currentNumber = 0;
 
 		Idle.add(() => {
 			string clearJs = "
@@ -282,7 +295,7 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 			markers = [];
 			";
-			this.webView.run_javascript(clearJs, null, (obj, res) => {
+			this.webView.run_javascript.begin(clearJs, null, (obj, res) => {
 				try
 				{
 					this.webView.run_javascript.end(res);
@@ -299,5 +312,43 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			});
 			return false;			
 		});
+	}
+	
+
+	private void checkTitle()
+	{
+		if (webView.title != null && prevTitle != webView.title)
+		{
+			prevTitle = webView.title;
+			parseTitle();
+		}
+
+		GLib.Timeout.add(500, () => {
+			checkTitle();
+			return false;
+		});
+	}
+	public void parseTitle()
+	{
+		string[] values =  webView.get_title().split(" ");
+
+		if (values[0] == "location")
+		{
+			double latitude = double.parse(values[1]);
+			double longitude = double.parse(values[2]);
+
+			new Thread<int>("", () => {
+				loadLocationsList(latitude, longitude);
+				return 0;
+			});
+		}
+		else if (values[0] == "open")
+		{
+			var locationOpened = locationList.nth(int.parse(values[1])).data;
+			if (locationOpened.id != "0")
+				locationLoaded(locationOpened);
+		}
+		else
+			error("Should've not reached here: %s", values[0]);
 	}
 }

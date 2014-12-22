@@ -30,6 +30,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	public string tagsRequest = "";
 	public string usersRequest = "";
 
+	public bool isInitialized = false;
+
 	public SearchWindowBox()
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);

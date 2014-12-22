@@ -65,7 +65,7 @@ namespace PhotoStream.Utils
 	{
 		public double latitude;
 		public double longitude;
-		public int64 id;
+		public string id;
 		public string name;
 	}
 	public class TaggedUser

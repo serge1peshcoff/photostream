@@ -131,9 +131,6 @@ public class PhotoStream.App : Granite.Application
             preloadWindows();
 
             tryLogin();
-
-            var window = new LocationMapWindow();
-            window.show_all();
         }
         else
         {
@@ -250,7 +247,11 @@ public class PhotoStream.App : Granite.Application
         stack.add_named(searchWindow, "search");
 
         this.searchWindowBox.locationMapWindow.locationLoaded.connect((location) => {
-            loadLocation(location.id);
+            this.searchWindowBox.locationMapWindow.hide();
+            new Thread<int>("", () => {
+                loadLocation(location.id);
+                return 0;
+            });
         });
         this.searchWindowBox.usersLoaded.connect(() => {
             foreach (var box in searchWindowBox.userList.boxes)
@@ -503,12 +504,19 @@ public class PhotoStream.App : Granite.Application
     public int openLocationMap(Location location)
     {
         LocationMapWindow locationWindow = new LocationMapWindow.with_location(location);
+        locationWindow.locationLoaded.connect((location) => {
+            locationWindow.close();
+            new Thread<int>("", () => {
+                loadLocation(location.id);
+                return 0;
+            });
+        });
         locationWindow.show_all();
 
         return 0;
     }
 
-    public int loadLocation(int64 locationId)
+    public int loadLocation(string locationId)
     {
         uncheckButtonsExcept("");
         Idle.add(() => {
@@ -542,6 +550,8 @@ public class PhotoStream.App : Granite.Application
                     });
                     
                 });
+            else
+                locationFeedBox.locationFeed.deleteMoreButton();
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
@@ -1018,7 +1028,7 @@ public class PhotoStream.App : Granite.Application
         return 0;
     }
 
-    public int loadMissingLocation(PostBox postBox, int64 id)
+    public int loadMissingLocation(PostBox postBox, string id)
     {
         string response = getLocationInfo(id);
         Location location;
@@ -1309,14 +1319,14 @@ public class PhotoStream.App : Granite.Application
             commentBox.textLabel.activate_link.connect(handleUris);
 
         // for not crashing when using loadMissingLocation
-        int64 tmpLocationId = (postBox.post.location == null) ? 0 : postBox.post.location.id; 
+        string tmpLocationId = (postBox.post.location == null) ? "0" : postBox.post.location.id; 
         bool locationMissing = false;
 
         if (postBox.post.location != null 
             && postBox.post.location.latitude == 0 
             && postBox.post.location.longitude == 0 
             && postBox.post.location.name == ""
-            && postBox.post.location.id != 0) // sometimes location contains only ID, for such cases
+            && postBox.post.location.id != "0") // sometimes location contains only ID, for such cases
         {
             locationMissing = true;
             new Thread<int>("", () => {
@@ -1344,12 +1354,12 @@ public class PhotoStream.App : Granite.Application
         {
             postBox.locationEventBox.button_release_event.connect(() =>{
                 new Thread<int>("", () => {
-                    if (!locationMissing && postBox.post.location.id == 0) // only coordinates available
+                    if (!locationMissing && postBox.post.location.id == "0") // only coordinates available
                         Idle.add(() => {
                             openLocationMap(postBox.post.location); 
                             return false;
                         });                                           
-                    else if (locationMissing && tmpLocationId != 0)
+                    else if (locationMissing && tmpLocationId != "0")
                         loadLocation(tmpLocationId);
                     else
                         loadLocation(postBox.post.location.id);                                    
@@ -1455,7 +1465,7 @@ public class PhotoStream.App : Granite.Application
                 break;
             case "location":
                 new Thread<int>("", () => {
-                    loadLocation(int64.parse(lastEntryId));
+                    loadLocation(lastEntryId);
                     return 0;
                 });
                 break;

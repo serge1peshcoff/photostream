@@ -110,7 +110,17 @@ public Location parseLocationFromObject(Json.Object locationObject) throws Error
                                     ? locationObject.get_double_member("longitude") 
                                     : 0;
     location.name = (locationObject.has_member("name")) ? locationObject.get_string_member("name") : "";
-    location.id = (locationObject.has_member("id")) ? locationObject.get_int_member("id") : 0;
+
+    if (locationObject.has_member("id"))
+    {
+        if (locationObject.get_member("id").type_name() == "Integer")
+            location.id = locationObject.get_int_member("id").to_string();
+        else          
+            location.id = locationObject.get_string_member("id");
+    }    
+    else
+        location.id = "0";
+
     return location;
 } 
 
