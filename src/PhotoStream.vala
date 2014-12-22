@@ -130,7 +130,10 @@ public class PhotoStream.App : Granite.Application
 
             preloadWindows();
 
-            tryLogin();
+            //tryLogin();
+
+            var window = new LocationMapWindow();
+            window.show_all();
         }
         else
         {
@@ -381,6 +384,8 @@ public class PhotoStream.App : Granite.Application
     public int loadTag(string tagName)
     {
         isPageLoaded["tagFeed"] = false;
+        uncheckButtonsExcept("");
+
         Idle.add(() => {
             stubLoading();            
             return false;
@@ -454,6 +459,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadPost(string id)
     {
+        uncheckButtonsExcept("");
         Idle.add(() => {
             stubLoading();            
             return false;
@@ -504,6 +510,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadLocation(int64 locationId)
     {
+        uncheckButtonsExcept("");
         Idle.add(() => {
             stubLoading();            
             return false;
@@ -576,6 +583,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadComments(string postId)
     {
+        uncheckButtonsExcept("");
         Idle.add(() => {
             stubLoading();            
             return false;
@@ -622,6 +630,7 @@ public class PhotoStream.App : Granite.Application
 
     public int loadUsers(string postId, string type)
     {
+        uncheckButtonsExcept("");
         isPageLoaded["user"] = false;
         Idle.add(() => {
             stubLoading();            
@@ -721,8 +730,9 @@ public class PhotoStream.App : Granite.Application
     public int loadUser(string id, User? loadedUser = null)
     {
         Idle.add(() => {
-            stubLoading();
-            
+            if (id != selfUser.id)
+                uncheckButtonsExcept("");
+            stubLoading();            
             return false;
         });
 
@@ -837,6 +847,11 @@ public class PhotoStream.App : Granite.Application
             loadNews();
             return 0;
         });
+        Idle.add(() => {
+            uncheckButtonsExcept("feed");
+            return false;
+        });        
+
         string response = getUserFeed();
         try 
         {
@@ -1206,6 +1221,9 @@ public class PhotoStream.App : Granite.Application
 
     public int setFeedWidgets()
     {       
+        //string response = postPicture("/allext/image.jpg");
+        //print(response + "\n");
+
         Idle.add(() => { 
             if (!headersCallbacksSet)
                 this.searchWindowBox.addFields();
@@ -1438,6 +1456,12 @@ public class PhotoStream.App : Granite.Application
             case "location":
                 new Thread<int>("", () => {
                     loadLocation(int64.parse(lastEntryId));
+                    return 0;
+                });
+                break;
+            case "post":
+                new Thread<int>("", () => {
+                    loadPost(lastEntryId);
                     return 0;
                 });
                 break;

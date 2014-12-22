@@ -160,6 +160,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.xalign = 0;
 
 		titleAlignment.add(titleLabel);
+		titleAlignment.set_size_request(625, -1);
 		box.add(titleAlignment);
 
 		if (post.taggedUsers.length() != 0)

@@ -301,15 +301,22 @@ public string postPicture(string fileUrl)
     session.user_agent = "Instagram 6.11.2 Android (15/4.0.4; 240dpi; 480x800; HTC/htc_wwe; HTC Incredible S; vivo; vivo; en_US)";  
 
     var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
-    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+    var cookies = cookieJarText.all_cookies();
+
+    cookies.append(new Soup.Cookie("ccode", "RU", "i.instagram.com", null, -1));
+    cookies.append(new Soup.Cookie("igfl", PhotoStream.App.selfUser.username, "i.instagram.com", null, -1));
+    cookies.append(new Soup.Cookie("ds_user_id", PhotoStream.App.selfUser.id, "i.instagram.com", null, -1));
+    cookies.append(new Soup.Cookie("ds_user", PhotoStream.App.selfUser.username, "i.instagram.com", null, -1));
+    cookies.append(new Soup.Cookie("is_starred_enabled", "yes", "i.instagram.com", null, -1));
+
+    Soup.cookies_to_request(cookies, message);
 
     message.request_headers.append("Content-Type", "multipart/form-data; boundary=" + boundary);
     message.request_headers.append("Host", "i.instagram.com");
     message.request_headers.append("X-IG-Connection-Type", "USBNET");
-    message.request_headers.append("X-IG-Capabilities", "AQ");
+    message.request_headers.append("X-IG-Capabilities", "AQ==");
     message.request_headers.append("Accept-Encoding", "gzip");
 
-    var cookies = cookieJarText.all_cookies();
     string csrftoken = "";
 
     foreach (Soup.Cookie cookie in cookies)
@@ -319,23 +326,30 @@ public string postPicture(string fileUrl)
             break; // don't ask.
         }
 
+    GLib.DateTime now = new GLib.DateTime.now_local();
+    string uploadId = now.to_unix().to_string() + (now.get_microsecond() / 1000).to_string();
+
     string request = "";
-    request += "--" + boundary + "\r\n";
-    request += "Content-Disposition: form-data; name=\"_csrftoken\"\r\n\r\n";
+    request += "--" + boundary + "\n";
+    request += "Content-Disposition: form-data; name=\"_csrftoken\"\n\n";
     request += csrftoken;
-    request += "\r\n--" + boundary + "\r\n";
-    request += "Content-Disposition: form-data; name=\"upload_id\"\r\n\r\n";
-    request += "1418503191214";
-    request += "\r\n--" + boundary + "\r\n";
-    request += "Content-Disposition: form-data; name=\"photo\"; filename=\"file\"\r\n";
-    request += "Content-Type: application/octet-stream\r\n";
-    request += "Content-Transfer-Encoding: binary\r\n\r\n";
+    request += "\n--" + boundary + "\n";
+    request += "Content-Disposition: form-data; name=\"upload_id\"\n\n";
+    request += uploadId;
+    request += "\n--" + boundary + "\n";
+    request += "Content-Disposition: form-data; name=\"photo\"; filename=\"file\"\n";
+    request += "Content-Type: application/octet-stream\n";
+    request += "Content-Transfer-Encoding: binary\n\n";
     uint8[] requestString = request.data;
 
     var file = File.new_for_path (fileUrl);
 
     if (!file.query_exists ())
         error("File '%s' doesn't exist.\n", file.get_path ());
+
+    message.request_headers.foreach((key, value) => {
+        print("%s: %s\n", key, value);
+    });
 
     try 
     {
@@ -354,6 +368,13 @@ public string postPicture(string fileUrl)
 
     message.request_body.append_take(requestString);
     session.send_message (message);
+
+    print("\n\n Response\n");
+    print("Status: %s\n", message.status_code.to_string());
+    message.response_headers.foreach((key, value) => {
+        print("%s: %s\n", key, value);
+    });
+
 
     return (string)message.response_body.data;
 }

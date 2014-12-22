@@ -136,6 +136,16 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.fullNameLabel.get_allocation(out allocation);
 		this.about.set_size_request(650 - allocation.width, 100); // to fill all entries
 		this.about.set_editable(true);
+		this.about.buffer.changed.connect(() => {
+			string[] lines = this.about.buffer.text.split("\n", 6); // 5 lines, all that goes after it is 6th string.
+			if (lines.length >= 6)
+				lines[5] = "";
+
+			string textJoined = string.joinv("\n", lines);
+
+			if (this.about.buffer.text != textJoined) // to avoid infinite loop
+				this.about.buffer.text = textJoined;
+		});
 
 
 		fullNameAlignment.add(fullName);
