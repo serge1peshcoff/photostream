@@ -130,7 +130,7 @@ public class PhotoStream.App : Granite.Application
 
             preloadWindows();
 
-            //tryLogin();
+            tryLogin();
 
             var window = new LocationMapWindow();
             window.show_all();

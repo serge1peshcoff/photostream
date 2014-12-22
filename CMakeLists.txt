@@ -70,7 +70,7 @@ set (BASIC_VALAC_OPTIONS
 )
 
 set (GLOBAL_VALAC_OPTIONS
-  --vapidir=${CMAKE_BINARY_DIR}/src
+  --vapidir=${CMAKE_BINARY_DIR}/vapi
   ${BASIC_VALAC_OPTIONS}
 )
 

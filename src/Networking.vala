@@ -215,11 +215,11 @@ public string getLocationRecent(int64 id)
 }
 public string searchLocation(double latitude, double longitude, int distance = 1000)
 {
-    return getResponse("https://api.instagram.com/v1/locations/search"
-                                                    + "?lat=" + latitude.to_string() 
-                                                    + "&lng=" + longitude.to_string() 
-                                                    + "&distance=" + distance.to_string() 
-                                                    + "&access_token=" + PhotoStream.App.appToken);
+    return getResponse("https://api.instagram.com/v1/locations/search?lat=%f&lng=%f&distance=%f&access_token=%s" 
+                    .printf(latitude, 
+                            longitude,
+                            distance , 
+                            PhotoStream.App.appToken));
 }
 
 
