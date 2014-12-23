@@ -293,7 +293,7 @@ public string resolveHost()
 
 public string postPicture(string fileUrl)
 {
-    var url = "http://i.instagram.com/api/v1/upload/photo";
+    var url = "http://i.instagram.com/api/v1/upload/photo/";
     var boundary = "7qkvEgAJ8y7NzsBpKQ0Y8BsfJLse2C";
 
     var session = new Soup.Session ();
@@ -330,16 +330,16 @@ public string postPicture(string fileUrl)
     string uploadId = now.to_unix().to_string() + (now.get_microsecond() / 1000).to_string();
 
     string request = "";
-    request += "--" + boundary + "\n";
-    request += "Content-Disposition: form-data; name=\"_csrftoken\"\n\n";
+    request += "--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"_csrftoken\"\r\n\r\n";
     request += csrftoken;
-    request += "\n--" + boundary + "\n";
-    request += "Content-Disposition: form-data; name=\"upload_id\"\n\n";
+    request += "\r\n--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"upload_id\"\r\n\r\n";
     request += uploadId;
-    request += "\n--" + boundary + "\n";
-    request += "Content-Disposition: form-data; name=\"photo\"; filename=\"file\"\n";
-    request += "Content-Type: application/octet-stream\n";
-    request += "Content-Transfer-Encoding: binary\n\n";
+    request += "\r\n--" + boundary + "\r\n";
+    request += "Content-Disposition: form-data; name=\"photo\"; filename=\"file\"\r\n";
+    request += "Content-Type: application/octet-stream\r\n";
+    request += "Content-Transfer-Encoding: binary\r\n\r\n";
     uint8[] requestString = request.data;
 
     var file = File.new_for_path (fileUrl);
@@ -363,6 +363,11 @@ public string postPicture(string fileUrl)
         error ("%s", e.message);
     }
 
+    uint8[] lastBoundary = ("\r\n--" + boundary + "--\n").data;
+
+    for (int i = 0; i < lastBoundary.length; i++)
+        requestString += lastBoundary[i];
+
     print((string)requestString + "\n");
 
 
@@ -375,6 +380,51 @@ public string postPicture(string fileUrl)
         print("%s: %s\n", key, value);
     });
 
+
+    return (string)message.response_body.data;
+}
+
+public string postSettings(PhotoStream.Utils.Settings settings, PhotoStream.Utils.User user)
+{
+    var session = new Soup.Session ();
+    var message = new Soup.Message ("POST", "https://instagram.com/accounts/edit");
+
+    var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
+    Soup.cookies_to_request(cookieJarText.all_cookies(), message);
+
+    string csrftoken = "";
+
+    foreach (Soup.Cookie cookie in cookieJarText.all_cookies())
+        if (cookie.get_name() == "csrftoken")
+        {
+            csrftoken = cookie.get_value();
+            break; // don't ask.
+        }
+
+    string request = "csrfmiddlewaretoken=" + csrftoken;
+    request += "&first_name=" + user.fullName;
+    request += "&email=" + settings.email;
+    request += "&username=" + user.username;
+    request += "&phone_number=" + settings.phoneNumber.replace(" ", "").replace("-", "");
+    if (settings.sex == "male")
+        request += "&gender=1";
+    else if (settings.sex == "female")
+        request += "&gender=2";
+    else if (settings.sex == "")
+        request += "&gender=3";
+    else
+        error ("Should've not reached here: %s", settings.sex);
+
+    request += "&biography=" + user.bio;
+    request += "&external_url_section=" + user.website;
+    request += "&chaining_enabled=" + (settings.recommend ? "true" : "false");
+
+    print(request + "\n");
+
+    uint8[] requestString = request.data;
+
+    message.request_body.append_take(requestString);
+    session.send_message (message);
 
     return (string)message.response_body.data;
 }

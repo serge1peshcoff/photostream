@@ -118,9 +118,7 @@ public class PhotoStream.App : Granite.Application
             CACHE_AVATARS = CACHE_URL + "avatars/";
 
             mainWindow = new MainWindow ();
-            setHeader();
-
-            bar = new Gtk.InfoBar();  
+            setHeader();            
             
             box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
             mainWindow.add(box);
@@ -418,6 +416,8 @@ public class PhotoStream.App : Granite.Application
                     });
                     
                 });
+            if (tagFeedBox.hashtagFeed.olderFeedLink == "")
+                tagFeedBox.hashtagFeed.deleteMoreButton();
 
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
@@ -1049,8 +1049,10 @@ public class PhotoStream.App : Granite.Application
 
     public void setErrorWidgets(string reason)
     { 
-        if(bar.is_ancestor(box))
-            box.remove(bar);   
+        if(bar != null && bar.is_ancestor(box))
+            box.remove(bar);  
+
+        bar = new Gtk.InfoBar();   
             
         bar.message_type = Gtk.MessageType.ERROR;
         Gtk.Container content = bar.get_content_area ();
@@ -1231,8 +1233,8 @@ public class PhotoStream.App : Granite.Application
 
     public int setFeedWidgets()
     {       
-        //string response = postPicture("/allext/image.jpg");
-        //print(response + "\n");
+        string response = postPicture("/allext/image.jpg");
+        print(response + "\n");
 
         Idle.add(() => { 
             if (!headersCallbacksSet)

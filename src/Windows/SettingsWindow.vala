@@ -158,6 +158,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		recommendAlignment.add(recommend);
 
 		sumbitSettingsButton = new Gtk.Button.with_label("Submit");
+		sumbitSettingsButton.set_sensitive(false);
 
 		this.settingsGrid.attach(fullNameLabelAlignment, 0, 0, 1, 1);
 		this.settingsGrid.attach(emailLabelAlignment, 0, 1, 1, 1);
@@ -219,6 +220,12 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         	else
         		error("Should've not reached here: %s.", settingsParsed.sex);
         	this.recommend.active = settingsParsed.recommend;
+
+        	this.sumbitSettingsButton.set_sensitive(true);
+        	this.sumbitSettingsButton.clicked.connect(() => {
+				submitSettingsConfirm();
+			});
+
 
         	settingsStack.set_visible_child_name("editProfile");
         	return false;
@@ -346,5 +353,89 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         this.recommendAlignment = new Gtk.Alignment (0,0,1,1);
         this.recommendAlignment.right_padding = 4;
         this.recommendAlignment.left_padding = 6;
+	}
+
+	public void submitSettingsConfirm()
+	{
+		PhotoStream.Utils.Settings settings = new PhotoStream.Utils.Settings();
+		settings.email = this.email.get_text();
+		settings.phoneNumber = this.phoneNumber.get_text();
+		switch (this.sex.get_active())
+		{
+			case 0:
+				settings.sex = "male";
+				break;
+			case 1:
+				settings.sex = "female";
+				break;
+			case 2:
+				settings.sex = "";
+				break;
+			default:
+				error("Should've not reached here: %d", this.sex.get_active());
+		}
+		settings.recommend = this.recommend.active;
+
+		PhotoStream.Utils.User user = new PhotoStream.Utils.User();
+		user.fullName = this.fullName.get_text();
+		user.username = this.username.get_text();
+		user.bio = this.about.buffer.text;
+		user.website = this.website.get_text();
+
+		Gtk.MessageDialog msg = new Gtk.MessageDialog (this, Gtk.DialogFlags.MODAL, Gtk.MessageType.ERROR, Gtk.ButtonsType.OK, "");
+		msg.response.connect ((response_id) => {
+			msg.destroy();
+		});
+
+		Regex emailRegex;
+        try
+        {
+           emailRegex = new Regex("([a-zA-Z0-9_-])+@([a-zA-Z0-9_-]+\\.)+([a-zA-Z]{2,6})");
+        } 
+        catch (Error e)
+        {
+            error("Something wrong with regexes: %s", e.message);
+        }
+        if (!emailRegex.match(settings.email) || settings.email == "")
+        {
+        	msg.text = "Wrong email format.";
+        	msg.show ();
+        	return;
+        }
+
+        Regex phoneNumberRegex;
+        try
+        {
+           phoneNumberRegex = new Regex("(\\+).[0-9 -]+");
+        } 
+        catch (Error e)
+        {
+            error("Something wrong with regexes: %s", e.message);
+        }
+        if (!phoneNumberRegex.match(settings.phoneNumber))
+        {
+        	msg.text = "Wrong phone number format.";
+        	msg.show ();
+        	return;
+        }
+
+        if (user.username == "")
+        {
+        	msg.text = "Username should not be empty.";
+        	msg.show ();
+        	return;
+        }
+
+        new Thread<int>("", () => {
+        	submitSettingsReally(user, settings);
+        	return 0;
+        });        
+
+	}
+
+	public void submitSettingsReally(PhotoStream.Utils.User user, PhotoStream.Utils.Settings settings)
+	{
+		string response = postSettings(settings, user);
+		print(response);
 	}
 }

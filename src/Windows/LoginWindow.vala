@@ -12,6 +12,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 											 + PhotoStream.App.REDIRECT_URI
 											 + "&scope=basic+comments+relationships+likes"
 											 + "&response_type=code";
+	private const string WRONG_LOGIN_PATTERN = "Your username or password was incorrect.";
 	private string HOST;
 
 	public Gtk.Spinner spinner;
@@ -29,16 +30,30 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		this.webView = new WebView ();
 		this.webView.web_context.get_cookie_manager().set_persistent_storage(PhotoStream.App.CACHE_URL + "cookie.txt", 
 										CookiePersistentStorage.TEXT);
+		this.webView.get_settings().set_enable_accelerated_2d_canvas(true);
+		this.webView.get_settings().set_enable_webgl(true);
+		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);	
 		
 		this.title = "Login to Instagram";
 
 		print("Using WebKit version %d.%d.%d\n", WebKit.MAJOR_VERSION, WebKit.MINOR_VERSION, WebKit.MICRO_VERSION);
 
-		this.webView.load_changed.connect ((loadEvent) => {
-			if (loadEvent != LoadEvent.FINISHED)
+		this.webView.load_changed.connect ((loadEvent) => {		
+
+			var uri = webView.get_uri ();
+        	var host = getHost(uri); 	  
+
+			if (loadEvent == LoadEvent.STARTED)
+			{
+				//print(uri + "\n");
+				//if (this.uri == INSTAGRAM_AUTH || this.uri == INSTAGRAM_LOGIN
+				//	&& (host != "api.instagram.com" && host != "instagram.com"))
+				//WebKit.WebExtension ext = new WebKit.WebExtension();
 				return;
-            var uri = webView.get_uri ();
-            var host = getHost(uri);
+
+			}
+			else if (loadEvent != LoadEvent.FINISHED)
+				return;		         
             
             if (host == this.HOST)
             {
