@@ -877,7 +877,7 @@ public class PhotoStream.App : Granite.Application
         }
 
         // if we got here then we've got no errors, yay!
-        if(bar.is_ancestor(box))
+        if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
 
         addHistoryEntry("feed", "");

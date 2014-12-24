@@ -9,6 +9,9 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 	public Gtk.Entry searchQuery;
 	public Gtk.Stack stack;
+	public Gtk.StackSwitcher stackSwitcher;
+	public Gtk.Box switcherBox;
+	public Gtk.Button locationButton;
 
 	public Gtk.RadioButton tagsRadio;
 	public Gtk.RadioButton usersRadio;
@@ -36,29 +39,23 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
-		this.searchQuery = new Gtk.Entry();
-
-		this.radioBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);		
-
-		this.tagsRadio = new Gtk.RadioButton.with_label_from_widget(null, "Hashtags");
-		this.usersRadio = new Gtk.RadioButton.with_label_from_widget(tagsRadio, "Users");
-		this.locationsRadio = new Gtk.RadioButton.with_label_from_widget(tagsRadio, "Locations");
-
-		this.radioBox.add(tagsRadio);
-		this.radioBox.add(usersRadio);
-		this.radioBox.add(locationsRadio);		
+		this.searchQuery = new Gtk.Entry();	
 
 		this.stack = new Gtk.Stack();
 
+		stackSwitcher = new Gtk.StackSwitcher();
+		stackSwitcher.set_stack(stack);
+
 		this.tagList = new HashTagList();
-		this.stack.add_named(tagList, "tags");
+		this.stack.add_titled(tagList, "tags", "Tags");
 
 		this.userList = new UserList();
-		this.stack.add_named(userList, "users");
+		this.stack.add_titled(userList, "users", "Users");
 
-		this.tagsRadio.toggled.connect(switchView);
-		this.usersRadio.toggled.connect(switchView);
-		this.locationsRadio.toggled.connect(switchView);
+		this.switcherBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		this.locationButton = new Gtk.Button.with_label("Locations");
+		this.switcherBox.pack_start(stackSwitcher, true, true);
+		this.stackSwitcher.add(locationButton);
 
 		this.searchQuery.activate.connect(() => {
 			this.typed();
@@ -67,7 +64,13 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		spinner = new Gtk.Spinner();
 		spinner.start();
 
-		this.stack.add_named(spinner, "loading");
+		((Gtk.RadioButton)(this.stackSwitcher.get_children().first().data)).toggled.connect((btn) => {
+			switchView(btn, "Hashtags");
+		});
+		((Gtk.RadioButton)(this.stackSwitcher.get_children().nth(1).data)).toggled.connect((btn) => {
+			switchView(btn, "Users");
+		});
+		this.locationButton.clicked.connect(openSearchLocation);
 
 		locationMapWindow = new LocationMapWindow();
 		locationMapWindow.destroy_event.connect(() => {
@@ -81,21 +84,21 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		// window doesn't show. so, this is why I'm doing it in separate function. 
 		// and this function is called in setFeedWidgets.
 		this.pack_start(searchQuery, false, true);
-		this.add(radioBox);
+		this.add(switcherBox);
 		this.pack_end(stack, true, true);
 	}
 
-	private void switchView (Gtk.ToggleButton button) 
-	{
+	private void switchView (Gtk.ToggleButton button, string label) 
+	{		
 		if (button.get_active() == false)
 			return; // to not execute 2 times, for untoggled and toggled button.
 
-
-		switch (button.label)
+		print("segfault2 start\n");
+		switch (label)
 		{
 			case "Hashtags":
-				//if (currentWindow != "users")
-				//	return;
+				if (currentWindow != "users")
+					return;
 
 				if (tagsRequest != usersRequest)
 				{
@@ -110,8 +113,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 				currentWindow = "tags";
 				break;
 			case "Users":
-				//if (currentWindow != "tags")
-				//	return;
+				if (currentWindow != "tags")
+					return;
 
 				if (tagsRequest != usersRequest)
 				{
@@ -125,12 +128,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 					stack.set_visible_child_name("users");
 				currentWindow = "users";
 				break;
-			case "Locations":
-				currentWindow = "locations";
-				openSearchLocation();
-				break;
 			default:
-				error("Should've not reached here.");
+				error("Should've not reached here: %s.", label);
 		}
 	}
 
@@ -171,7 +170,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
     {
 
         Idle.add(() => {
-            stack.set_visible_child_name("loading");
+        	this.remove(stack);
+            this.pack_end(spinner, true, true);
             this.show_all();
             return false;
         });
@@ -188,14 +188,18 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             error("Something wrong with parsing: " + e.message + ".\n");
         }   
 
-        tagsRequest = tag;      
+            
 
         Idle.add(() => { 
+        	tagsRequest = tag; 
+
         	tagList.clear();
 	        foreach(Tag tagInList in tagListRequested)
 	            tagList.prepend(tagInList);  	
             
-            stack.set_visible_child_name("tags");
+            this.remove(spinner);
+            this.pack_end(stack, true, true);
+            this.stack.set_visible_child_name("tags");
             this.show_all();
 
             tagsLoaded();
@@ -208,10 +212,12 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
     {
 
         Idle.add(() => {
-            stack.set_visible_child_name("loading");
+            this.remove(stack);
+            this.pack_end(spinner, true, true);
             this.show_all();
             return false;
         });
+
         string response = searchUsers(username);
         List<User> userListRequested = new List<User>();
 
@@ -223,12 +229,11 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
         catch (Error e) 
         {
             error("Something wrong with parsing: " + e.message + ".\n");
-        }
-
-        usersRequest = username;
-        
+        }       
 
         Idle.add(() => {
+          	usersRequest = username;
+
         	userList.clear();
 	        foreach(User userInList in userListRequested)
 	            userList.prepend(userInList);
@@ -272,8 +277,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	            return 0;
         	}); 
 
-            stack.set_visible_child_name("users"); 
-            this.show_all();            
+			this.remove(spinner);
+            this.pack_end(stack, true, true);
+            this.stack.set_visible_child_name("users"); 
+            this.show_all();        
             return false;
         });
         
