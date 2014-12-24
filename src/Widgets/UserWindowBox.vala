@@ -343,9 +343,10 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
     private void onCountsHover(EventCrossing event)
     {
-    	event.window.set_cursor (
-            new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-        );
+    	if (!this.isPrivate)
+	    	event.window.set_cursor (    		
+	            new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+	        );
     }
 
     private void onHover(EventCrossing event)

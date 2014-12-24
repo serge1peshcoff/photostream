@@ -7,6 +7,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Granite.Widgets.SourceList.Item editProfileItem;
 	public Granite.Widgets.SourceList.Item changePasswordItem;
 	public Granite.Widgets.SourceList.Item manageAppsItem;
+	public Granite.Widgets.SourceList.Item appSettingsItem;
 	public Granite.Widgets.SourceList.Item logOutItem;
 
 	public Gtk.Spinner spinner;
@@ -66,11 +67,8 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.editProfileItem = new Granite.Widgets.SourceList.Item("Profile Settings");
 		this.changePasswordItem = new Granite.Widgets.SourceList.Item("Change password");
 		this.manageAppsItem = new Granite.Widgets.SourceList.Item("Manage applications");
+		this.appSettingsItem = new Granite.Widgets.SourceList.Item("Application settings");
 		this.logOutItem = new Granite.Widgets.SourceList.Item("Log out");
-
-		logOutItem.activated.connect(() => {
-			logOutConfirm();
-		});
 
 		pane = new Granite.Widgets.ThinPaned();
 		sourceList = new Granite.Widgets.SourceList();
@@ -78,7 +76,9 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		root.add(editProfileItem);
 		root.add(changePasswordItem);
 		root.add(manageAppsItem);
+		root.add(appSettingsItem);
 		root.add(logOutItem);
+
 		sourceList.set_size_request(150, -1);
 		settingsStack.set_size_request(650, -1);
 
@@ -181,6 +181,12 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 		this.editProfileBox.pack_start(settingsGrid, true, true);
 		this.settingsStack.add_named(editProfileBox, "editProfile");
+
+
+		this.sourceList.item_selected.connect((id) => {
+			if (id == logOutItem)
+				logOutConfirm();
+		});
 
 		this.spinner = new Gtk.Spinner();
 		this.spinner.start();	

@@ -193,7 +193,8 @@ public class PhotoStream.App : Granite.Application
 
         userWindowBox.followersCountEventBox.button_release_event.connect(() => {
             new Thread<int>("", () => {
-                loadUsers(userWindowBox.user.id, "followers");
+                if (!userWindowBox.isPrivate)
+                    loadUsers(userWindowBox.user.id, "followers");
                 return 0;
             }); 
             return false;
@@ -201,7 +202,8 @@ public class PhotoStream.App : Granite.Application
 
         userWindowBox.followsCountEventBox.button_release_event.connect(() => {
             new Thread<int>("", () => {
-                loadUsers(userWindowBox.user.id, "follows");
+                if (!userWindowBox.isPrivate)
+                    loadUsers(userWindowBox.user.id, "follows");
                 return 0;
             }); 
             return false;
@@ -1233,8 +1235,8 @@ public class PhotoStream.App : Granite.Application
 
     public int setFeedWidgets()
     {       
-        string response = postPicture("/allext/image.jpg");
-        print(response + "\n");
+        //string response = postPicture("/allext/image.jpg");
+        //print(response + "\n");
 
         Idle.add(() => { 
             if (!headersCallbacksSet)

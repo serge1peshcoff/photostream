@@ -42,7 +42,7 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		base.prepend(separator);
 		PostBox box = new PostBox(post);
 		base.prepend(box);
-		boxes.append(box);		
+		boxes.prepend(box);		
 	}
 
 	public new void prepend(MediaInfo post)
