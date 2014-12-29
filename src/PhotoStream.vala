@@ -427,11 +427,15 @@ public class PhotoStream.App : Granite.Application
             foreach(PostBox box in tagFeedBox.hashtagFeed.boxes)
                 connectPostBoxHandlers(box);
 
-            isPageLoaded["tagFeed"] = true;
-            addHistoryEntry("tag", tagName);
+            if (getActiveWindow() == "loading")
+            {
+                isPageLoaded["tagFeed"] = true;
+                addHistoryEntry("tag", tagName);
 
-            switchWindow("tagFeed");
-            this.stack.show_all();
+                
+                switchWindow("tagFeed");
+                this.stack.show_all();
+            }
             return false;
         });
         
@@ -493,10 +497,14 @@ public class PhotoStream.App : Granite.Application
             });  
             connectPostBoxHandlers(postList.boxes.last().data);   
 
-            addHistoryEntry("post", id);       
+            if (getActiveWindow() == "loading")
+            {
 
-            switchWindow("post");
-            this.stack.show_all();
+                addHistoryEntry("post", id);       
+
+                switchWindow("post");
+                this.stack.show_all();
+            }
             return false;
         });
         
@@ -561,10 +569,14 @@ public class PhotoStream.App : Granite.Application
             foreach(PostBox box in locationFeedBox.locationFeed.boxes)
                 connectPostBoxHandlers(box);
 
-            addHistoryEntry("location", locationId.to_string());
+            if (getActiveWindow() == "loading")
+            {
 
-            switchWindow("location");
-            this.stack.show_all();
+                addHistoryEntry("location", locationId.to_string());
+
+                switchWindow("location");
+                this.stack.show_all();
+            }
             return false;
         });
         
@@ -629,10 +641,14 @@ public class PhotoStream.App : Granite.Application
                     });
             }
 
-            addHistoryEntry("comments", postId);
+            if (getActiveWindow() == "loading")
+            {
 
-            commentsList.postId = postId;
-            switchWindow("comments");
+                addHistoryEntry("comments", postId);
+
+                commentsList.postId = postId;
+                switchWindow("comments");
+            }
             return false;
         });
         
@@ -673,11 +689,15 @@ public class PhotoStream.App : Granite.Application
             foreach(User user in likees)
                 userList.prepend(user);
 
-            isPageLoaded["user"] = true;
-            addHistoryEntry(type, postId);
-        
-            switchWindow("userList");
-            this.box.show_all();   
+            if (getActiveWindow() == "loading")
+            {
+
+                isPageLoaded["user"] = true;
+                addHistoryEntry(type, postId);
+            
+                switchWindow("userList");
+                this.box.show_all();   
+            }
 
             new Thread<int>("", () => {                  
                 foreach(UserBox userBox in userList.boxes)
@@ -748,7 +768,7 @@ public class PhotoStream.App : Granite.Application
             return false;
         });
 
-        if (userWindowBox.user != null &&userWindowBox.user.id == id) // if user is already loaded, just open the user tab and return. no need to load.
+        if (userWindowBox.user != null && userWindowBox.user.id == id) // if user is already loaded, just open the user tab and return. no need to load.
         {
             Idle.add(() => {
                 switchWindow("user");
@@ -763,7 +783,8 @@ public class PhotoStream.App : Granite.Application
         bool isPrivate = false;
         Relationship relationship = null;
 
-        addHistoryEntry("user", id);
+        if (getActiveWindow() == "loading")
+            addHistoryEntry("user", id);
 
         try
         {
@@ -788,7 +809,8 @@ public class PhotoStream.App : Granite.Application
                 userWindowBox.load(loadedUser);
                 userWindowBox.loadPrivate();
 
-                switchWindow("user");
+                if (getActiveWindow() == "loading")
+                    switchWindow("user");
                 this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
                     new Thread<int>("", loadOlderUserFeed);
                 });
@@ -819,7 +841,8 @@ public class PhotoStream.App : Granite.Application
             foreach (PostBox postBox in userWindowBox.userFeed.boxes)
                 connectPostBoxHandlers(postBox);
 
-            switchWindow("user");
+            if (getActiveWindow() == "loading")
+                switchWindow("user");
             this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
                 new Thread<int>("", loadOlderUserFeed);
             });
@@ -880,7 +903,8 @@ public class PhotoStream.App : Granite.Application
         if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
 
-        addHistoryEntry("feed", "");
+        if (getActiveWindow() == "loading")
+            addHistoryEntry("feed", "");
 
         new Thread<int>("", setFeedWidgets);      
         return 0;
@@ -1194,8 +1218,7 @@ public class PhotoStream.App : Granite.Application
         userButton.toggled.connect(() => {
             if (!userButton.get_active())
                 return;
-            uncheckButtonsExcept("self");
-            addHistoryEntry("user", selfUser.id);
+            uncheckButtonsExcept("self");            
             if (isPageLoaded["feed"])
                 new Thread<int>("", () => {
                     loadUser(selfUser.id);
@@ -1262,7 +1285,7 @@ public class PhotoStream.App : Granite.Application
 
             new Thread<int>("", loadImages);                    
 
-            if (!isFeedLoaded)
+            if (!isFeedLoaded && getActiveWindow() == "loading")
                 switchWindow("userFeed");
 
             GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
@@ -1397,6 +1420,10 @@ public class PhotoStream.App : Granite.Application
     public void switchWindow(string window)
     {
         stack.set_visible_child_name(window);
+    } 
+    public string getActiveWindow()
+    {
+        return stack.get_visible_child_name();
     } 
     public void response (int response_id)
     {

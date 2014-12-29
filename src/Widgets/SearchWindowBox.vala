@@ -85,7 +85,8 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		// and this function is called in setFeedWidgets.
 		this.pack_start(searchQuery, false, true);
 		this.add(switcherBox);
-		this.pack_end(stack, true, true);
+		//this.pack_end(stack, true, true);
+		//this.pack_end(spinner, true, true);
 	}
 
 	private void switchView (Gtk.ToggleButton button, string label) 
@@ -170,8 +171,11 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
     {
 
         Idle.add(() => {
-        	this.remove(stack);
-            this.pack_end(spinner, true, true);
+        	if (this.stack.is_ancestor(this))
+        	{
+	        	this.remove(stack);
+	            this.pack_end(spinner, true, true);
+	        }
             this.show_all();
             return false;
         });

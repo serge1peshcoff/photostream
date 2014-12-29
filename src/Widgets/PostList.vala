@@ -1,4 +1,5 @@
 using PhotoStream.Utils;
+using Gtk;
 
 public class PhotoStream.Widgets.PostList : Gtk.ListBox
 {
@@ -41,7 +42,11 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 		base.prepend(separator);
 		PostBox box = new PostBox(post);
-		base.prepend(box);
+
+		var listBoxRow = new Gtk.ListBoxRow();
+		//listBoxRow.set_selectable(false);
+		listBoxRow.add(box);
+		base.prepend(listBoxRow);
 		boxes.prepend(box);		
 	}
 
@@ -50,7 +55,11 @@ public class PhotoStream.Widgets.PostList : Gtk.ListBox
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 		base.insert (separator, (int) this.get_children().length () - 1);
 		PostBox box = new PostBox(post);
-		base.insert (box, (int) this.get_children().length () - 1);
+
+		var listBoxRow = new Gtk.ListBoxRow();
+		//listBoxRow.set_selectable(false);
+		listBoxRow.add(box);
+		base.insert (listBoxRow, (int) this.get_children().length () - 1);
 		boxes.append(box);			
 	}
 

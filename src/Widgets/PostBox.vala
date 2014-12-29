@@ -156,7 +156,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_line_wrap(true);
 		titleLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
 		titleLabel.set_justify(Gtk.Justification.LEFT);
-		titleLabel.set_max_width_chars(40);
+		//titleLabel.set_max_width_chars(40);
 		titleLabel.xalign = 0;
 
 		titleAlignment.add(titleLabel);

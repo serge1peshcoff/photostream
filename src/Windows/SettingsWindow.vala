@@ -54,6 +54,15 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Gtk.Alignment websiteAlignment;
 	public Gtk.Alignment recommendAlignment;
 
+	public Gtk.Box appSettingsBox;
+	public Gtk.Label cacheSpaceLabel;
+	public Gtk.Button clearCacheButton;
+
+	public Gtk.Alignment cacheSpaceLabelAlignment;
+	public Gtk.Alignment clearCacheButtonAlignment;
+
+	private int64 cacheElementsCount = 0;
+
 	public SettingsWindow () 
 	{
 		this.set_title("Settings");
@@ -89,6 +98,8 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.editProfileBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.settingsGrid = new Gtk.Grid();
 
+		initAlignments();
+
 		this.fullNameLabel = new Gtk.Label("Name");
 		this.emailLabel = new Gtk.Label("Email");
 		this.usernameLabel = new Gtk.Label("User name");
@@ -97,8 +108,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.aboutLabel = new Gtk.Label("About myself");
 		this.websiteLabel = new Gtk.Label("Website");
 		this.recommendLabel = new Gtk.Label("Simular Account Suggestion");
-
-		initAlignments();
 
 		fullNameLabelAlignment.add(fullNameLabel);
 		emailLabelAlignment.add(emailLabel);
@@ -183,10 +192,29 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.settingsStack.add_named(editProfileBox, "editProfile");
 
 
+		this.appSettingsBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		this.cacheSpaceLabel = new Gtk.Label("Cache space: 0 Kb");
+		this.clearCacheButton = new Gtk.Button.with_label("Clear cache...");
+
+		this.cacheSpaceLabelAlignment.add(cacheSpaceLabel);
+		this.clearCacheButtonAlignment.add(clearCacheButton);
+		this.appSettingsBox.add(cacheSpaceLabelAlignment);
+		this.appSettingsBox.add(clearCacheButtonAlignment);
+
+		this.settingsStack.add_named(appSettingsBox, "appSettings");
+
 		this.sourceList.item_selected.connect((id) => {
 			if (id == logOutItem)
 				logOutConfirm();
+			else if (id == appSettingsItem)
+				loadAppSettings();				
+			else if (id == editProfileItem)
+				settingsStack.set_visible_child_name("editProfile");
+
 		});
+
+		this.clearCacheButton.clicked.connect(clearCache);
 
 		this.spinner = new Gtk.Spinner();
 		this.spinner.start();	
@@ -359,6 +387,18 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         this.recommendAlignment = new Gtk.Alignment (0,0,1,1);
         this.recommendAlignment.right_padding = 4;
         this.recommendAlignment.left_padding = 6;
+
+        this.cacheSpaceLabelAlignment = new Gtk.Alignment (0,0,0,1);
+        this.cacheSpaceLabelAlignment.top_padding = 6;
+        this.cacheSpaceLabelAlignment.right_padding = 4;
+        this.cacheSpaceLabelAlignment.bottom_padding = 6;
+        this.cacheSpaceLabelAlignment.left_padding = 6;
+
+        this.clearCacheButtonAlignment = new Gtk.Alignment (0,0,0,1);
+        this.clearCacheButtonAlignment.top_padding = 6;
+        this.clearCacheButtonAlignment.right_padding = 4;
+        this.clearCacheButtonAlignment.bottom_padding = 6;
+        this.clearCacheButtonAlignment.left_padding = 6;
 	}
 
 	public void submitSettingsConfirm()
@@ -437,6 +477,104 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         	return 0;
         });        
 
+	}
+
+	public void loadAppSettings()
+	{
+		settingsStack.set_visible_child_name("appSettings");
+
+		cacheElementsCount = 0;
+		double size = getSize(PhotoStream.App.CACHE_URL);
+		string measureUnit = "bytes";
+		if (size > 1024)
+		{
+			size /= 1024;
+			measureUnit = "Kb";
+		}
+		if (size > 1024)
+		{
+			size /= 1024;
+			measureUnit = "Mb";
+		}
+		if (size > 1024)
+		{
+			size /= 1024;
+			measureUnit = "Gb";
+		}
+
+        cacheSpaceLabel.set_text("Cache space: %4.2f %s (%lld elements)".printf(size, measureUnit, cacheElementsCount));
+	}
+
+	private double getSize(string filename)
+	{
+		double sum = 0;
+		try 
+		{
+			var directory = File.new_for_path(filename);
+	        var enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME 
+	        												+ "," 
+	        												+ FileAttribute.STANDARD_SIZE, 0);
+
+	        FileInfo file_info;
+	        while ((file_info = enumerator.next_file ()) != null) 
+	        {
+	        	if (file_info.get_file_type () == FileType.DIRECTORY)
+	        		sum += getSize(filename + file_info.get_name() + "/");
+				else
+	        		if (file_info.get_name() != "cookie.txt")
+	        		{
+	            		sum += (double)file_info.get_size();
+	            		cacheElementsCount++;
+	        		}
+	        }
+	    } 
+	    catch (Error e) 
+	    {
+	        error("Error: %s\n", e.message);
+	    }
+	    return sum;
+	}
+
+	public void clearCache()
+	{
+        removeAllFiles(PhotoStream.App.CACHE_URL);
+
+        cacheElementsCount = 0;
+        loadAppSettings();
+	}
+
+	private void removeAllFiles(string filename)
+	{
+		try 
+		{
+			var directory = File.new_for_path(filename);
+	        var enumerator = directory.enumerate_children (FileAttribute.STANDARD_EDIT_NAME, 0);
+	        FileInfo file_info;
+	        while ((file_info = enumerator.next_file ()) != null) 
+	        {
+	        	if (file_info.get_file_type () == FileType.DIRECTORY)
+	        	{
+	        		removeAllFiles(filename + file_info.get_name() + "/");
+	        	}
+				else
+	        		if (file_info.get_name() != "cookie.txt")
+	        		{
+	        			try
+	        			{
+	        				File fileToRemove = File.new_for_path(filename + file_info.get_edit_name());
+	        				fileToRemove.delete();
+	        			}
+	        			catch (Error e)
+	        			{
+	        				error("Error removing file: %s.", e.message);
+	        			}	        			          	
+	        		}
+	        }
+	    } 
+	    catch (Error e) 
+	    {
+	        error("Error: %s\n", e.message);
+	    }
 	}
 
 	public void submitSettingsReally(PhotoStream.Utils.User user, PhotoStream.Utils.Settings settings)

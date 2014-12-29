@@ -7,7 +7,7 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
         this.set_default_size (625, 700);
         this.set_size_request (625, 700);  
         
-        this.set_resizable(false);
+        //this.set_resizable(false);
 
 	}    
     public override bool delete_event(Gdk.EventAny event)
