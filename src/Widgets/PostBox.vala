@@ -279,15 +279,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		string response; 
 		if (!post.didILikeThis) // if not liked, then like
-		{
-			response = likeMedia(post.id);
 			this.post.likesCount += 1;
-		}
 		else // dislike
-		{
-			response = dislikeMedia(post.id);
 			this.post.likesCount -= 1;
-		}
 
 		post.didILikeThis = !post.didILikeThis;
 
@@ -317,10 +311,15 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         	likesText = "<a href=\"@" + PhotoStream.App.selfUser.username + "\">" + PhotoStream.App.selfUser.username + "</a>";
 
         likesLabel.set_markup(likesText);
+        this.show_all();
+
+		if (!post.didILikeThis) // if not liked, then like
+			response = likeMedia(post.id);
+		else // dislike
+			response = dislikeMedia(post.id);
 
 		likeBox.button_release_event.connect(callback);
 
-		this.show_all();
 		return 0;
 	}
 	public bool callback()
@@ -465,7 +464,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
             new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
         );
 
-        Pixbuf currentLikePixbuf = (!post.didILikeThis? likePixbuf : dislikePixbuf);
+        Pixbuf currentLikePixbuf = likePixbuf;
 
         currentLikePixbuf = currentLikePixbuf.scale_simple(LIKE_SIZE, LIKE_SIZE, Gdk.InterpType.BILINEAR);
         likeImage.set_from_pixbuf(currentLikePixbuf);
