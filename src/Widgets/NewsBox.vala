@@ -9,7 +9,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 	public Gtk.Image postImage;
 	public Gtk.Box textBox;
 	public Gtk.Label commentLabel;
-	public Gtk.Label dateLabel;
+	public PhotoStream.Widgets.DateLabel dateLabel;
 
 	public Gtk.EventBox avatarBox;
 	public Gtk.EventBox postImageBox;
@@ -79,9 +79,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		this.commentLabel.set_markup(commentString);
 		this.commentLabel.set_line_wrap(true);
 		this.commentLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
-		this.dateLabel = new Gtk.Label("");
-		this.dateLabel.set_markup(wrapInTags(this.activity.time.format("%e.%m.%Y %H:%M")));
-		this.dateLabel.set_halign(Gtk.Align.START);
+		this.dateLabel = new PhotoStream.Widgets.DateLabel(this.activity.time);
 		
 		this.commentAlignment.add(commentLabel);
 		this.dateAlignment.add(dateLabel);

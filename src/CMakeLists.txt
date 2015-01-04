@@ -26,6 +26,7 @@ set(CLIENT_SOURCE
     Widgets/NewsList.vala
     Widgets/NewsBox.vala
     Widgets/SearchWindowBox.vala
+    Widgets/DateLabel.vala
     Windows/LocationMapWindow.vala
     Windows/MediaWindow.vala
     Windows/MainWindow.vala

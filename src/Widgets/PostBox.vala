@@ -19,7 +19,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
-	public Gtk.Label dateLabel;
+	public PhotoStream.Widgets.DateLabel dateLabel;
 	public Gtk.Label titleLabel;
 	public Gtk.Label likesLabel;
 	public Gtk.Image avatar;
@@ -109,8 +109,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         this.dateAlignment.bottom_padding = 0;
         this.dateAlignment.left_padding = 6;
 
-		dateLabel = new Gtk.Label("");
-		dateLabel.set_markup("<i>" + post.creationTime.format("%e.%m.%Y %H:%M") + "</i>");		
+		dateLabel = new PhotoStream.Widgets.DateLabel(post.creationTime);	
 
 		userNameAlignment.add(userNameLabel);	
 		dateAlignment.add(dateLabel);	
