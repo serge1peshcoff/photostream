@@ -32,6 +32,7 @@ set(CLIENT_SOURCE
     Windows/MainWindow.vala
     Windows/LoginWindow.vala
     Windows/SettingsWindow.vala
+    Windows/BulkDownloadWindow.vala
 )
 
 set (CLIENT_VALAC_OPTIONS

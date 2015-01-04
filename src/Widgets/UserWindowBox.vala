@@ -48,6 +48,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
 
+	public Gtk.Button bulkDownload;
+
 	public Box errorBox;
 	public Label privateLabel;
 
@@ -164,6 +166,13 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.relationshipBox.add(relationshipImage);
 		this.relationshipAlignment.add(relationshipBox);
 		this.userInfoBox.pack_end(relationshipAlignment, false, false);
+
+		this.bulkDownload = new Gtk.Button.with_label("Download all posts...");
+		this.bulkDownload.clicked.connect(() => {
+			var window = new PhotoStream.BulkDownloadWindow(this.user.id);
+			window.show_all();
+		});
+		this.userInfoBox.pack_end(bulkDownload, false, false);
 
 		this.box.pack_start(userInfoBox, false, true);
 
