@@ -313,7 +313,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         likesLabel.set_markup(likesText);
         this.show_all();
 
-		if (!post.didILikeThis) // if not liked, then like
+        // we toggled didILikeThis before, to remember
+		if (post.didILikeThis) // if not liked, then like
 			response = likeMedia(post.id);
 		else // dislike
 			response = dislikeMedia(post.id);
