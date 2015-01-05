@@ -958,11 +958,13 @@ public class PhotoStream.App : Granite.Application
                 new Thread<int>("", () => {
                     feedList.boxes.last().data.loadAvatar();
                     feedList.boxes.last().data.loadImage();
+                    Idle.add(() => {
+                        if (isMainWindowShown)
+                            this.mainWindow.show_all();
+                        return false;
+                    });
                     return 0;
                 });               
-
-                if (isMainWindowShown)
-                    this.mainWindow.show_all();
 
                 return false;
             });
