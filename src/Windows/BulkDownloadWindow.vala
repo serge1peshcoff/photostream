@@ -97,16 +97,26 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 
 	private void downloadPosts()
 	{
-		int currentPost = 1;
 		foreach (MediaInfo post in posts)
 		{
-			downloadFile(post.media.url, selectedFolder + getFileName(post.media.url));
+			try
+			{
+				downloadFile(post.media.url, selectedFolder + getFileName(post.media.url));
+			}
+			catch (Error e)
+			{
+				error("Something wrong with downloading: %s.", e.message);
+			}
 			Idle.add(() => {
-				statusLabel.set_text("Downloading post %d of %s...".printf(currentPost, posts.length().to_string()));
-				progressBar.set_fraction((double)currentPost / 																							posts.length());
+				statusLabel.set_text("Downloading post %d of %s...".printf(posts.index(post) + 1, posts.length().to_string()));
+				progressBar.set_fraction((double)(posts.index(post) + 1) / posts.length());
 				return false;
 			});
-			currentPost++;
 		}
+		Idle.add(() => {
+			statusLabel.set_text("All files successfully downloaded.");
+			progressBar.set_fraction(1);
+			return false;
+		});
 	}
 }
