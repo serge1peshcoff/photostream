@@ -48,6 +48,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public MediaInfo post;
 
+	public signal void imageLoaded(MediaInfo post);
+
 	public PostBox(MediaInfo post)
 	{
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
@@ -381,6 +383,8 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         	{
         		error("Some posts cannot be loaded.");
         	}
+
+        imageLoaded(this.post);
 
         Idle.add(() => {
         	Pixbuf imagePixbuf; 

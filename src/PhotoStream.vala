@@ -956,8 +956,8 @@ public class PhotoStream.App : Granite.Application
                 connectPostBoxHandlers(feedList.boxes.first().data);
 
                 new Thread<int>("", () => {
-                    feedList.boxes.last().data.loadAvatar();
-                    feedList.boxes.last().data.loadImage();
+                    feedList.boxes.first().data.loadAvatar();
+                    feedList.boxes.first().data.loadImage();
                     Idle.add(() => {
                         if (isMainWindowShown)
                             this.mainWindow.show_all();
