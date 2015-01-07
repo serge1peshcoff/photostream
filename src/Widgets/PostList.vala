@@ -5,6 +5,7 @@ using Gdk;
 public class PhotoStream.Widgets.PostList : Gtk.Box
 {
 	public GLib.List<PostBox> boxes;
+	public GLib.List<Pixbuf> srcImages;
 	public Gtk.Button moreButton;
 	public Gtk.Alignment moreButtonAlignment;
 	public Gtk.Button moreButtonImages;
@@ -12,25 +13,33 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	public string olderFeedLink;
 	public int IMAGE_SIZE;
 
+	public Gtk.Button postsView;
+	public Gtk.Button imagesView;
 
 	public Gtk.Stack stack;
 	public Gtk.ListBox postList;
 	public Gtk.Box imagesBox;
 	public Gtk.Grid imagesGrid;
 
-	public PostList()
+	public PostList(bool cannotViewImages = false)
 	{
-		IMAGE_SIZE = (this.get_root_window().get_width() - 10) / 3;
+		this.set_orientation(Gtk.Orientation.VERTICAL);
+		IMAGE_SIZE = 200;
 
 		this.stack = new Gtk.Stack();
 		this.postList = new Gtk.ListBox();
 
 		boxes = new GLib.List<PostBox>();	
+		srcImages = new GLib.List<Pixbuf>();
+
 		this.moreButton = new Gtk.Button.with_label("Load more...");	
 
 		this.moreButtonAlignment = new Gtk.Alignment (1,0,1,0);
         this.moreButtonAlignment.add(moreButton);
         postList.prepend(this.moreButtonAlignment);
+
+        this.postsView = new Gtk.Button.with_label("Posts..");
+        this.imagesView = new Gtk.Button.with_label("Images..");
 
         this.moreButtonImages = new Gtk.Button.with_label("Load more...");	
 
@@ -48,10 +57,22 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.imagesBox.pack_end(moreButtonImagesAlignment, false, false);
 
 		this.stack.add_named(postList, "posts");
-		//this.stack.add_named(imagesBox,  "images");
+		this.stack.add_named(imagesBox,  "images");
 		this.stack.set_visible_child_name("images");
+		if (!cannotViewImages)
+		{
+			this.add(postsView);
+			this.add(imagesView);
+		}
 		this.add(stack);	
 		this.show_all();	
+
+		this.postsView.clicked.connect(() => {
+			this.stack.set_visible_child_name("posts");
+		});
+		this.imagesView.clicked.connect(() => {
+			this.stack.set_visible_child_name("images");
+		});
 	}
 
 	public void deleteMoreButton()
@@ -81,9 +102,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		listBoxRow.add(box);
 		postList.prepend(listBoxRow);
 		boxes.prepend(box);	
-
-		this.stack.set_visible_child_name("images");
-		this.show_all();
 	}
 
 	public new void prepend(MediaInfo post)
@@ -102,36 +120,96 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 			var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
 																		? post.media.previewUrl 
 																		: post.media.url);
-
 			int index = boxes.index(box);
 
-			Pixbuf imagePixbuf; 
-        	Pixbuf videoPixbuf;
 	        try 
 	        {
-	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
-	        	imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-	        	if (post.type == PhotoStream.MediaType.VIDEO)
-	        	{	        		
-	        		videoPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "video.png");
-	        		videoPixbuf = videoPixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-	        		videoPixbuf.composite(imagePixbuf, 0, 0, 
-	        									IMAGE_SIZE, IMAGE_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-	        	}
+	        	srcImages.append(new Pixbuf.from_file(imageFileName));
 	        }	
 	        catch (Error e)
 	        {
 	        	GLib.error("Something wrong with file loading.\n");
-	        }	
-			
-			
-			Image tmpImage = new Image.from_pixbuf(imagePixbuf);
-			imagesGrid.attach(tmpImage, index % 3, index / 3, 1, 1);
+	        }	        			
+
+	        EventBox tmpEventBox = new Gtk.EventBox();			
+			Image tmpImage = new Image();
+			tmpEventBox.add(tmpImage);
+
+			tmpEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
+			tmpEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+	        tmpEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+
+	        Gtk.Widget toplevel = this.get_toplevel();
+			var window = (Gtk.Window)toplevel;
+			var app = (PhotoStream.App)window.get_application();
+
+	        tmpEventBox.enter_notify_event.connect((event) => {
+				event.window.set_cursor (
+	                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+	            );
+	            return false;
+			});
+
+			tmpEventBox.button_release_event.connect((event) => {				
+				app.loadPost(post.id);
+				return false;
+			});
+
+			//Signal.connect(window, "configure-event", callback, null);
+
+
+			imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
+
+			loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);
 			this.show_all();
 		});	
+	}
 
-		this.stack.set_visible_child_name("images");	
-		this.show_all();	
+	private void callback()
+	{
+		Gtk.Widget toplevel = this.get_toplevel();
+		var window = (Gtk.Window)toplevel;
+		resizeAllImages(window.get_allocated_width());
+	}
+
+	public void resizeAllImages(int windowSize)
+	{
+		IMAGE_SIZE = (windowSize - 10) / 3;
+		foreach (PostBox box in boxes)
+		{
+			int index = boxes.index(box);
+			if (imagesGrid.get_child_at(index % 3, index / 3) == null)
+				continue;
+
+			loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);				
+			this.show_all();
+		}
+	}
+
+	private void loadImageToFeed(int index, bool isVideo)
+	{
+		Pixbuf imagePixbuf; 
+        Pixbuf videoPixbuf;
+		try 
+        {
+        	imagePixbuf = srcImages.nth(index).data.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+        	if (isVideo)
+        	{	        		
+        		videoPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "video.png");
+        		videoPixbuf = videoPixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
+        		videoPixbuf.composite(imagePixbuf, 0, 0, 
+        									IMAGE_SIZE, IMAGE_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
+        	}
+        }	
+        catch (Error e)
+        {
+        	GLib.error("Something wrong with file loading.\n");
+        }	
+		
+
+		Gtk.Bin container = (Bin)imagesGrid.get_child_at(index % 3, index / 3);
+		Gtk.Image image = (Image) container.get_child();
+		image.set_from_pixbuf(imagePixbuf);
 	}
 
 	public void clear()
@@ -143,8 +221,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.boxes = new List<PostBox>();
 
 		if (!this.moreButtonAlignment.is_ancestor(this.postList) && this.olderFeedLink != "")
-			postList.prepend(this.moreButtonAlignment);
-
-		
+			postList.prepend(this.moreButtonAlignment);		
 	}
 }

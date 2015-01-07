@@ -276,7 +276,7 @@ public class PhotoStream.App : Granite.Application
 
 
         this.postWindow = new Gtk.ScrolledWindow(null, null);
-        this.postList = new PostList();
+        this.postList = new PostList(true);
         this.postWindow.add_with_viewport(postList);
         stack.add_named(postWindow, "post");
 
@@ -1326,6 +1326,7 @@ public class PhotoStream.App : Granite.Application
                 postBox.loadImage();
             }
         }
+        feedList.resizeAllImages(this.mainWindow.get_allocated_width());
         return 0;
     }
 
@@ -1372,11 +1373,33 @@ public class PhotoStream.App : Granite.Application
                 return true;
             });
 
-        postBox.avatarBox.button_release_event.connect(() =>{
-            new Thread<int>("", () => {
-                loadUser(postBox.post.postedUser.id, postBox.post.postedUser);
-                return 0;
-            });
+        postBox.avatarBox.button_release_event.connect((event) =>{
+            if (event.button == Gdk.BUTTON_PRIMARY)
+            {
+                new Thread<int>("", () => {
+                    loadUser(postBox.post.postedUser.id, postBox.post.postedUser);
+                    return 0;
+                });
+            }
+            else
+            {
+                var menu = new Gtk.Menu();
+                menu.attach_to_widget(postBox.avatarBox, null);
+
+                var bulkDownloadItem = new Gtk.MenuItem.with_label ("Download all posts...");
+                menu.add(bulkDownloadItem);
+
+                var blockUserItem = new Gtk.MenuItem.with_label ("Block user...");
+                menu.add(blockUserItem);
+
+                bulkDownloadItem.activate.connect (() => {
+                    var window = new PhotoStream.BulkDownloadWindow(postBox.post.postedUser.id);
+                    window.show_all();
+                });
+
+                menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+                menu.show_all();
+            }
             return false;
         });
         if (postBox.locationEventBox != null)

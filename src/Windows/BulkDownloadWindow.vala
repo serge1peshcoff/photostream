@@ -16,6 +16,19 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 
 	public BulkDownloadWindow(string id)
 	{
+		var fileChooser = new Gtk.FileChooserDialog ("Select folder to save media posts...", this,
+                                      Gtk.FileChooserAction.SELECT_FOLDER,
+                                      "Cancel", Gtk.ResponseType.CANCEL,
+                                      "Open", Gtk.ResponseType.ACCEPT);
+        if (fileChooser.run () != Gtk.ResponseType.ACCEPT)
+        {
+        	fileChooser.destroy ();
+            this.destroy();
+            return;
+        }
+        else
+        	selectedFolder = fileChooser.get_filename() + "/";
+
 		this.id = id;
 
 		this.statusAlignment = new Gtk.Alignment (1,0,1,1);
@@ -42,15 +55,6 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
         this.box.add(statusAlignment);
 
         this.add(box);
-
-        var fileChooser = new Gtk.FileChooserDialog ("Select folder to save media posts...", this,
-                                      Gtk.FileChooserAction.SELECT_FOLDER,
-                                      "Cancel", Gtk.ResponseType.CANCEL,
-                                      "Open", Gtk.ResponseType.ACCEPT);
-        if (fileChooser.run () != Gtk.ResponseType.ACCEPT)
-            this.destroy();
-        else
-        	selectedFolder = fileChooser.get_filename() + "/";
 
         fileChooser.destroy ();
 

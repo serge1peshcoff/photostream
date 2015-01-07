@@ -8,6 +8,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 	public Gtk.Alignment avatarAlignment;
 
+	public EventBox userInfoEventBox;
 	public Box userInfoBox;
 
 	public Box avatarBox;
@@ -47,8 +48,6 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
-
-	public Gtk.Button bulkDownload;
 
 	public Box errorBox;
 	public Label privateLabel;
@@ -167,14 +166,16 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.relationshipAlignment.add(relationshipBox);
 		this.userInfoBox.pack_end(relationshipAlignment, false, false);
 
-		this.bulkDownload = new Gtk.Button.with_label("Download all posts...");
-		this.bulkDownload.clicked.connect(() => {
-			var window = new PhotoStream.BulkDownloadWindow(this.user.id);
-			window.show_all();
-		});
-		this.userInfoBox.pack_end(bulkDownload, false, false);
+		this.userInfoEventBox = new EventBox();
+		this.userInfoEventBox.add(userInfoBox);
+		this.box.pack_start(userInfoEventBox, false, true);
 
-		this.box.pack_start(userInfoBox, false, true);
+		this.userInfoEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.userInfoEventBox.button_release_event.connect((event) => {
+			if (event.button == Gdk.BUTTON_SECONDARY)
+				userMenuPopup();			
+			return false;
+		});
 
 		this.followsCountEventBox.add(followsCountBoxAlignment);
 		this.followersCountEventBox.add(followersCountBoxAlignment);
@@ -458,5 +459,25 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         	return false;
         });
         
+    }
+    private void userMenuPopup()
+    {
+    	var menu = new Gtk.Menu();
+    	menu.attach_to_widget(userInfoEventBox, null);
+
+    	var bulkDownloadItem = new Gtk.MenuItem.with_label ("Download all posts...");
+		menu.add(bulkDownloadItem);
+
+		var blockUserItem = new Gtk.MenuItem.with_label ("Block user...");
+		menu.add(blockUserItem);
+
+		bulkDownloadItem.activate.connect (() => {
+			var window = new PhotoStream.BulkDownloadWindow(this.user.id);
+			window.show_all();
+		});
+
+
+		menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+		menu.show_all();
     }
 }
