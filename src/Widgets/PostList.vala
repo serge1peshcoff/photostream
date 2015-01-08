@@ -13,9 +13,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	public string olderFeedLink;
 	public int IMAGE_SIZE;
 
-	public Gtk.Button postsView;
-	public Gtk.Button imagesView;
-
 	public Gtk.Stack stack;
 	public Gtk.ListBox postList;
 	public Gtk.Box imagesBox;
@@ -38,9 +35,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
         this.moreButtonAlignment.add(moreButton);
         postList.prepend(this.moreButtonAlignment);
 
-        this.postsView = new Gtk.Button.with_label("Posts..");
-        this.imagesView = new Gtk.Button.with_label("Images..");
-
         this.moreButtonImages = new Gtk.Button.with_label("Load more...");	
 
 		this.moreButtonImagesAlignment = new Gtk.Alignment (1,0,1,0);
@@ -59,20 +53,8 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.stack.add_named(postList, "posts");
 		this.stack.add_named(imagesBox,  "images");
 		this.stack.set_visible_child_name("images");
-		if (!cannotViewImages)
-		{
-			this.add(postsView);
-			this.add(imagesView);
-		}
 		this.add(stack);	
 		this.show_all();	
-
-		this.postsView.clicked.connect(() => {
-			this.stack.set_visible_child_name("posts");
-		});
-		this.imagesView.clicked.connect(() => {
-			this.stack.set_visible_child_name("images");
-		});
 	}
 
 	public void deleteMoreButton()
