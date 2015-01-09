@@ -1246,7 +1246,11 @@ using Gdk;
             this.setSettingsWindow();
         });
         aboutMenuItem.activate.connect(() => {
+#if HAVE_GRANITE
             show_about(this.mainWindow);
+#else
+            // stub, to do later
+#endif
         });
         quitMenuItem.activate.connect(() => {
             this.mainWindow.destroy();
