@@ -245,13 +245,13 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 #else
 		this.logOutItem.clicked.connect(() => {
 			logOutConfirm();
-		})
+		});
 		this.appSettingsItem.clicked.connect(() => {
 			loadAppSettings();	
-		})
+		});
 		this.appSettingsItem.clicked.connect(() => {
 			settingsStack.set_visible_child_name("editProfile");
-		})
+		});
 #endif
 
 		this.clearCacheButton.clicked.connect(clearCache);
