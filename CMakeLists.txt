@@ -56,6 +56,8 @@ set (CORE_PKG
   gdk-x11-3.0
   gstreamer-video-1.0
   libnotify
+  libsoup
+  libgee
 )
 
 set (BASIC_VALAC_OPTIONS
