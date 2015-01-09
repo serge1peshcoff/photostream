@@ -30,6 +30,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		actions["like"] = "liked your photo";
 		actions["mention"] = "mentioned you in a comment:";
 		actions["comment"] = "left a comment on your photo:";
+		actions["tagged-in-photo"] = "took a picture of you.";
 
 		this.box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.add(box);

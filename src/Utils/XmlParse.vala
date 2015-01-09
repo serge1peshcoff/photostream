@@ -43,8 +43,11 @@ public NewsActivity parseActivity(Xml.Node* element)
 		activity.activityType = "mention";
 	else if (liElement->get_prop("class").index_of("comment") != -1) // comment activity
 		activity.activityType = "comment";
+	else if (liElement->get_prop("class").index_of("tagged-in-photo") != -1) // comment activity
+		activity.activityType = "tagged-in-photo";
 	else
 		error("Should've not reached here.");
+
 
 	var indexUrl = usernameElement->get_prop("href").index_of("=") + 1; // getting username
 	activity.username = usernameElement->get_prop("href").substring(indexUrl, usernameElement->get_prop("href").length - indexUrl);
@@ -61,14 +64,20 @@ public NewsActivity parseActivity(Xml.Node* element)
 
 	// loading post info
 
-	var postElement = getChildWithClass(liElement, "gutter");
+	Xml.Node* postElement ;
+	if (activity.activityType == "tagged-in-photo")
+		postElement = getChildWithClass(liElement, "single-image");		
+	else
+		postElement = getChildWithClass(liElement, "gutter");
+
 	indexUrl = postElement->get_prop("href").index_of("=") + 1; // getting post ID
 	activity.postId = postElement->get_prop("href").substring(indexUrl, postElement->get_prop("href").length - indexUrl);
 
-	//print(postElement->children->name + "\n");
 	activity.imagePicture = postElement->children->get_prop("src");
 
-	if (activity.activityType == "like") // like image, nothing to do here
+
+
+	if (activity.activityType == "like" || activity.activityType == "tagged-in-photo") // like image, nothing to do here
 		return activity;
 
 	//getting mentioned comment
