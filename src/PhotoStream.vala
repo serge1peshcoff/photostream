@@ -97,13 +97,13 @@ using Gdk;
         about_translators   = null;
         about_license_type  = Gtk.License.GPL_3_0;
     }
-#else
-
 #endif
 
     public App()
     {
-        //this.create_appmenu(new Gtk.Menu());
+#if !HAVE_GRANITE
+    this.set_application_id("org.itprogramming1.photostream");
+#endif
     }
 
 	protected override void activate () 
