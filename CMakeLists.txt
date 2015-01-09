@@ -89,7 +89,7 @@ pkg_check_modules (DEPS REQUIRED ${DEPS_PKG} ${CORE_PKG})
 
 
 set (GLOBAL_VALAC_OPTIONS
-  --vapidir=${CMAKE_BINARY_DIR}/vapi
+  --vapidir=${CMAKE_SOURCE_DIR}/vapi
   ${BASIC_VALAC_OPTIONS}
 )
 
