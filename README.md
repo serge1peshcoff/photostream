@@ -19,9 +19,16 @@ Inspired a lot by Birdie Twitter client.
 * 
 
 ## Installation 
-Installing necessary dependencies:
+
 ```shell
-sudo apt-get install libgstreamer-plugins-base1.0-dev libsoup-dev libjson-glib-dev libxml2-dev libnotify-dev
+# If you don't have Vala
+sudo add-apt-repository ppa:vala-team/ppa
+sudo apt-get update
+sudo apt-get install vala-0.26
+# Installing necessary dependencies:
+sudo apt-get install libgstreamer-plugins-base1.0-dev \ 
+				libsoup2.4-dev libjson-glib-dev libxml2-dev libnotify-dev \
+				libgee-0.8-dev 
 ```
 
 Building:
