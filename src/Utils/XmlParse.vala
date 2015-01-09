@@ -17,21 +17,18 @@ public List<NewsActivity> parseNews(string message)
     var bodyElement = getChildWithName(root, "body");
     var divElement = getChildWithName(bodyElement, "div");
 
-    for (Xml.Node* iter = divElement->children; iter != null; iter = iter->next)
-    {
-
+    for (Xml.Node* iter = divElement->children; iter != null; iter = iter->next) // foreach ul.activity
     	if (iter->name != "text")
-    		returnList.append(parseActivity(iter)); // ul class="activity" as argument
-    }
+    		for (Xml.Node* liElement = iter->children; liElement != null; liElement = liElement->next) 
+    			if (liElement->name != "text" && liElement->get_prop("class").index_of("show-more") == -1)
+    				returnList.append(parseActivity(liElement)); // li as argument
 
     return returnList;
 }
 
-public NewsActivity parseActivity(Xml.Node* element)
+public NewsActivity parseActivity(Xml.Node* liElement)
 {
-	NewsActivity activity = new NewsActivity();
-
-	var liElement = getChildWithName(element, "li");
+	var activity = new NewsActivity();
 	var usernameElement = getChildWithClass(liElement, "profile-pic");
 
 	// getting activity type
@@ -46,7 +43,7 @@ public NewsActivity parseActivity(Xml.Node* element)
 	else if (liElement->get_prop("class").index_of("tagged-in-photo") != -1) // comment activity
 		activity.activityType = "tagged-in-photo";
 	else
-		error("Should've not reached here.");
+		error("Should've not reached here: %s.", liElement->get_prop("class"));
 
 
 	var indexUrl = usernameElement->get_prop("href").index_of("=") + 1; // getting username
