@@ -16,11 +16,14 @@ webkit2gtk-4.0 which is in Ubuntu 14.04 repositories is too older, you need at l
 
 Inspired a lot by Birdie Twitter client.
 
-You need this packages to build:
+* 
 
-* libgstreamer-plugins-base1.0-dev
+## Installation 
+Installing necessary dependencies:
+```shell
+sudo apt-get install libgstreamer-plugins-base1.0-dev libsoup-dev libjson-glib-dev libxml2-dev libnotify-dev
+```
 
-## Installation  
 Building:
 
 ```shell
