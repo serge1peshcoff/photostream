@@ -16,8 +16,6 @@ webkit2gtk-4.0 which is in Ubuntu 14.04 repositories is too older, you need at l
 
 Inspired a lot by Birdie Twitter client.
 
-* 
-
 ## Installation 
 
 ```shell
