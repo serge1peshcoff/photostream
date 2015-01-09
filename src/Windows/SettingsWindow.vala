@@ -107,7 +107,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.appSettingsItem = new Gtk.Button.with_label("Application settings");
 		this.logOutItem = new Gtk.Button.with_label("Log out");
 
-		pane = new Gtk.Paned();
+		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 		sourceList = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		sourceList.add(editProfileItem);
 		sourceList.add(changePasswordItem);
@@ -232,6 +232,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 		this.settingsStack.add_named(appSettingsBox, "appSettings");
 
+#if HAVE_GRANITE
 		this.sourceList.item_selected.connect((id) => {
 			if (id == logOutItem)
 				logOutConfirm();
@@ -241,6 +242,17 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 				settingsStack.set_visible_child_name("editProfile");
 
 		});
+#else
+		this.logOutItem.clicked.connect(() => {
+			logOutConfirm();
+		})
+		this.appSettingsItem.clicked.connect(() => {
+			loadAppSettings();	
+		})
+		this.appSettingsItem.clicked.connect(() => {
+			settingsStack.set_visible_child_name("editProfile");
+		})
+#endif
 
 		this.clearCacheButton.clicked.connect(clearCache);
 

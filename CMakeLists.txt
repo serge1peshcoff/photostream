@@ -57,7 +57,7 @@ set (CORE_PKG
   gstreamer-video-1.0
   libnotify
   libsoup-2.4
-  gee-0.10
+  gee-0.8
 )
 
 set (BASIC_VALAC_OPTIONS

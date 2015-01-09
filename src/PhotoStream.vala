@@ -81,6 +81,7 @@ using Gdk;
 
     public GLib.List<HistoryEntry> history;
 
+#if HAVE_GRANITE
     construct {
         program_name        = "PhotoStream";
         exec_name           = "photostream";
@@ -96,6 +97,9 @@ using Gdk;
         about_translators   = null;
         about_license_type  = Gtk.License.GPL_3_0;
     }
+#else
+
+#endif
 
     public App()
     {
