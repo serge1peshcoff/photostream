@@ -43,10 +43,11 @@ set (SRC_TARGET ${CMAKE_PROJECT_NAME})
 # *_PKG would use the name of the package known by pkg-config.
 #
 
+find_package (PkgConfig)
+
 set (CORE_PKG
   gstreamer-1.0
   gtk+-3.0
-  granite
   glib-2.0>=2.32
   gio-2.0
   json-glib-1.0
@@ -57,17 +58,35 @@ set (CORE_PKG
   libnotify
 )
 
-find_package (PkgConfig)
-
-pkg_check_modules (CORE_DEPS REQUIRED ${CORE_PKG})
-pkg_check_modules (DEPS REQUIRED ${DEPS_PKG} ${CORE_PKG})
-
 set (BASIC_VALAC_OPTIONS
   --target-glib=2.32
   --thread
   # Remove it when vala bindings are no more experimental (see https://bugzilla.gnome.org/show_bug.cgi?id=719597)
   --enable-experimental
 )
+
+pkg_check_modules (GRANITE QUIET granite)
+
+if (GRANITE_FOUND)
+    message(STATUS "Granite support: ON")
+    set(CORE_PKG
+        ${CORE_PKG}
+        granite
+    )
+    set(BASIC_VALAC_OPTIONS
+        ${BASIC_VALAC_OPTIONS}
+        -D HAVE_GRANITE
+    )
+else ()
+    message(STATUS "Granite support: OFF")
+endif ()
+
+
+
+pkg_check_modules (CORE_DEPS REQUIRED ${CORE_PKG})
+pkg_check_modules (DEPS REQUIRED ${DEPS_PKG} ${CORE_PKG})
+
+
 
 set (GLOBAL_VALAC_OPTIONS
   --vapidir=${CMAKE_BINARY_DIR}/vapi
@@ -85,8 +104,3 @@ add_subdirectory (src)
 add_subdirectory (images)
 add_subdirectory (html)
 add_subdirectory (data)
-
-
-# Tests
-
-#add_test (core core/tests/noise-core_tests)

@@ -2,6 +2,7 @@ using Gtk;
 
 public class PhotoStream.SettingsWindow : Gtk.Window
 {
+#if HAVE_GRANITE
 	public Granite.Widgets.ThinPaned pane;
 	public Granite.Widgets.SourceList sourceList;
 	public Granite.Widgets.SourceList.Item editProfileItem;
@@ -9,7 +10,15 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Granite.Widgets.SourceList.Item manageAppsItem;
 	public Granite.Widgets.SourceList.Item appSettingsItem;
 	public Granite.Widgets.SourceList.Item logOutItem;
-
+#else
+	public Gtk.Paned pane;
+	public Gtk.Box sourceList;
+	public Gtk.Button editProfileItem;
+	public Gtk.Button changePasswordItem;
+	public Gtk.Button manageAppsItem;
+	public Gtk.Button appSettingsItem;
+	public Gtk.Button logOutItem;
+#endif
 	public Gtk.Spinner spinner;
 
 	public Gtk.Stack settingsStack;
@@ -73,6 +82,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 		this.settingsStack = new Gtk.Stack();
 
+#if HAVE_GRANITE 
 		this.editProfileItem = new Granite.Widgets.SourceList.Item("Profile Settings");
 		this.changePasswordItem = new Granite.Widgets.SourceList.Item("Change password");
 		this.manageAppsItem = new Granite.Widgets.SourceList.Item("Manage applications");
@@ -90,6 +100,24 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 		sourceList.set_size_request(150, -1);
 		settingsStack.set_size_request(650, -1);
+#else
+		this.editProfileItem = new Gtk.Button.with_label("Profile Settings");
+		this.changePasswordItem = new Gtk.Button.with_label("Change password");
+		this.manageAppsItem = new Gtk.Button.with_label("Manage applications");
+		this.appSettingsItem = new Gtk.Button.with_label("Application settings");
+		this.logOutItem = new Gtk.Button.with_label("Log out");
+
+		pane = new Gtk.Paned();
+		sourceList = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		sourceList.add(editProfileItem);
+		sourceList.add(changePasswordItem);
+		sourceList.add(manageAppsItem);
+		sourceList.add(appSettingsItem);
+		sourceList.add(logOutItem);
+
+		sourceList.set_size_request(150, -1);
+		settingsStack.set_size_request(650, -1);
+#endif
 
 		pane.pack1 (sourceList, false, false);
 		pane.pack2 (settingsStack, true, false);

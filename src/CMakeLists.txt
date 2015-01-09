@@ -63,11 +63,9 @@ add_executable (${EXEC_NAME} ${CLIENT_VALA_C})
 
 execute_process(COMMAND pkg-config --cflags gstreamer-1.0 OUTPUT_VARIABLE CMAKE_C_FLAGS)
 string(REPLACE "\n" "" CMAKE_C_FLAGS ${CMAKE_C_FLAGS})
-message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 
 execute_process(COMMAND pkg-config --libs gstreamer-1.0 OUTPUT_VARIABLE CMAKE_LINK_FLAGS)
 string(REPLACE "\n" "" CMAKE_LINK_FLAGS ${CMAKE_LINK_FLAGS})
-message("CMAKE_LINK_FLAGS: ${CMAKE_LINK_FLAGS}")
 
 set_target_properties(${EXEC_NAME} 
                       PROPERTIES COMPILE_FLAGS ${CMAKE_C_FLAGS}

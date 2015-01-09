@@ -2,7 +2,12 @@ using PhotoStream.Utils;
 using PhotoStream.Widgets;
 using Gdk;
 
-public class PhotoStream.App : Granite.Application 
+#if HAVE_GRANITE
+    public class PhotoStream.App : Granite.Application
+#else
+    public class PhotoStream.App : Gtk.Application
+#endif
+
 {
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
