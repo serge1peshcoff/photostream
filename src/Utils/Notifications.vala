@@ -17,6 +17,7 @@ public void displayNewsNotifications(List<NewsActivity> activityList)
 		actions["mention"] = "mentioned you in a comment:";
 		actions["comment"] = "left a comment on your photo:";
 		actions["tagged-in-photo"] = "took a picture of you.";
+		actions["fb-contact-joined"] = "";
 
 		string summary = "@" + activity.username + " " + actions[activity.activityType];
 		string body = (activity.activityType == "follow" || activity.activityType == "like") ? "" : activity.comment;

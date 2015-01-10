@@ -42,6 +42,8 @@ public NewsActivity parseActivity(Xml.Node* liElement)
 		activity.activityType = "comment";
 	else if (liElement->get_prop("class").index_of("tagged-in-photo") != -1) // comment activity
 		activity.activityType = "tagged-in-photo";
+	else if (liElement->get_prop("class").index_of("fb-contact-joined") != -1) // comment activity
+		activity.activityType = "fb-contact-joined";
 	else
 		error("Should've not reached here: %s.", liElement->get_prop("class"));
 
@@ -58,6 +60,13 @@ public NewsActivity parseActivity(Xml.Node* liElement)
 
 	if (activity.activityType == "follow") // haven't got a post, return as it
 		return activity;
+	if (activity.activityType == "fb-contact-joined")
+	{
+		var pElement = divWrapperElement->children->next;
+		var username = getChildWithName(pElement, "a")->get_content();
+		activity.comment = pElement->get_content().replace(username, "@" + username);
+		return activity;
+	}
 
 	// loading post info
 

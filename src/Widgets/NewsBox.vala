@@ -31,6 +31,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		actions["mention"] = "mentioned you in a comment:";
 		actions["comment"] = "left a comment on your photo:";
 		actions["tagged-in-photo"] = "took a picture of you.";
+		actions["fb-contact-joined"] = "";
 
 		this.box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.add(box);
@@ -60,9 +61,9 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		string commentString = "<b>" + wrapInTags("@" + activity.username) + "</b> " + actions[activity.activityType];
 
 		if (activity.activityType == "mention" || activity.activityType == "comment")
-		{
 			commentString += "\n" + wrapInTags(activity.comment);
-		}
+		if (activity.activityType == "fb-contact-joined")
+			commentString = wrapInTags(activity.comment);
 
 		this.commentAlignment = new Gtk.Alignment (0,1,1,1);
         this.commentAlignment.top_padding = 5;
