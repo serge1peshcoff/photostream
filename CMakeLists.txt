@@ -44,6 +44,7 @@ set (SRC_TARGET ${CMAKE_PROJECT_NAME})
 #
 
 find_package (PkgConfig)
+message(STATUS "PKG_CONFIG_PATH: \"" ${PKG_CONFIG_PATH}\")
 
 set (CORE_PKG
   gstreamer-1.0
@@ -87,7 +88,6 @@ endif ()
 
 pkg_check_modules (CORE_DEPS REQUIRED ${CORE_PKG})
 pkg_check_modules (DEPS REQUIRED ${DEPS_PKG} ${CORE_PKG})
-
 
 
 set (GLOBAL_VALAC_OPTIONS

@@ -52,6 +52,18 @@ public void setCurrentDate()
     settings.set_value(PhotoStream.App.SCHEMA_LAST_CHECKED, new Variant.int64(new GLib.DateTime.now_local().to_unix()));
 }
 
+public bool loadPostsOrImages()
+{
+    Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
+    return settings.get_boolean(PhotoStream.App.SCHEMA_POSTS_OR_IMAGES);
+}
+
+public void setPostsOrImages(bool value)
+{
+    Settings settings = new GLib.Settings (PhotoStream.App.SCHEMA_URI);
+    settings.set_boolean(PhotoStream.App.SCHEMA_POSTS_OR_IMAGES, value);
+}
+
 public void createSchema()
 {
     error("Schema doesn't exist, exiting...\n");

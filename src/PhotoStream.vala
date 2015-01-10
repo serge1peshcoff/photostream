@@ -21,6 +21,7 @@ using Gdk;
     public const string SCHEMA_LAST_CHECKED = "last-news-checked";
     public const string SCHEMA_REFRESH_INTERVAL = "refresh-interval";
     public const string SCHEMA_INSTAGRAM_IP = "instagram-api-ip";
+    public const string SCHEMA_POSTS_OR_IMAGES = "posts-or-images";
     public static string CACHE_URL;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";
