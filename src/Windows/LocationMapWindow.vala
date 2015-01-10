@@ -285,7 +285,14 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 	public void loadLocationsList(double latitude, double longitude)
 	{
 		string response = searchLocation(latitude, longitude, (int)this.scale.get_value());
-		locationList = parseLocationList(response);
+		try
+		{
+			locationList = parseLocationList(response);
+		}
+		catch (Error e)
+		{
+			error("Something wrong with parsing: %s.", e.message);
+		}
 		currentNumber = 0;
 
 		Idle.add(() => {

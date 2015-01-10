@@ -303,11 +303,11 @@ public string postPicture(string fileUrl)
     var cookieJarText = new Soup.CookieJarText(PhotoStream.App.CACHE_URL + "cookie.txt", false);
     var cookies = cookieJarText.all_cookies();
 
-    cookies.append(new Soup.Cookie("ccode", "RU", "i.instagram.com", null, -1));
-    cookies.append(new Soup.Cookie("igfl", PhotoStream.App.selfUser.username, "i.instagram.com", null, -1));
-    cookies.append(new Soup.Cookie("ds_user_id", PhotoStream.App.selfUser.id, "i.instagram.com", null, -1));
-    cookies.append(new Soup.Cookie("ds_user", PhotoStream.App.selfUser.username, "i.instagram.com", null, -1));
-    cookies.append(new Soup.Cookie("is_starred_enabled", "yes", "i.instagram.com", null, -1));
+    cookies.append(new Soup.Cookie("ccode", "RU", "i.instagram.com", "", -1));
+    cookies.append(new Soup.Cookie("igfl", PhotoStream.App.selfUser.username, "i.instagram.com", "", -1));
+    cookies.append(new Soup.Cookie("ds_user_id", PhotoStream.App.selfUser.id, "i.instagram.com", "", -1));
+    cookies.append(new Soup.Cookie("ds_user", PhotoStream.App.selfUser.username, "i.instagram.com", "", -1));
+    cookies.append(new Soup.Cookie("is_starred_enabled", "yes", "i.instagram.com", "", -1));
 
     Soup.cookies_to_request(cookies, message);
 

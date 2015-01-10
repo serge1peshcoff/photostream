@@ -23,9 +23,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 	private Gtk.Window parentWindow;
 	private int prevWidth;
+	private bool cannotViewImages;
 
 	public PostList(bool cannotViewImages = false)
 	{
+		this.cannotViewImages = cannotViewImages;
 		this.set_orientation(Gtk.Orientation.VERTICAL);
 		IMAGE_SIZE = 200;
 
@@ -65,8 +67,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.imagesWindow.add_with_viewport(imagesBox);
 
 		this.stack.add_named(postsWindow, "posts");
-		this.stack.add_named(imagesWindow,  "images");
-		this.stack.set_visible_child_name("images");
+		if (!cannotViewImages)
+		{
+			this.stack.add_named(imagesWindow,  "images");
+			this.stack.set_visible_child_name("images");
+		}
 		this.pack_start(stack, true, true);	
 		this.show_all();	
 	}
@@ -112,62 +117,65 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		postList.insert (listBoxRow, (int) this.postList.get_children().length () - 1);
 		boxes.append(box);	
 
-		box.imageLoaded.connect((post) => {
-			var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
-																		? post.media.previewUrl 
-																		: post.media.url);
-			int index = boxes.index(box);
+		if (!cannotViewImages)
+		{
+			box.imageLoaded.connect((post) => {
+				var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
+																			? post.media.previewUrl 
+																			: post.media.url);
+				int index = boxes.index(box);
 
-	        try 
-	        {
-	        	srcImages.append(new Pixbuf.from_file(imageFileName));
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }	        			
+		        try 
+		        {
+		        	srcImages.append(new Pixbuf.from_file(imageFileName));
+		        }	
+		        catch (Error e)
+		        {
+		        	GLib.error("Something wrong with file loading.\n");
+		        }	        			
 
-	        EventBox tmpEventBox = new Gtk.EventBox();			
-			Image tmpImage = new Image();
-			tmpEventBox.add(tmpImage);
+		        EventBox tmpEventBox = new Gtk.EventBox();			
+				Image tmpImage = new Image();
+				tmpEventBox.add(tmpImage);
 
-			tmpEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
-			tmpEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
-	        tmpEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+				tmpEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
+				tmpEventBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+		        tmpEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
-	        Gtk.Widget toplevel = this.get_toplevel();
-			parentWindow = (Gtk.Window)toplevel;
-			parentWindow.add_events(Gdk.EventType.CONFIGURE);
-			prevWidth = parentWindow.get_allocated_width();
+		        Gtk.Widget toplevel = this.get_toplevel();
+				parentWindow = (Gtk.Window)toplevel;
+				parentWindow.add_events(Gdk.EventType.CONFIGURE);
+				prevWidth = parentWindow.get_allocated_width();
 
-			var app = (PhotoStream.App)parentWindow.get_application();
+				var app = (PhotoStream.App)parentWindow.get_application();
 
-	        tmpEventBox.enter_notify_event.connect((event) => {
-				event.window.set_cursor (
-	                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-	            );
-	            return false;
-			});
+		        tmpEventBox.enter_notify_event.connect((event) => {
+					event.window.set_cursor (
+		                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+		            );
+		            return false;
+				});
 
-			tmpEventBox.button_release_event.connect((event) => {				
-				app.loadPost(post.id);
-				return false;
-			});
+				tmpEventBox.button_release_event.connect((event) => {				
+					app.loadPost(post.id);
+					return false;
+				});
 
-			/*this.parentWindow.size_allocate.connect((allocation) => {
-				if (allocation.width != prevWidth)
-				{
-					print("%d\n", allocation.width);
-					prevWidth = allocation.width;					
-					resizeAllImages(allocation.width);
-				}
-			});*/
+				/*this.parentWindow.size_allocate.connect((allocation) => {
+					if (allocation.width != prevWidth)
+					{
+						print("%d\n", allocation.width);
+						prevWidth = allocation.width;					
+						resizeAllImages(allocation.width);
+					}
+				});*/
 
-			imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
+				imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
 
-			loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);
-			this.show_all();
-		});	
+				loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);
+				this.show_all();
+			});	
+		}
 	}
 
 
