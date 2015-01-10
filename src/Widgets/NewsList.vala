@@ -1,23 +1,36 @@
 using PhotoStream.Utils;
 
-public class PhotoStream.Widgets.NewsList : Gtk.ListBox
+public class PhotoStream.Widgets.NewsList : Gtk.Box
 {
 	public GLib.List<NewsBox> boxes;
 	// there is no olderFeedLink, news can't do this
 	// and there's also no loadMore button
+
+	public Gtk.ListBox newsList;
+	public Gtk.ScrolledWindow newsWindow;
+
 	public NewsList()
 	{
-		boxes = new GLib.List<NewsBox>();
-		this.set_selection_mode (Gtk.SelectionMode.NONE);
-		this.activate_on_single_click = false;
+		boxes = new GLib.List<NewsBox>();		
+
+		this.newsList = new Gtk.ListBox();
+		this.newsList.set_selection_mode (Gtk.SelectionMode.NONE);
+		this.newsList.activate_on_single_click = false;
+
+		this.newsWindow = new Gtk.ScrolledWindow(null, null);
+		this.newsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+		this.newsWindow.add_with_viewport(newsList);
+
+		this.newsWindow.add_with_viewport(newsList);
+		this.pack_start(newsWindow, true, true);
 	}
 
 	public void append(NewsActivity post)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		base.prepend(separator);
+		newsList.prepend(separator);
 		NewsBox box = new NewsBox(post);
-		base.prepend(box);
+		newsList.prepend(box);
 		boxes.append(box);		
 	}
 
@@ -41,16 +54,16 @@ public class PhotoStream.Widgets.NewsList : Gtk.ListBox
 	public new void prepend(NewsActivity post)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		base.insert (separator, (int) this.get_children().length () - 1);
+		newsList.insert (separator, (int) this.newsList.get_children().length () - 1);
 		NewsBox box = new NewsBox(post);
-		base.insert (box, (int) this.get_children().length () - 1);
+		newsList.insert (box, (int) this.newsList.get_children().length () - 1);
 		boxes.append(box);			
 	}
 
 	public void clear()
 	{
-		foreach (var child in this.get_children())
-			this.remove(child);
+		foreach (var child in this.newsList.get_children())
+			this.newsList.remove(child);
 		this.boxes = new List<NewsBox>();
 	}
 }

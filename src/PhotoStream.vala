@@ -51,16 +51,6 @@ using Gdk;
     public Gtk.Spinner loadingSpinner;
 
     public PhotoStack stack;
-    public Gtk.ScrolledWindow userFeedWindow;
-    public Gtk.ScrolledWindow userNewsWindow;
-    public Gtk.ScrolledWindow tagFeedWindow;
-    public Gtk.ScrolledWindow locationFeedWindow;
-    public Gtk.ScrolledWindow userWindow;
-    public Gtk.ScrolledWindow postWindow;
-    public Gtk.ScrolledWindow userListWindow;
-    public Gtk.ScrolledWindow commentWindow;
-    public Gtk.ScrolledWindow usersWindow;
-    public Gtk.ScrolledWindow searchWindow;
 
     public UserWindowBox userWindowBox;
     public HashTagFeedBox tagFeedBox;
@@ -171,11 +161,7 @@ using Gdk;
         loadingSpinner = new Gtk.Spinner();
         loadingSpinner.start();
 
-        stack.add_named(loadingSpinner, "loading");
-
-        this.userFeedWindow = new Gtk.ScrolledWindow (null, null);
-        this.userFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
-        stack.add_named(userFeedWindow, "userFeed");
+        stack.add_named(loadingSpinner, "loading"); 
 
         try 
         {
@@ -193,13 +179,11 @@ using Gdk;
             error("Error creating caching directories: %s\n", e.message);
         }
 
-        this.feedList = new PostList();
-        this.userFeedWindow.add_with_viewport (feedList);
+        this.feedList = new PostList();        
+        stack.add_named(feedList, "userFeed");
 
-        this.userWindow = new Gtk.ScrolledWindow(null, null);
         this.userWindowBox = new UserWindowBox();
-        this.userWindow.add_with_viewport (userWindowBox);
-        stack.add_named(userWindow, "user");
+        stack.add_named(userWindowBox, "user");
 
         userWindowBox.followersCountEventBox.button_release_event.connect(() => {
             new Thread<int>("", () => {
@@ -219,42 +203,27 @@ using Gdk;
             return false;
         });
 
-        this.commentWindow = new Gtk.ScrolledWindow(null, null);
         this.commentsList = new CommentsList.withAvatars();
-        this.commentWindow.add_with_viewport(commentsList);
-        stack.add_named(commentWindow, "comments");
+        stack.add_named(commentsList, "comments");
 
-        this.userListWindow = new Gtk.ScrolledWindow(null, null);
         this.userList = new UserList();
-        this.userListWindow.add_with_viewport(userList);
-        stack.add_named(userListWindow, "userList");
+        stack.add_named(userList, "userList");
 
-        this.tagFeedWindow = new Gtk.ScrolledWindow(null, null);
-        this.tagFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
         this.tagFeedBox = new HashTagFeedBox();
-        this.tagFeedWindow.add_with_viewport(tagFeedBox);
-        stack.add_named(tagFeedWindow, "tagFeed");
+        stack.add_named(tagFeedBox, "tagFeed");
 
-        this.locationFeedWindow = new Gtk.ScrolledWindow(null, null);
-        this.locationFeedWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
         this.locationFeedBox = new LocationFeedBox();
-        this.locationFeedWindow.add_with_viewport(locationFeedBox);
-        stack.add_named(locationFeedWindow, "location");
+        stack.add_named(locationFeedBox, "location");
 
         this.locationFeedBox.openInMapsButton.clicked.connect(() => {
             openLocationMap(this.locationFeedBox.location);
         });
 
-        this.userNewsWindow = new Gtk.ScrolledWindow(null, null);
         this.newsList = new NewsList();
-        this.userNewsWindow.add_with_viewport(newsList);
-        stack.add_named(userNewsWindow, "news");
+        stack.add_named(newsList, "news");
 
-        this.searchWindow = new Gtk.ScrolledWindow(null, null);
-        this.searchWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
         this.searchWindowBox = new SearchWindowBox();
-        this.searchWindow.add_with_viewport(searchWindowBox);
-        stack.add_named(searchWindow, "search");
+        stack.add_named(searchWindowBox, "search");
 
         this.searchWindowBox.locationMapWindow.locationLoaded.connect((location) => {
             this.searchWindowBox.locationMapWindow.hide();
@@ -284,18 +253,14 @@ using Gdk;
                 box.hashtagNameLabel.activate_link.connect(handleUris);
         });
 
-
-        this.postWindow = new Gtk.ScrolledWindow(null, null);
         this.postList = new PostList(true);
-        this.postWindow.add_with_viewport(postList);
-        stack.add_named(postWindow, "post");
+        stack.add_named(postList, "post");
 
         switchWindow("loading");
 
         box.pack_end(stack, true, true); 
         this.stack.show_all();
-        this.mainWindow.show_all();
-        
+        this.mainWindow.show_all();      
     }
 
     public void setLoginWindow()
@@ -895,7 +860,7 @@ using Gdk;
         Idle.add(() => {
             uncheckButtonsExcept("feed");
             return false;
-        });        
+        });      
 
         string response = getUserFeed();
         try 
@@ -909,12 +874,16 @@ using Gdk;
             return 0;
         }
 
+
+
         // if we got here then we've got no errors, yay!
         if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
 
         if (getActiveWindow() == "loading")
             addHistoryEntry("feed", "");
+
+        
 
         new Thread<int>("", setFeedWidgets);      
         return 0;
@@ -1340,7 +1309,7 @@ using Gdk;
                 postBox.loadImage();
             }
         }
-        feedList.resizeAllImages(this.mainWindow.get_allocated_width());
+        //feedList.resizeAllImages(this.mainWindow.get_allocated_width());
         return 0;
     }
 

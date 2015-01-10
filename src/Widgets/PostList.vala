@@ -13,10 +13,16 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	public string olderFeedLink;
 	public int IMAGE_SIZE;
 
+	public Gtk.ScrolledWindow postsWindow;
+	public Gtk.ScrolledWindow imagesWindow;
+
 	public Gtk.Stack stack;
 	public Gtk.ListBox postList;
 	public Gtk.Box imagesBox;
 	public Gtk.Grid imagesGrid;
+
+	private Gtk.Window parentWindow;
+	private int prevWidth;
 
 	public PostList(bool cannotViewImages = false)
 	{
@@ -50,10 +56,18 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.imagesBox.add(imagesGrid);
 		this.imagesBox.pack_end(moreButtonImagesAlignment, false, false);
 
-		this.stack.add_named(postList, "posts");
-		this.stack.add_named(imagesBox,  "images");
+		this.postsWindow = new Gtk.ScrolledWindow(null, null);
+		this.postsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+		this.postsWindow.add_with_viewport(postList);
+
+		this.imagesWindow = new Gtk.ScrolledWindow(null, null);
+		this.imagesWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+		this.imagesWindow.add_with_viewport(imagesBox);
+
+		this.stack.add_named(postsWindow, "posts");
+		this.stack.add_named(imagesWindow,  "images");
 		this.stack.set_visible_child_name("images");
-		this.add(stack);	
+		this.pack_start(stack, true, true);	
 		this.show_all();	
 	}
 
@@ -122,8 +136,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	        tmpEventBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
 	        Gtk.Widget toplevel = this.get_toplevel();
-			var window = (Gtk.Window)toplevel;
-			var app = (PhotoStream.App)window.get_application();
+			parentWindow = (Gtk.Window)toplevel;
+			parentWindow.add_events(Gdk.EventType.CONFIGURE);
+			prevWidth = parentWindow.get_allocated_width();
+
+			var app = (PhotoStream.App)parentWindow.get_application();
 
 	        tmpEventBox.enter_notify_event.connect((event) => {
 				event.window.set_cursor (
@@ -137,8 +154,14 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 				return false;
 			});
 
-			//Signal.connect(window, "configure-event", callback, null);
-
+			/*this.parentWindow.size_allocate.connect((allocation) => {
+				if (allocation.width != prevWidth)
+				{
+					print("%d\n", allocation.width);
+					prevWidth = allocation.width;					
+					resizeAllImages(allocation.width);
+				}
+			});*/
 
 			imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
 
@@ -147,23 +170,18 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		});	
 	}
 
-	private void callback()
-	{
-		Gtk.Widget toplevel = this.get_toplevel();
-		var window = (Gtk.Window)toplevel;
-		resizeAllImages(window.get_allocated_width());
-	}
 
 	public void resizeAllImages(int windowSize)
 	{
-		IMAGE_SIZE = (windowSize - 10) / 3;
+
+		IMAGE_SIZE = (windowSize - 10) / 3 - 1;
 		foreach (PostBox box in boxes)
 		{
 			int index = boxes.index(box);
 			if (imagesGrid.get_child_at(index % 3, index / 3) == null)
 				continue;
 
-			loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);				
+			loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);	
 			this.show_all();
 		}
 	}

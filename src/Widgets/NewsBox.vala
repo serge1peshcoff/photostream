@@ -79,6 +79,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		this.commentLabel = new Gtk.Label("");
 		this.commentLabel.set_markup(commentString);
 		this.commentLabel.set_line_wrap(true);
+		this.commentLabel.xalign = 0;
 		this.commentLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
 		this.dateLabel = new PhotoStream.Widgets.DateLabel(this.activity.time);
 		
