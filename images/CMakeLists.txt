@@ -1,5 +1,4 @@
 set(GENERIC_IMAGES
-    loading.gif
     like.png
     dontlike.png
     video.png
