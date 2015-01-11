@@ -182,6 +182,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
         Idle.add(() => {
 			Pixbuf imagePixbuf; 
         	Pixbuf imageMaskPixbuf;
+        	printActivity(activity);
 	        try 
 	        {
 	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
@@ -189,7 +190,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 	        }	
 	        catch (Error e)
 	        {
-	        	GLib.error("Something wrong with file loading (%s): %s.\n", activity.imagePicture, e.message);
+	        	GLib.error("Something wrong with file loading: %s.\n", e.message);
 	        }
 			imagePixbuf = imagePixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
 			imageMaskPixbuf = imageMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
