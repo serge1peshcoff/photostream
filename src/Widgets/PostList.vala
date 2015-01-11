@@ -65,12 +65,12 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.imagesWindow = new Gtk.ScrolledWindow(null, null);
 		this.imagesWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
 		this.imagesWindow.add_with_viewport(imagesBox);
-
 		this.stack.add_named(postsWindow, "posts");
 		if (!cannotViewImages)
 		{
 			this.stack.add_named(imagesWindow,  "images");
-			this.stack.set_visible_child_name("images");
+			if (loadPostsOrImages())
+				this.stack.set_visible_child_name("images");
 		}
 		this.pack_start(stack, true, true);	
 		this.show_all();	
@@ -173,6 +173,8 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 				imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
 
 				loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);
+				if (loadPostsOrImages())
+					this.stack.set_visible_child_name("images");
 				this.show_all();
 			});	
 		}

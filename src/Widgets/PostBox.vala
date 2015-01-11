@@ -260,7 +260,129 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 		commentsAlignment.add(commentList);
 		box.pack_end(commentsAlignment, true, true);
+
+		this.show_all();
+
+		this.realize.connect(() => {
+			this.connectHandlers();
+		});		
 	}	
+
+	private void connectHandlers()
+	{
+		Gtk.Window parentWindow = (Gtk.Window)(this.get_toplevel().get_toplevel());
+		PhotoStream.App app = (PhotoStream.App)parentWindow.get_application();
+
+		this.titleLabel.activate_link.connect(app.handleUris);
+        this.likesLabel.activate_link.connect((uri) => {
+            if (uri == "getLikes")
+            {
+                new Thread<int>("", () => {
+                    app.loadUsers(this.post.id, "likes");
+                    return 0;
+                });                
+                return true;
+            }
+            else
+                return app.handleUris(uri);
+        });
+        foreach(CommentBox commentBox in this.commentList.comments)
+            commentBox.textLabel.activate_link.connect(app.handleUris);
+
+        // for not crashing when using loadMissingLocation
+        string tmpLocationId = (this.post.location == null) ? "0" : this.post.location.id; 
+        bool locationMissing = false;
+
+        if (this.post.location != null 
+            && this.post.location.latitude == 0 
+            && this.post.location.longitude == 0 
+            && this.post.location.name == ""
+            && this.post.location.id != "0") // sometimes location contains only ID, for such cases
+        {
+            locationMissing = true;
+            new Thread<int>("", () => {
+                loadMissingLocation(this, this.post.location.id);
+                return 0;
+            });
+        }
+        if (this.commentList.loadMoreButton != null)
+            this.commentList.loadMoreButton.activate_link.connect(() => { 
+                new Thread<int>("", () => {
+                    app.loadComments(this.post.id);
+                    return 0;
+                });
+                return true;
+            });
+
+        this.avatarBox.button_release_event.connect((event) =>{
+            if (event.button == Gdk.BUTTON_PRIMARY)
+            {
+                new Thread<int>("", () => {
+                    app.loadUser(this.post.postedUser.id, this.post.postedUser);
+                    return 0;
+                });
+            }
+            else
+            {
+                var menu = new Gtk.Menu();
+                menu.attach_to_widget(this.avatarBox, null);
+
+                var bulkDownloadItem = new Gtk.MenuItem.with_label ("Download all posts...");
+                menu.add(bulkDownloadItem);
+
+                var blockUserItem = new Gtk.MenuItem.with_label ("Block user...");
+                menu.add(blockUserItem);
+
+                bulkDownloadItem.activate.connect (() => {
+                    var window = new PhotoStream.BulkDownloadWindow(this.post.postedUser.id);
+                    window.show_all();
+                });
+
+                menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+                menu.show_all();
+            }
+            return false;
+        });
+        if (this.locationEventBox != null)
+        {
+            this.locationEventBox.button_release_event.connect(() =>{
+                new Thread<int>("", () => {
+                    if (!locationMissing && this.post.location.id == "0") // only coordinates available
+                        Idle.add(() => {
+                            app.openLocationMap(this.post.location); 
+                            return false;
+                        });                                           
+                    else if (locationMissing && tmpLocationId != "0")
+                        app.loadLocation(tmpLocationId);
+                    else
+                        app.loadLocation(this.post.location.id);                                    
+                    return 0;
+                });
+                
+                return false;
+            });
+        }
+	}
+
+
+	private int loadMissingLocation(PostBox postBox, string id)
+    {
+        string response = getLocationInfo(id);
+        Location location;
+        try
+        {
+            location = parseLocation(response);
+        }
+        catch (Error e) 
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        Idle.add(() => {
+            postBox.loadLocation(location);
+            return false;
+        });
+        return 0;
+    }
 
 	public void openMedia()
 	{

@@ -33,11 +33,11 @@
       </description>
     </key>
 
-    <key name="images" type="b">
+    <key name="posts-or-images" type="b">
       <default>false</default>
       <summary>Display posts or images</summary>
       <description>
-        Display full posts information or just images thumbnails.
+        Display full posts information (false) or just images thumbnails (true).
       </description>
     </key>
 
