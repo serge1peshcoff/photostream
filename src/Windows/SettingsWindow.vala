@@ -1,6 +1,6 @@
 using Gtk;
 
-public class PhotoStream.SettingsWindow : Gtk.Window
+public class PhotoStream.SettingsWindow : Gtk.ApplicationWindow
 {
 #if HAVE_GRANITE
 	public Granite.Widgets.ThinPaned pane;
@@ -64,11 +64,18 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Gtk.Alignment recommendAlignment;
 
 	public Gtk.Box appSettingsBox;
+
 	public Gtk.Label cacheSpaceLabel;
 	public Gtk.Button clearCacheButton;
+	public Gtk.Box postsDisplayTypeBox;
+	public Gtk.Label postsOrImagesLabel;
+	public Gtk.Box postsOrImagesBox;
+	public Gtk.RadioButton postsRadioButton;
+	public Gtk.RadioButton imagesRadioButton;
 
 	public Gtk.Alignment cacheSpaceLabelAlignment;
 	public Gtk.Alignment clearCacheButtonAlignment;
+	public Gtk.Alignment postsDisplayTypeBoxAlignment;
 
 	private int64 cacheElementsCount = 0;
 
@@ -219,7 +226,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.editProfileBox.pack_start(settingsGrid, true, true);
 		this.settingsStack.add_named(editProfileBox, "editProfile");
 
-
 		this.appSettingsBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 
 		this.cacheSpaceLabel = new Gtk.Label("Cache space: 0 Kb");
@@ -229,6 +235,24 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.clearCacheButtonAlignment.add(clearCacheButton);
 		this.appSettingsBox.add(cacheSpaceLabelAlignment);
 		this.appSettingsBox.add(clearCacheButtonAlignment);
+
+		this.postsOrImagesLabel = new Gtk.Label("Display:");
+		this.postsOrImagesBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+
+		this.postsRadioButton = new Gtk.RadioButton.with_label_from_widget(null, "Full post information");
+		this.postsRadioButton.toggled.connect(postsDisplayTypeToggled);
+		this.postsOrImagesBox.add(postsRadioButton);
+
+		this.imagesRadioButton = new Gtk.RadioButton.with_label_from_widget(postsRadioButton, "Images thumbnails");
+		this.imagesRadioButton.toggled.connect(postsDisplayTypeToggled);
+		this.postsOrImagesBox.add(imagesRadioButton);
+
+		this.postsDisplayTypeBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		this.postsDisplayTypeBox.add(postsOrImagesLabel);
+		this.postsDisplayTypeBox.add(postsOrImagesBox);
+
+		this.postsDisplayTypeBoxAlignment.add(postsDisplayTypeBox);
+		this.appSettingsBox.add(postsDisplayTypeBoxAlignment);
 
 		this.settingsStack.add_named(appSettingsBox, "appSettings");
 
@@ -266,6 +290,32 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		});
 
 		this.show_all();
+	}
+
+	private void postsDisplayTypeToggled(Gtk.ToggleButton button)
+	{
+		if (!button.get_active())
+			return; // this function executes only on untoggled button.
+
+		string currentButton;
+		if (button.label == "Full post information")
+			currentButton = "posts";
+		else if (button.label == "Images thumbnails")
+			currentButton = "images";
+		else
+			error("Should've not reached there: %s.", button.label);
+
+		Gtk.Window parentWindow = (Gtk.Window)this.get_toplevel();
+		var app = (PhotoStream.App)parentWindow.get_application();
+
+		app.feedList.stack.set_visible_child_name(currentButton);
+		app.userWindowBox.userFeed.stack.set_visible_child_name(currentButton);
+		app.tagFeedBox.hashtagFeed.stack.set_visible_child_name(currentButton);
+		app.locationFeedBox.locationFeed.stack.set_visible_child_name(currentButton);
+
+		parentWindow.show_all();
+
+		setPostsOrImages(currentButton == "images");
 	}
 
 	public void loadSettings()
@@ -439,6 +489,12 @@ public class PhotoStream.SettingsWindow : Gtk.Window
         this.clearCacheButtonAlignment.right_padding = 4;
         this.clearCacheButtonAlignment.bottom_padding = 6;
         this.clearCacheButtonAlignment.left_padding = 6;
+
+		this.postsDisplayTypeBoxAlignment = new Gtk.Alignment (0,0,0,1);
+        this.postsDisplayTypeBoxAlignment.top_padding = 6;
+        this.postsDisplayTypeBoxAlignment.right_padding = 4;
+        this.postsDisplayTypeBoxAlignment.bottom_padding = 6;
+        this.postsDisplayTypeBoxAlignment.left_padding = 6;
 	}
 
 	public void submitSettingsConfirm()
