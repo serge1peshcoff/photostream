@@ -399,9 +399,6 @@ using Gdk;
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
 
-            foreach(PostBox box in tagFeedBox.hashtagFeed.boxes)
-                connectPostBoxHandlers(box);
-
             if (getActiveWindow() == "loading")
             {
                 isPageLoaded["tagFeed"] = true;
@@ -470,7 +467,6 @@ using Gdk;
                 postList.boxes.last().data.loadImage();
                 return 0;
             });  
-            connectPostBoxHandlers(postList.boxes.last().data);   
 
             if (getActiveWindow() == "loading")
             {
@@ -540,9 +536,6 @@ using Gdk;
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
-
-            foreach(PostBox box in locationFeedBox.locationFeed.boxes)
-                connectPostBoxHandlers(box);
 
             if (getActiveWindow() == "loading")
             {
@@ -813,9 +806,6 @@ using Gdk;
             userWindowBox.loadFeed(userFeedList);
             userWindowBox.load(user);
 
-            foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-                connectPostBoxHandlers(postBox);
-
             if (getActiveWindow() == "loading")
                 switchWindow("user");
             this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
@@ -842,8 +832,6 @@ using Gdk;
 
         Idle.add(() => {
             userWindowBox.loadOlderFeed(userFeedList);
-            foreach (PostBox postBox in userWindowBox.userFeed.boxes)
-                connectPostBoxHandlers(postBox);
             return false;
         });
 
@@ -932,7 +920,6 @@ using Gdk;
             feedPosts.prepend(element);
             Idle.add(() => {
                 feedList.append(element);
-                connectPostBoxHandlers(feedList.boxes.first().data);
 
                 new Thread<int>("", () => {
                     feedList.boxes.first().data.loadAvatar();
@@ -1032,25 +1019,6 @@ using Gdk;
         // if we got here then we've got no errors, yay!   
 
         new Thread<int>("", setFeedWidgets);
-        return 0;
-    }
-
-    public int loadMissingLocation(PostBox postBox, string id)
-    {
-        string response = getLocationInfo(id);
-        Location location;
-        try
-        {
-            location = parseLocation(response);
-        }
-        catch (Error e) 
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-        Idle.add(() => {
-            postBox.loadLocation(location);
-            return false;
-        });
         return 0;
     }
 
@@ -1258,10 +1226,7 @@ using Gdk;
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
-                {
                     feedList.prepend(post);
-                    connectPostBoxHandlers(feedList.boxes.last().data);
-                }
 
             if (feedList.olderFeedLink == "")
                 feedList.deleteMoreButton();
@@ -1312,99 +1277,6 @@ using Gdk;
         //feedList.resizeAllImages(this.mainWindow.get_allocated_width());
         return 0;
     }
-
-    public void connectPostBoxHandlers(PostBox postBox)
-    {
-        postBox.titleLabel.activate_link.connect(handleUris);
-        postBox.likesLabel.activate_link.connect((uri) => {
-            if (uri == "getLikes")
-            {
-                new Thread<int>("", () => {
-                    loadUsers(postBox.post.id, "likes");
-                    return 0;
-                });                
-                return true;
-            }
-            else
-                return handleUris(uri);
-        });
-        foreach(CommentBox commentBox in postBox.commentList.comments)
-            commentBox.textLabel.activate_link.connect(handleUris);
-
-        // for not crashing when using loadMissingLocation
-        string tmpLocationId = (postBox.post.location == null) ? "0" : postBox.post.location.id; 
-        bool locationMissing = false;
-
-        if (postBox.post.location != null 
-            && postBox.post.location.latitude == 0 
-            && postBox.post.location.longitude == 0 
-            && postBox.post.location.name == ""
-            && postBox.post.location.id != "0") // sometimes location contains only ID, for such cases
-        {
-            locationMissing = true;
-            new Thread<int>("", () => {
-                loadMissingLocation(postBox, postBox.post.location.id);
-                return 0;
-            });
-        }
-        if (postBox.commentList.loadMoreButton != null)
-            postBox.commentList.loadMoreButton.activate_link.connect(() => { 
-                new Thread<int>("", () => {
-                    loadComments(postBox.post.id);
-                    return 0;
-                });
-                return true;
-            });
-
-        postBox.avatarBox.button_release_event.connect((event) =>{
-            if (event.button == Gdk.BUTTON_PRIMARY)
-            {
-                new Thread<int>("", () => {
-                    loadUser(postBox.post.postedUser.id, postBox.post.postedUser);
-                    return 0;
-                });
-            }
-            else
-            {
-                var menu = new Gtk.Menu();
-                menu.attach_to_widget(postBox.avatarBox, null);
-
-                var bulkDownloadItem = new Gtk.MenuItem.with_label ("Download all posts...");
-                menu.add(bulkDownloadItem);
-
-                var blockUserItem = new Gtk.MenuItem.with_label ("Block user...");
-                menu.add(blockUserItem);
-
-                bulkDownloadItem.activate.connect (() => {
-                    var window = new PhotoStream.BulkDownloadWindow(postBox.post.postedUser.id);
-                    window.show_all();
-                });
-
-                menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
-                menu.show_all();
-            }
-            return false;
-        });
-        if (postBox.locationEventBox != null)
-        {
-            postBox.locationEventBox.button_release_event.connect(() =>{
-                new Thread<int>("", () => {
-                    if (!locationMissing && postBox.post.location.id == "0") // only coordinates available
-                        Idle.add(() => {
-                            openLocationMap(postBox.post.location); 
-                            return false;
-                        });                                           
-                    else if (locationMissing && tmpLocationId != "0")
-                        loadLocation(tmpLocationId);
-                    else
-                        loadLocation(postBox.post.location.id);                                    
-                    return 0;
-                });
-                
-                return false;
-            });
-        }
-    }  
 
     public void connectNewsBoxHandlers(NewsBox newsBox)
     {

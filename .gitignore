@@ -1,2 +1,3 @@
 .fuse*
 build/*
+debian/debhelper.log
