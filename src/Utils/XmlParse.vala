@@ -40,13 +40,12 @@ public NewsActivity parseActivity(Xml.Node* liElement)
 		activity.activityType = "mention";
 	else if (liElement->get_prop("class").index_of("comment") != -1) // comment activity
 		activity.activityType = "comment";
-	else if (liElement->get_prop("class").index_of("tagged-in-photo") != -1) // comment activity
+	else if (liElement->get_prop("class").index_of("tagged-in-photo") != -1) // tagged in photo activity
 		activity.activityType = "tagged-in-photo";
-	else if (liElement->get_prop("class").index_of("fb-contact-joined") != -1) // comment activity
+	else if (liElement->get_prop("class").index_of("fb-contact-joined") != -1) // "facebook friend joined Instagram" activity
 		activity.activityType = "fb-contact-joined";
 	else
 		error("Should've not reached here: %s.", liElement->get_prop("class"));
-
 
 	var indexUrl = usernameElement->get_prop("href").index_of("=") + 1; // getting username
 	activity.username = usernameElement->get_prop("href").substring(indexUrl, usernameElement->get_prop("href").length - indexUrl);

@@ -98,7 +98,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
         this.postImageAlignment.left_padding = 5;	
 
 
-		if (activity.activityType != "follow")
+		if (activity.activityType != "follow" && activity.activityType != "fb-contact-joined")
 		{
 			postImageBox.add(postImage);
 			postImageAlignment.add(postImageBox);
@@ -182,7 +182,6 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
         Idle.add(() => {
 			Pixbuf imagePixbuf; 
         	Pixbuf imageMaskPixbuf;
-        	printActivity(activity);
 	        try 
 	        {
 	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
