@@ -1,1 +1,0 @@
-/all/Documents/Programming/vala/photostream/obj-x86_64-linux-gnu/src/CMakeFiles/photostream.dir

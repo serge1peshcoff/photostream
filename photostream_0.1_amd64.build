@@ -1,6 +1,0 @@
- dpkg-buildpackage -rfakeroot -D -us -uc -i -b
-parsechangelog/debian: warning:     debian/changelog(l5): found eof where expected more change data or trailer
-dpkg-buildpackage: error: unable to determine source changed by
-dpkg-buildpackage: source package photostream
-dpkg-buildpackage: source version 0.1
-dpkg-buildpackage: source distribution unstable
