@@ -21,7 +21,6 @@ public class PhotoStream.Widgets.NewsList : Gtk.Box
 		this.newsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
 		this.newsWindow.add_with_viewport(newsList);
 
-		this.newsWindow.add_with_viewport(newsList);
 		this.pack_start(newsWindow, true, true);
 	}
 

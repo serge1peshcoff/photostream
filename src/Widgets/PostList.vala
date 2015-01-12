@@ -103,6 +103,8 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		listBoxRow.add(box);
 		postList.prepend(listBoxRow);
 		boxes.prepend(box);	
+
+		connectImageLoadingHandler(box);
 	}
 
 	public new void prepend(MediaInfo post)
@@ -117,6 +119,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		postList.insert (listBoxRow, (int) this.postList.get_children().length () - 1);
 		boxes.append(box);	
 
+		connectImageLoadingHandler(box);
+	}
+
+	private void connectImageLoadingHandler(PostBox box)
+	{
 		if (!cannotViewImages)
 		{
 			box.imageLoaded.connect((post) => {
@@ -231,6 +238,16 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.boxes = new List<PostBox>();
 
 		if (!this.moreButtonAlignment.is_ancestor(this.postList) && this.olderFeedLink != "")
-			postList.prepend(this.moreButtonAlignment);		
+			postList.prepend(this.moreButtonAlignment);	
+
+		foreach (var child in this.imagesGrid.get_children())
+			this.imagesGrid.remove(child);
+
+		this.srcImages = new GLib.List<Pixbuf>();
+
+		this.postsWindow.get_vadjustment().set_value(0);
+		this.imagesWindow.get_vadjustment().set_value(0);	
+
+		this.show_all();
 	}
 }

@@ -64,5 +64,7 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 		foreach (var child in this.userList.get_children())
 			this.userList.remove(child);
 		this.boxes = new List<UserBox>();
+
+		this.userListWindow.get_vadjustment().set_value(0);
 	}
 }
