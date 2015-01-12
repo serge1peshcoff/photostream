@@ -1,26 +1,37 @@
 using PhotoStream.Utils;
 
-public class PhotoStream.Widgets.UserList : Gtk.ListBox
+public class PhotoStream.Widgets.UserList : Gtk.Box
 {
 	public GLib.List<UserBox> boxes;
 	public Gtk.Button moreButton;
 	public string olderUsersLink;
+
+	public Gtk.ScrolledWindow userListWindow;
+	public Gtk.ListBox userList;
+
 	public UserList()
 	{
 		boxes = new GLib.List<UserBox>();
 		this.moreButton = new Gtk.Button.with_label("Load more...");
 
-		this.set_selection_mode (Gtk.SelectionMode.NONE);
-		this.activate_on_single_click = false;
+		this.userListWindow = new Gtk.ScrolledWindow(null, null);
+		this.userListWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);		
+
+		this.userList = new Gtk.ListBox();
+		this.userListWindow.add_with_viewport(userList);
+		this.pack_start(userListWindow, true, true);
+
+		this.userList.set_selection_mode (Gtk.SelectionMode.NONE);
+		this.userList.activate_on_single_click = false;
 	}
 	public void addMoreButton()
 	{
 		if(!this.moreButton.is_ancestor(this))
-			base.prepend(this.moreButton);
+			userList.prepend(this.moreButton);
 	}
 	public void deleteMoreButton()
 	{
-		this.remove(this.get_children().last().data);
+		this.userList.remove(this.get_children().last().data);
 	}
 	public bool contains(User user)
 	{
@@ -33,25 +44,25 @@ public class PhotoStream.Widgets.UserList : Gtk.ListBox
 	public void append(User user)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		base.prepend(separator);
+		userList.prepend(separator);
 		UserBox box = new UserBox(user);
-		base.prepend(box);
+		userList.prepend(box);
 		boxes.append(box);		
 	}
 
 	public new void prepend(User user)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		base.insert (separator, (int) this.get_children().length () - 1);
+		userList.insert (separator, (int) this.userList.get_children().length () - 1);
 		UserBox box = new UserBox(user);
-		base.insert (box, (int) this.get_children().length () - 1);
+		userList.insert (box, (int) this.userList.get_children().length () - 1);
 		boxes.append(box);			
 	}
 
 	public void clear()
 	{
-		foreach (var child in this.get_children())
-			this.remove(child);
+		foreach (var child in this.userList.get_children())
+			this.userList.remove(child);
 		this.boxes = new List<UserBox>();
 	}
 }

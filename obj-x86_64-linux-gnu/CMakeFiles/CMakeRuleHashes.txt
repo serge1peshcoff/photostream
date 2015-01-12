@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+49a070aa2d441097f324aeedca2b6d39 src/main.c
+3443dc25737be9ce4b2087450e688169 src/photostream_valac.stamp
