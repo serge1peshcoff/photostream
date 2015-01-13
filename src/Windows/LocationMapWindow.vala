@@ -125,78 +125,57 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		var markers = [];
 		";
 
-		/*if (location == null)
-			mapsJs += " 
-
-		if(navigator.geolocation) 
-		{
-		    navigator.geolocation.getCurrentPosition(function(position) 
-		    {
-		        markerLocation = new google.maps.LatLng(position.coords.latitude,
-		                                         position.coords.longitude);
-
-			}, function() {
-		      // stub, not doing anything and using (0, 0) as coords
-		      alert(\"Cannot load location.\");
-		    });
-		}";		*/
-
-		loadMap.begin(() => {
-			mapsJs += "
-
-			var userMarkerLocation = new google.maps.LatLng(%f, %f);
-
-			var userMarker = new google.maps.Marker({
-				position: userMarkerLocation,
-			    map: map,
-			    draggable: %s,
-			    title: \"%s\"
-			});		
-
-			".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
-					this.location == null ? LONGITUDE_INITIAL : this.location.longitude, 
-					this.location == null ? "true" : "false", 
-					this.location == null ? "User marker" : this.location.name.replace("\"", "\\\""));
-			if (location == null)
+		loadGeolocation.begin(() => {
+			loadMap.begin(() => {
 				mapsJs += "
+				userMarker = new google.maps.Marker({
+					position: userMarkerLocation,
+				    map: map,
+				    draggable: %s,
+				    title: \"%s\"
+				});		
 
-				var rangeOptions = {
-			    	strokeColor: '#FF0000',
-			    	strokeOpacity: 0.8,
-			    	strokeWeight: 2,
-			    	fillColor: '#FF0000',
-			    	fillOpacity: 0.35,
-			    	map: map,
-			     	center: userMarkerLocation, 
-			    	radius: %d
-			    };
+				".printf(this.location == null ? "true" : "false", 
+						this.location == null ? "User marker" : this.location.name.replace("\"", "\\\""));
+				if (location == null)
+					mapsJs += "
 
-			    var rangeCircle = new google.maps.Circle(rangeOptions);
+					var rangeOptions = {
+				    	strokeColor: '#FF0000',
+				    	strokeOpacity: 0.8,
+				    	strokeWeight: 2,
+				    	fillColor: '#FF0000',
+				    	fillOpacity: 0.35,
+				    	map: map,
+				     	center: userMarkerLocation, 
+				    	radius: %d
+				    };
 
-				google.maps.event.addListener(userMarker, 'dragend', function() 
-				{
-					rangeCircle.setCenter(userMarker.getPosition());
-				});
-				".printf(RANGE_INITIAL);
-			this.webView.run_javascript.begin(mapsJs, null, () => {
-				
-			});			
+				    var rangeCircle = new google.maps.Circle(rangeOptions);
+
+					google.maps.event.addListener(userMarker, 'dragend', function() 
+					{
+						rangeCircle.setCenter(userMarker.getPosition());
+					});
+					".printf(RANGE_INITIAL);
+				this.webView.run_javascript.begin(mapsJs, null, () => {
+					
+				});			
+			});
 		});
-		
 	}
 
 	private async void loadMap()
 	{
 		string mapsJs = "
+
 		var mapOptions = {
-          center: new google.maps.LatLng(%f, %f),
+          center: userMarkerLocation,
           zoom: %d,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
-            mapOptions);".printf(location == null ? LATITUDE_INITIAL : location.latitude, 
-								location == null ? LONGITUDE_INITIAL : location.longitude, 
-								ZOOM_INITIAL);
+        map = new google.maps.Map(document.getElementById(\"map_canvas\"),
+            mapOptions);".printf(ZOOM_INITIAL);
         this.webView.run_javascript.begin(mapsJs, null, (obj, res) => {
 			try
 			{
@@ -208,6 +187,42 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			}
 			return;
 		});	
+	}
+
+	private async void loadGeolocation()
+	{
+		string loadGeoJs = " 
+
+		var userMarkerLocation = new google.maps.LatLng(%f, %f);
+		var userMarker;
+		var map;
+
+		if(navigator.geolocation) 
+		{
+		    navigator.geolocation.getCurrentPosition(function(position) 
+		    {
+		        userMarkerLocation = new google.maps.LatLng(position.coords.latitude,
+		                                         position.coords.longitude);
+				userMarker.setPosition(userMarkerLocation);
+				map.setCenter(userMarkerLocation);
+			}, function() {
+		      // stub, not doing anything and using (0, 0) as coords
+		      alert(\"Cannot load location, using the default one.\");
+		    });
+		}".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
+				  this.location == null ? LONGITUDE_INITIAL : this.location.longitude);	
+
+		this.webView.run_javascript.begin(loadGeoJs, null, (obj, res) => {
+			try
+			{
+				this.webView.run_javascript.end(res);
+			}
+			catch (Error e)
+			{
+				error("Something wrong with Javascript.");
+			}
+			return;
+		});
 	}
 
 	private async void addMarker(Location? location)
