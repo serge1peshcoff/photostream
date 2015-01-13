@@ -74,7 +74,59 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		}
 		this.pack_start(stack, true, true);	
 		this.show_all();	
+
+		this.moreButton.clicked.connect(() => {
+			new Thread<int>("", () => {
+				loadOlderFeed();
+				return 0;
+			});
+		});
 	}
+
+	public void loadOlderFeed()
+	{
+		string response = getResponse(this.olderFeedLink);
+        List<MediaInfo> feedList;
+
+        try
+        {
+            feedList = parseFeed(response);
+            this.olderFeedLink = parsePagination(response);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+
+        Idle.add(() => {
+            foreach (MediaInfo post in feedList)
+	            if (!this.contains(post))
+	                this.prepend(post);
+
+	        if (this.olderFeedLink == "")
+	            this.deleteMoreButton();
+
+	        new Thread<int>("", () => {
+	        	loadImages();
+	        	return 0;
+	        });
+	        this.show_all();
+            return false;
+        });
+	}
+
+	public void loadImages()
+    {
+        foreach (PostBox postBox in this.boxes)
+        {
+            if (postBox.avatar.pixbuf == null) // avatar not loaded, that means image was not added to PostList
+            {        
+                postBox.loadAvatar();
+                postBox.loadImage();
+            }
+        }
+    }
+
 
 	public void deleteMoreButton()
 	{

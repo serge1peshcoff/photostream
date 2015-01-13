@@ -385,16 +385,6 @@ using Gdk;
 
         Idle.add(() => {
             tagFeedBox.hashtagFeed.clear();
-            if (tagFeedBox.hashtagFeed.olderFeedLink != "")
-                tagFeedBox.hashtagFeed.moreButton.clicked.connect(() => {
-                    new Thread<int>("", () => {
-                        loadOlderTagFeed();
-                        return 0;
-                    });
-                    
-                });
-            if (tagFeedBox.hashtagFeed.olderFeedLink == "")
-                tagFeedBox.hashtagFeed.deleteMoreButton();
 
             tagFeedBox.loadTag(receivedTag);
             tagFeedBox.loadFeed(tagFeedReceived);
@@ -412,28 +402,6 @@ using Gdk;
         });
         
         return 0;
-    }
-
-    public void loadOlderTagFeed()
-    {
-        string response = getOlderUserFeed(tagFeedBox.hashtagFeed.olderFeedLink);
-        List<MediaInfo> olderFeed;
-        try 
-        {
-            olderFeed = parseFeed(response);
-            tagFeedBox.hashtagFeed.olderFeedLink = parsePagination(response);
-            
-        }
-        catch (Error e)
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-        Idle.add(() => {            
-            tagFeedBox.loadOlderFeed(olderFeed);
-            if (tagFeedBox.hashtagFeed.olderFeedLink == "")
-                tagFeedBox.hashtagFeed.deleteMoreButton();
-            return false;
-        });        
     }
 
     public int loadPost(string id)
@@ -523,16 +491,6 @@ using Gdk;
 
         Idle.add(() => {
             locationFeedBox.locationFeed.clear();
-            if (locationFeedBox.locationFeed.olderFeedLink != "")
-                locationFeedBox.locationFeed.moreButton.clicked.connect(() => {
-                    new Thread<int>("", () => {
-                        loadOlderLocationFeed();
-                        return 0;
-                    });
-                    
-                });
-            else
-                locationFeedBox.locationFeed.deleteMoreButton();
 
             locationFeedBox.loadLocation(receivedLocation);
             locationFeedBox.loadFeed(locationFeedReceived);
@@ -551,27 +509,6 @@ using Gdk;
         return 0;
     }
 
-    public void loadOlderLocationFeed()
-    {
-        string response = getOlderUserFeed(locationFeedBox.locationFeed.olderFeedLink);
-        List<MediaInfo> olderFeed;
-        try 
-        {
-            olderFeed = parseFeed(response);
-            locationFeedBox.locationFeed.olderFeedLink = parsePagination(response);
-            
-        }
-        catch (Error e)
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-        Idle.add(() => {            
-            locationFeedBox.loadOlderFeed(olderFeed);
-            if (locationFeedBox.locationFeed.olderFeedLink == "")
-                locationFeedBox.locationFeed.deleteMoreButton();
-            return false;
-        });        
-    }
 
     public int loadComments(string postId)
     {
@@ -779,9 +716,6 @@ using Gdk;
 
                 if (getActiveWindow() == "loading")
                     switchWindow("user");
-                this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
-                    new Thread<int>("", loadOlderUserFeed);
-                });
                 return false;
             });
             return 0;
@@ -808,35 +742,10 @@ using Gdk;
 
             if (getActiveWindow() == "loading")
                 switchWindow("user");
-            this.userWindowBox.userFeed.moreButton.clicked.connect(() => {
-                new Thread<int>("", loadOlderUserFeed);
-            });
             return false;
         });  
         return 0;
     }
-
-    public int loadOlderUserFeed()
-    {
-        string userFeed = getResponse(this.userWindowBox.userFeed.olderFeedLink);
-        List<MediaInfo> userFeedList;
-        try
-        {
-            userFeedList = parseFeed(userFeed);
-            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
-        }
-        catch (Error e) // wrong token
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-
-        Idle.add(() => {
-            userWindowBox.loadOlderFeed(userFeedList);
-            return false;
-        });
-
-        return 0;
-    } 
 
     public int loadFeed()
     {
@@ -862,16 +771,12 @@ using Gdk;
             return 0;
         }
 
-
-
         // if we got here then we've got no errors, yay!
         if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
 
-        if (getActiveWindow() == "loading")
-            addHistoryEntry("feed", "");
-
-        
+        //if (getActiveWindow() == "loading")
+            addHistoryEntry("feed", "");        
 
         new Thread<int>("", setFeedWidgets);      
         return 0;
@@ -991,36 +896,6 @@ using Gdk;
             error("Something wrong with parsing: " + e.message + ".\n");
         }
     } 
-
-    public int loadOlderFeed()
-    {
-        string response = getOlderUserFeed(this.feedList.olderFeedLink);
-        try 
-        {
-            var oldFeedPosts = parseFeed(response);
-            this.feedList.olderFeedLink = parsePagination(response);
-            foreach (MediaInfo post in oldFeedPosts)
-                feedPosts.append(post);
-
-            Idle.add(() => {
-                if (this.feedList.olderFeedLink == "")
-                    this.feedList.deleteMoreButton();
-
-                return false;
-            });
-
-            
-        }
-        catch (Error e) // wrong token
-        {
-            setErrorWidgets("wrong-login");
-            return 0;
-        }
-        // if we got here then we've got no errors, yay!   
-
-        new Thread<int>("", setFeedWidgets);
-        return 0;
-    }
 
     public void setErrorWidgets(string reason)
     { 
@@ -1220,9 +1095,9 @@ using Gdk;
 
             setHeaderCallbacks();
 
-            this.feedList.moreButton.clicked.connect(() => {
+            /*this.feedList.moreButton.clicked.connect(() => {
                 new Thread<int>("", loadOlderFeed);
-            });      
+            });*/      
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 

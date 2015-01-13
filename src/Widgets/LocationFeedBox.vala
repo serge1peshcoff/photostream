@@ -108,18 +108,4 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
 		}
 
 	}
-
-	public void loadOlderFeed (List<MediaInfo> posts)
-	{
-		foreach (MediaInfo post in posts)
-			locationFeed.prepend(post);
-
-		foreach (PostBox box in locationFeed.boxes)
-			if (box.avatar.pixbuf == null)
-			{
-				box.loadAvatar();
-				box.loadImage();
-			}
-		this.show_all();
-	}
 }

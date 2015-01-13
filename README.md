@@ -23,11 +23,11 @@ Inspired a lot by Birdie Twitter client.
 # If you don't have Vala
 sudo add-apt-repository ppa:vala-team/ppa
 sudo apt-get update
-sudo apt-get install vala-0.26
+sudo apt-get install valac-0.26
 # Installing necessary dependencies:
-sudo apt-get install libgstreamer-plugins-base1.0-dev \ 
-				libsoup2.4-dev libjson-glib-dev libxml2-dev libnotify-dev \
-				libgee-0.8-dev 
+sudo apt-get install libgstreamer-plugins-base1.0-dev \
+libsoup2.4-dev libjson-glib-dev libxml2-dev libnotify-dev \
+libgee-0.8-dev ttf-ancient-fonts
 ```
 
 Building:

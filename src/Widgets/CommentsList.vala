@@ -1,5 +1,5 @@
 using PhotoStream.Utils;
-public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
+public class PhotoStream.Widgets.CommentsList : Gtk.Box
 {
 	public GLib.List<CommentBox> comments;
 	public Gtk.LinkButton loadMoreButton;
@@ -7,6 +7,9 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	public string postId;
 	public Gtk.Entry commentBox;
 	public Gtk.Alignment commentsBoxAlignment;
+
+	public Gtk.ScrolledWindow commentsWindow;
+	public Gtk.ListBox commentsList;
 
 	public int commentsPosted = 0;
 
@@ -26,7 +29,6 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 	private void initFields()
 	{
 		this.comments = new GLib.List<CommentBox>();
-		this.set_selection_mode (Gtk.SelectionMode.NONE);
 
 		this.commentsBoxAlignment = new Gtk.Alignment (1,0,1,1);
         this.commentsBoxAlignment.top_padding = 1;
@@ -43,10 +45,26 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 			});			
 		});
 
+		this.commentsList = new Gtk.ListBox();
+		this.commentsList.set_selection_mode (Gtk.SelectionMode.NONE);
+
+		if (loadAvatars)
+		{
+			this.commentsWindow = new Gtk.ScrolledWindow(null, null);
+			commentsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
+			
+			this.commentsWindow.add_with_viewport(commentsList);
+			this.pack_start(commentsWindow, true, true);
+		}
+		else
+			this.pack_start(commentsList, true, true);
+
+		
+
 		Idle.add(() => {
 			this.commentBox.set_size_request(625, -1);
 			this.commentsBoxAlignment.add(commentBox);
-			base.insert(commentsBoxAlignment, -1);
+			commentsList.insert(commentsBoxAlignment, -1);
 			this.show_all();
 			return false;
 		});		
@@ -58,7 +76,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		this.loadMoreButton = new Gtk.LinkButton("Load all " + commentsCount.to_string() + " comments");
 
 		this.moreBox.add(loadMoreButton);
-		base.prepend(moreBox);
+		commentsList.prepend(moreBox);
 	}
 
 	public void append(Comment post)
@@ -67,7 +85,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		box.removeCommentButton.clicked.connect(() => {
 			removeComment(box);		
 		});
-		base.prepend(box);
+		commentsList.prepend(box);
 		comments.append(box);
 		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
@@ -82,7 +100,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		box.removeCommentButton.clicked.connect(() => {
 			removeComment(box);		
 		});
-		base.insert (box, commentsPosted);
+		commentsList.insert (box, commentsPosted);
 		comments.append(box);
 		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
@@ -99,10 +117,10 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 
 	public void clear()
 	{
-		foreach (var child in this.get_children())
+		foreach (var child in this.commentsList.get_children())
 			if (((Gtk.ListBoxRow) child).get_child() is CommentBox)
 				Idle.add (() => {
-					this.remove(child);
+					this.commentsList.remove(child);
 					return false;
 				});
 
@@ -168,7 +186,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.ListBox
 		}
 
 		Idle.add(() => {
-			foreach (var child in this.get_children())
+			foreach (var child in this.commentsList.get_children())
 				if ((CommentBox)((Gtk.ListBoxRow)child).get_child() == box)
 				{
 					((Gtk.ListBoxRow)child).remove(box);
