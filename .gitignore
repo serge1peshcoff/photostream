@@ -3,3 +3,4 @@ build/*
 debian/debhelper.log
 obj*
 *.build
+obj-x86_64-linux-gnu*

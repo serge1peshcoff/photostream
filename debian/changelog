@@ -2,4 +2,10 @@ photostream (0.1) unstable; urgency=low
 
   * Initial release 
 
- -- Dane Mutters <dmutters@gmail.com>  Sat, 11 May 2013 2:12:00 -0800
+ -- Sergey Peshkov <twitter.com/pleasestaycalm>  Sun, 11 Oct 2014 2:12:00 +0300
+
+ photostream (0.1.1) unstable; urgency=low
+
+   * Editing debian/ directory
+
+ -- Sergey Peshkov <twitter.com/pleasestaycalm>  Sat, 14 jan 2015 18:23:07 +0300

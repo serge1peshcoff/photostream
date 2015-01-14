@@ -7,7 +7,6 @@ using Gdk;
 #else
     public class PhotoStream.App : Gtk.Application
 #endif
-
 {
 	public MainWindow mainWindow;
     public LoginWindow loginWindow;
@@ -1095,9 +1094,7 @@ using Gdk;
 
             setHeaderCallbacks();
 
-            /*this.feedList.moreButton.clicked.connect(() => {
-                new Thread<int>("", loadOlderFeed);
-            });*/      
+            var statusIcon = new PhotoStream.Widgets.StatusIcon();   
 
             foreach (MediaInfo post in feedPosts)
                 if (!feedList.contains(post)) 
