@@ -105,6 +105,23 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 			this.pack_end(removeCommentButton, false, true);
 		this.set_size_request(625, -1);
 
-		this.show_all();
+		this.show_all();		
+
+		this.realize.connect(() => {
+
+			Gtk.Window parentWindow = (Gtk.Window) this.get_toplevel();
+			PhotoStream.App app = (PhotoStream.App)parentWindow.get_application();
+
+			this.textLabel.activate_link.connect(app.handleUris);
+	        if(this.avatarBox != null)
+	            this.avatarBox.button_release_event.connect(() => {
+	                new Thread<int>("", () => {
+	                    app.loadUser(comment.user.id, comment.user);
+	                    return 0;
+	                });                   
+	                return false;
+	            });
+		});
+		
 	}
 }

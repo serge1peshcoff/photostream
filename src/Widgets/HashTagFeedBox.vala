@@ -32,17 +32,4 @@ public class PhotoStream.Widgets.HashTagFeedBox : Gtk.Box
 		this.tag = tag;
 		this.hashtagTitleLabel.set_markup("<span size=\"large\"><b>#" + tag.tag + "</b> (" + tag.mediaCount.to_string() + " media).</span>");
 	}
-
-	public void loadFeed(List<MediaInfo> posts)
-	{
-		foreach (MediaInfo post in posts)
-			hashtagFeed.prepend(post);
-
-		foreach (PostBox box in hashtagFeed.boxes)
-		{
-			box.loadAvatar();
-			box.loadImage();
-		}
-
-	}
 }

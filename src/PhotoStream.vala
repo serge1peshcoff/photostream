@@ -145,7 +145,22 @@ using Gdk;
         else if (!file.query_exists())
             this.setErrorWidgets("wrong-login"); 
         else
-            new Thread<int>("", loadFeed);
+        {
+            loadSelfInfo();
+            setIntervals();
+            new Thread<int>("", () => {
+                loadNews();
+                return 0;
+            });
+            Idle.add(() => {
+                uncheckButtonsExcept("feed");
+                return false;
+            });    
+            new Thread<int>("", () => {
+                loadFeed();
+                return 0;
+            });
+        }            
     }
 
     public void stubLoading()
@@ -383,10 +398,8 @@ using Gdk;
 
 
         Idle.add(() => {
-            tagFeedBox.hashtagFeed.clear();
-
             tagFeedBox.loadTag(receivedTag);
-            tagFeedBox.loadFeed(tagFeedReceived);
+            tagFeedBox.hashtagFeed.loadFeed(tagFeedReceived);
 
             if (getActiveWindow() == "loading")
             {
@@ -489,10 +502,8 @@ using Gdk;
 
 
         Idle.add(() => {
-            locationFeedBox.locationFeed.clear();
-
             locationFeedBox.loadLocation(receivedLocation);
-            locationFeedBox.loadFeed(locationFeedReceived);
+            locationFeedBox.locationFeed.loadFeed(locationFeedReceived);
 
             if (getActiveWindow() == "loading")
             {
@@ -532,18 +543,7 @@ using Gdk;
         Idle.add(() => {
             commentsList.clear();
             foreach(Comment comment in commentsListRequested)
-            {
                 commentsList.prepend(comment);
-                commentsList.comments.last().data.textLabel.activate_link.connect(handleUris);
-                if( commentsList.comments.last().data.avatarBox != null)
-                    commentsList.comments.last().data.avatarBox.button_release_event.connect(() => {
-                        new Thread<int>("", () => {
-                            loadUser(comment.user.id, comment.user);
-                            return 0;
-                        });                   
-                        return false;
-                    });
-            }
 
             if (getActiveWindow() == "loading")
             {
@@ -746,18 +746,8 @@ using Gdk;
         return 0;
     }
 
-    public int loadFeed()
+    public void loadFeed()
     {
-        loadSelfInfo();
-        new Thread<int>("", () => {
-            loadNews();
-            return 0;
-        });
-        Idle.add(() => {
-            uncheckButtonsExcept("feed");
-            return false;
-        });      
-
         string response = getUserFeed();
         try 
         {
@@ -767,18 +757,35 @@ using Gdk;
         catch (Error e) // wrong token
         {
             setErrorWidgets("wrong-login");
-            return 0;
+            return;
         }
 
         // if we got here then we've got no errors, yay!
         if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
 
-        //if (getActiveWindow() == "loading")
-            addHistoryEntry("feed", "");        
+        addHistoryEntry("feed", "");        
 
-        new Thread<int>("", setFeedWidgets);      
-        return 0;
+        Idle.add(() => { 
+            if (!headersCallbacksSet)
+                this.searchWindowBox.addFields();
+
+            setHeaderCallbacks();
+
+            this.feedList.loadFeed(feedPosts);
+
+            isPageLoaded["feed"] = true;                       
+                  
+
+            if (!isFeedLoaded && getActiveWindow() == "loading")
+                switchWindow("userFeed");
+
+            if (isMainWindowShown)
+                mainWindow.show_all();
+            isFeedLoaded = true;            
+
+            return false;
+        });     
     }  
 
     public void loadNews()
@@ -1083,59 +1090,6 @@ using Gdk;
         });
     }
 
-    public int setFeedWidgets()
-    {       
-        //string response = postPicture("/allext/image.jpg");
-        //print(response + "\n");
-
-        Idle.add(() => { 
-            if (!headersCallbacksSet)
-                this.searchWindowBox.addFields();
-
-            setHeaderCallbacks();
-
-            var statusIcon = new PhotoStream.Widgets.StatusIcon();   
-
-            foreach (MediaInfo post in feedPosts)
-                if (!feedList.contains(post)) 
-                    feedList.prepend(post);
-
-            if (feedList.olderFeedLink == "")
-                feedList.deleteMoreButton();
-
-            isPageLoaded["feed"] = true;                       
-
-            new Thread<int>("", loadImages);                    
-
-            if (!isFeedLoaded && getActiveWindow() == "loading")
-                switchWindow("userFeed");
-
-            GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
-                new Thread<int>("", () => {
-                    refreshFeed();
-                    return 0;
-                });                
-                return false;
-            });
-
-            GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
-                new Thread<int>("", () => {
-                    refreshNews();
-                    return 0;
-                });                
-                return false;
-            });
-
-            if (isMainWindowShown)
-                mainWindow.show_all();
-            isFeedLoaded = true;            
-
-            return false;
-        });
-        
-        return 0;
-    } 
-
     public int loadImages()
     {
         foreach (PostBox postBox in feedList.boxes)
@@ -1269,4 +1223,23 @@ using Gdk;
         }
 
     }   
+
+    public void setIntervals()
+    {
+        GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshFeed();
+                return 0;
+            });                
+            return false;
+        });
+
+        GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshNews();
+                return 0;
+            });                
+            return false;
+        });
+    }
 }

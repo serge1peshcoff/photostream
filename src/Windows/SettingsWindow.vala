@@ -1,6 +1,6 @@
 using Gtk;
 
-public class PhotoStream.SettingsWindow : Gtk.ApplicationWindow
+public class PhotoStream.SettingsWindow : Gtk.Window
 {
 #if HAVE_GRANITE
 	public Granite.Widgets.ThinPaned pane;

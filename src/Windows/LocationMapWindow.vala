@@ -183,7 +183,7 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			}
 			catch (Error e)
 			{
-				error("Something wrong with Javascript.");
+				error("Something wrong with Javascript: %s.", e.message);
 			}
 			return;
 		});	

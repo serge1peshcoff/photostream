@@ -91,21 +91,4 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
 		}
 
 	}
-
-	public void loadFeed(List<MediaInfo> posts)
-	{
-
-		foreach (MediaInfo post in posts)
-		{
-			post.location = location; // if there is only ID available in feed
-			locationFeed.prepend(post);
-		}
-
-		foreach (PostBox box in locationFeed.boxes)
-		{
-			box.loadAvatar();
-			box.loadImage();
-		}
-
-	}
 }

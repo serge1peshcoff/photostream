@@ -81,6 +81,25 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 				return 0;
 			});
 		});
+		this.moreButtonImages.clicked.connect(() => {
+			new Thread<int>("", () => {
+				loadOlderFeed();
+				return 0;
+			});
+		});
+	}
+
+	public void loadFeed(List<MediaInfo> posts)
+	{
+		this.clear();
+
+		foreach (MediaInfo post in posts)
+			this.prepend(post);
+
+		new Thread<int>("", () => {
+	        	loadImages();
+	        	return 0;
+	        });
 	}
 
 	public void loadOlderFeed()

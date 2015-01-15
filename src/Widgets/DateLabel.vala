@@ -6,6 +6,7 @@ public class PhotoStream.Widgets.DateLabel : Gtk.EventBox
 
 	public Gtk.Label dateLabel;
 	public DateTime time;
+
 	public DateLabel(DateTime time)
 	{
 		this.time = time;
@@ -13,46 +14,69 @@ public class PhotoStream.Widgets.DateLabel : Gtk.EventBox
 		this.dateLabel.set_halign(Gtk.Align.START);
 		this.add(dateLabel);
 
-        updateTime();            
+        setRelativeTime();   
+
+        this.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        this.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);   
+
+        this.enter_notify_event.connect((event) => {
+        	setAbsoluteTime();
+        	return false;
+        }); 
+        this.leave_notify_event.connect((event) => {
+        	setRelativeTime();
+        	return false;
+        });     
 	}
 
-	private void updateTime()
+	private void setRelativeTime()
 	{
 		DateTime currentTime = new DateTime.now_local();
 		int64 timePassed = currentTime.to_unix() - time.to_unix();
-		string time = "%lld second%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+		string units = "second";
+		string time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");
 
 		if (timePassed >= 60)
 		{
 			timePassed /= 60;
-			time = "%lld minute%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+			units = "minute";
+			time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");			
 		}
-		if (timePassed >= 60)
+		if (timePassed >= 60 && units == "minute")
 		{
 			timePassed /= 60;
-			time = "%lld hour%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+			units = "hour";
+			time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");			
 		}
-		if (timePassed >= 24)
+		if (timePassed >= 24 && units == "hour")
 		{
 			timePassed /= 24;
-			time = "%lld day%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+			units = "day";
+			time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");			
 		}
-		if (timePassed >= 31)
+		if (timePassed >= 31 && units == "day")
 		{
 			timePassed /= 31;
-			time = "%lld month%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+			units = "month";
+			time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");			
 		}
-		if (timePassed >= 365)
+		if (timePassed >= 365 && units == "month")
 		{
 			timePassed /= 365;
-			time = "%lld year%s ago.".printf(timePassed, timePassed == 1 ? "" : "s");
+			units = "year";
+			time = "%lld %s%s ago.".printf(timePassed, units, timePassed == 1 ? "" : "s");			
 		}
 
 		this.dateLabel.set_markup("<i>" + time + "</i>");	
 
 		GLib.Timeout.add_seconds(TIME_REFRESH_INTERVAL, () => {
-            updateTime();            
+            setRelativeTime();            
             return false;
         });
+	}
+
+	public void setAbsoluteTime()
+	{
+		this.dateLabel.set_markup("<i>" + time.format("%d.%m.%y %H:%M:%S") + "</i>");
 	}
 }
