@@ -401,11 +401,14 @@ public string postSettings(PhotoStream.Utils.Settings settings, PhotoStream.Util
             break; // don't ask.
         }
 
-    string request = "csrfmiddlewaretoken=" + csrftoken;
-    request += "&first_name=" + user.fullName;
-    request += "&email=" + settings.email;
-    request += "&username=" + user.username;
-    request += "&phone_number=" + settings.phoneNumber.replace(" ", "").replace("-", "");
+    string request = Soup.Form.encode("csrfmiddlewaretoken", csrftoken, 
+                                        "first_name", user.fullName, 
+                                        "email", settings.email, 
+                                        "username", user.username, 
+                                        "phone_number", settings.phoneNumber, 
+                                        "biography", user.bio, 
+                                        "external_url", user.website, 
+                                        "chaining_enabled", settings.recommend ? "true" : "false");
     if (settings.sex == "male")
         request += "&gender=1";
     else if (settings.sex == "female")
@@ -414,10 +417,6 @@ public string postSettings(PhotoStream.Utils.Settings settings, PhotoStream.Util
         request += "&gender=3";
     else
         error ("Should've not reached here: %s", settings.sex);
-
-    request += "&biography=" + user.bio;
-    request += "&external_url_section=" + user.website;
-    request += "&chaining_enabled=" + (settings.recommend ? "true" : "false");
 
     print(request + "\n");
 

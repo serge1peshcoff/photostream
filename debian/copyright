@@ -1,6 +1,6 @@
 Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
 Name: photostream
-Maintainer: Sergey Peshkov <twitter.com/pleasestaycalm>
+Maintainer: Sergey Peshkov <stub@mail.com>>
 Source: https://github.com/serge1peshcoff/photostream
 
 Copyright: 2014-2015 Sergey Peshkov <twitter.com/pleasestaycalm>

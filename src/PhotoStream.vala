@@ -748,6 +748,10 @@ using Gdk;
 
     public void loadFeed()
     {
+        Idle.add(() => {
+            stubLoading();
+            return false;
+        });
         string response = getUserFeed();
         try 
         {
@@ -798,9 +802,6 @@ using Gdk;
                 newsList.prepend(activity);
 
             isPageLoaded["news"] = true;
-
-            foreach(NewsBox newsBox in newsList.boxes)
-                connectNewsBoxHandlers(newsBox);
 
             if (isMainWindowShown)
                 this.mainWindow.show_all();
@@ -871,7 +872,6 @@ using Gdk;
                     continue;
 
                 newsList.append(element);
-                connectNewsBoxHandlers(newsList.boxes.last().data);         
 
                 if (isMainWindowShown)
                     this.mainWindow.show_all();               
@@ -1103,25 +1103,6 @@ using Gdk;
         //feedList.resizeAllImages(this.mainWindow.get_allocated_width());
         return 0;
     }
-
-    public void connectNewsBoxHandlers(NewsBox newsBox)
-    {
-        newsBox.avatarBox.button_release_event.connect(() => {
-            new Thread<int>("", () => {
-                loadUserFromUsername(newsBox.activity.username);
-                return 0;
-            });                    
-            return false;
-        });
-        newsBox.postImageBox.button_release_event.connect(() => {
-            new Thread<int>("", () => {
-                loadPost(newsBox.activity.postId);
-                return 0;
-            });                    
-            return false;
-        });
-        newsBox.commentLabel.activate_link.connect(handleUris); 
-    }  
 
     public void switchWindow(string window)
     {

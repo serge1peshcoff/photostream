@@ -126,6 +126,26 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
             );
             return false;
 		});
+
+		this.realize.connect(() => {
+			var app = (PhotoStream.App)((Gtk.Window)this.get_toplevel()).get_application();
+
+			this.avatarBox.button_release_event.connect(() => {
+	            new Thread<int>("", () => {
+	                app.loadUserFromUsername(this.activity.username);
+	                return 0;
+	            });                    
+	            return false;
+	        });
+	        this.postImageBox.button_release_event.connect(() => {
+	            new Thread<int>("", () => {
+	                app.loadPost(this.activity.postId);
+	                return 0;
+	            });                    
+	            return false;
+	        });
+	        this.commentLabel.activate_link.connect(app.handleUris); 
+		});
     }
 
     private void loadAvatar()
