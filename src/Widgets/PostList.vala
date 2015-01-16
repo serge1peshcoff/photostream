@@ -97,9 +97,9 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 			this.prepend(post);
 
 		new Thread<int>("", () => {
-	        	loadImages();
-	        	return 0;
-	        });
+        	loadImages();
+        	return 0;
+        });
 	}
 
 	public void loadOlderFeed()
@@ -170,7 +170,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		PostBox box = new PostBox(post);
 
 		var listBoxRow = new Gtk.ListBoxRow();
-		//listBoxRow.set_selectable(false);
+		if (Gtk.get_major_version() > 3 && Gtk.get_minor_version() > 14)
+		{
+			listBoxRow.set_selectable(false);
+			listBoxRow.set_activatable(false);
+		}
 		listBoxRow.add(box);
 		postList.prepend(listBoxRow);
 		boxes.prepend(box);	
@@ -180,12 +184,19 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 	public new void prepend(MediaInfo post)
 	{
-		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		postList.insert (separator, (int) this.postList.get_children().length () - 1);
+		if (boxes.length() != 0)
+		{
+			Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
+			postList.insert (separator, (int) this.postList.get_children().length () - 1);
+		}
 		PostBox box = new PostBox(post);
 
 		var listBoxRow = new Gtk.ListBoxRow();
-		//listBoxRow.set_selectable(false);
+		if (Gtk.get_major_version() > 3 && Gtk.get_minor_version() > 14)
+		{
+			listBoxRow.set_selectable(false);
+			listBoxRow.set_activatable(false);
+		}
 		listBoxRow.add(box);
 		postList.insert (listBoxRow, (int) this.postList.get_children().length () - 1);
 		boxes.append(box);	
