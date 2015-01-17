@@ -42,7 +42,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 			new Thread<int>("", () => {
 				postCommentCallback();
 				return 0;
-			});			
+			});		
 		});
 
 		this.commentsList = new Gtk.ListBox();
@@ -112,7 +112,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	public void mentionUser(string username)
 	{
-		commentBox.set_text(commentBox.get_text() + "@" + username + " ");
+		if (this.commentBox.get_text().index_of(username) == -1)
+			commentBox.set_text(commentBox.get_text() + "@" + username + " ");
 	}
 
 	public void clear()

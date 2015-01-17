@@ -125,8 +125,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		var markers = [];
 		";
 
-		loadGeolocation.begin(() => {
-			loadMap.begin(() => {
+		loadMap.begin(() => {
+			loadGeolocation.begin(() => {
 				mapsJs += "
 				userMarker = new google.maps.Marker({
 					position: userMarkerLocation,
@@ -170,11 +170,10 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		string mapsJs = "
 
 		var mapOptions = {
-          center: userMarkerLocation,
           zoom: %d,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
-        map = new google.maps.Map(document.getElementById(\"map_canvas\"),
+        var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
             mapOptions);".printf(ZOOM_INITIAL);
         this.webView.run_javascript.begin(mapsJs, null, (obj, res) => {
 			try
@@ -194,8 +193,6 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		string loadGeoJs = " 
 
 		var userMarkerLocation = new google.maps.LatLng(%f, %f);
-		var userMarker;
-		var map;
 
 		if(navigator.geolocation) 
 		{
@@ -208,6 +205,8 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 			}, function() {
 		      // stub, not doing anything and using (0, 0) as coords
 		      alert(\"Cannot load location, using the default one.\");
+		      userMarker.setPosition(userMarkerLocation);
+			  map.setCenter(userMarkerLocation);
 		    });
 		}".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
 				  this.location == null ? LONGITUDE_INITIAL : this.location.longitude);	

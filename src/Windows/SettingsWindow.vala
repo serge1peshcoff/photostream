@@ -244,8 +244,12 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.postsOrImagesBox.add(postsRadioButton);
 
 		this.imagesRadioButton = new Gtk.RadioButton.with_label_from_widget(postsRadioButton, "Images thumbnails");
+		if (loadPostsOrImages())
+			this.imagesRadioButton.set_active(true);
 		this.imagesRadioButton.toggled.connect(postsDisplayTypeToggled);
 		this.postsOrImagesBox.add(imagesRadioButton);
+
+
 
 		this.postsDisplayTypeBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.postsDisplayTypeBox.add(postsOrImagesLabel);
