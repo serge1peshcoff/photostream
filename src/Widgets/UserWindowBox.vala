@@ -184,6 +184,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.userCountsBox.add(followersCountEventBox);
 		this.box.add(userCountsBox);
 
+		var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
+		this.box.add(separator);
+
 		this.followsCountEventBox.enter_notify_event.connect((event) => {
 			onCountsHover(event);
 			return false;
@@ -192,9 +195,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			onCountsHover(event);
 			return false;
 		});
-
-		this.box.pack_end(userFeed, true, true);
-		this.pack_start(feedWindow, true, true);
+		
 
 		this.errorBox = new Box(Gtk.Orientation.VERTICAL, 0);
 		this.privateLabel = new Label("");
@@ -202,9 +203,12 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.errorBox.pack_start(privateLabel, true, true);
 
 		this.viewport = new Viewport(null, null);
-		this.feedWindow.add(viewport);
+		
 
+		this.box.pack_end(userFeed, true, true);
 		this.viewport.add(box);
+		this.feedWindow.add(viewport);
+		this.pack_start(feedWindow, true, true);
 	}
 	public void load(User user)
 	{

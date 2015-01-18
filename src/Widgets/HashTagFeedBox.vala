@@ -24,6 +24,9 @@ public class PhotoStream.Widgets.HashTagFeedBox : Gtk.Box
 		this.hashtagTitleAlignment.add(hashtagTitleLabel);
 		this.add(hashtagTitleAlignment);
 
+		var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
+        this.add(separator);
+
 		this.hashtagFeed = new PostList();
 		this.pack_end(hashtagFeed, true, true);
 	}

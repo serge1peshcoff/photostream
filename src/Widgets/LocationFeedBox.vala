@@ -72,6 +72,9 @@ public class PhotoStream.Widgets.LocationFeedBox : Gtk.Box
         this.openInMapsAlignment.add(openInMapsButton);
         this.add(openInMapsAlignment); // by default adding button.
 
+        var separator = new Gtk.Separator(Gtk.Orientation.HORIZONTAL);
+        this.add(separator);
+
 		this.locationFeed = new PostList();
 		this.pack_end(locationFeed, true, true);
 	}
