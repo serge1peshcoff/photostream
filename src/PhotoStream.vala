@@ -25,7 +25,6 @@ using Gdk;
     public static string CACHE_AVATARS;
     public const string CACHE_IMAGES = "/usr/share/photostream/images/";
     public static string CACHE_HTML = "/usr/share/photostream/html/";
-    public static List<MediaInfo> feedPosts;
     public bool isFeedLoaded = false;
     public static bool isMainWindowShown = false;
     
@@ -173,6 +172,7 @@ using Gdk;
         this.stack = new PhotoStack();
 
         loadingSpinner = new Gtk.Spinner();
+        loadingSpinner.set_halign(Gtk.Align.CENTER);
         loadingSpinner.start();
 
         stack.add_named(loadingSpinner, "loading"); 
@@ -383,13 +383,12 @@ using Gdk;
         string responseTagInfo = getTagInfo(tagName);
         string responseTagFeed = getTagRecent(tagName);
         Tag receivedTag;
-        List<MediaInfo> tagFeedReceived = new List<MediaInfo>();
+
+        tagFeedBox.hashtagFeed.loadFeed(responseTagFeed);
 
         try
         {
             receivedTag = parseTag(responseTagInfo);
-            tagFeedReceived = parseFeed(responseTagFeed);
-            tagFeedBox.hashtagFeed.olderFeedLink = parsePagination(responseTagFeed);
         }
         catch (Error e)
         {
@@ -398,8 +397,7 @@ using Gdk;
 
 
         Idle.add(() => {
-            tagFeedBox.loadTag(receivedTag);
-            tagFeedBox.hashtagFeed.loadFeed(tagFeedReceived);
+            tagFeedBox.loadTag(receivedTag);           
 
             if (getActiveWindow() == "loading")
             {
@@ -424,30 +422,9 @@ using Gdk;
             return false;
         });
         string responsePostInfo = getMediaData(id);
-        MediaInfo receivedPost;
-
-        try
-        {
-            receivedPost = parseMediaPost(responsePostInfo);
-        }
-        catch (Error e)
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-
+        postList.loadFeed(responsePostInfo);
 
         Idle.add(() => {
-            postList.clear();
-            postList.deleteMoreButton();
-                        
-            postList.prepend(receivedPost);
-
-            new Thread<int>("", () => {
-                postList.boxes.last().data.loadAvatar();
-                postList.boxes.last().data.loadImage();
-                return 0;
-            });  
-
             if (getActiveWindow() == "loading")
             {
 
@@ -487,13 +464,12 @@ using Gdk;
         string responseLocationInfo = getLocationInfo(locationId);
         string responseLocationFeed = getLocationRecent(locationId);
         Location receivedLocation;
-        List<MediaInfo> locationFeedReceived = new List<MediaInfo>();
+
+        locationFeedBox.locationFeed.loadFeed(responseLocationFeed);
 
         try
         {
             receivedLocation = parseLocation(responseLocationInfo);
-            locationFeedReceived = parseFeed(responseLocationFeed);
-            locationFeedBox.locationFeed.olderFeedLink = parsePagination(responseLocationFeed);
         }
         catch (Error e)
         {
@@ -503,7 +479,7 @@ using Gdk;
 
         Idle.add(() => {
             locationFeedBox.loadLocation(receivedLocation);
-            locationFeedBox.locationFeed.loadFeed(locationFeedReceived);
+            
 
             if (getActiveWindow() == "loading")
             {
@@ -753,17 +729,8 @@ using Gdk;
             return false;
         });
         string response = getUserFeed();
-        try 
-        {
-            feedPosts = parseFeed(response);
-            this.feedList.olderFeedLink = parsePagination(response);
-        }
-        catch (Error e) // wrong token
-        {
-            setErrorWidgets("wrong-login");
-            return;
-        }
-
+        this.feedList.loadFeed(response);
+        
         // if we got here then we've got no errors, yay!
         if(bar != null && bar.is_ancestor(box))
             box.remove(bar); 
@@ -776,7 +743,7 @@ using Gdk;
 
             setHeaderCallbacks();
 
-            this.feedList.loadFeed(feedPosts);
+            
 
             isPageLoaded["feed"] = true;                       
                   
@@ -812,7 +779,7 @@ using Gdk;
 
     public void refreshFeed()
     {
-        var lastId = feedPosts.first().data.id;
+        var lastId = feedList.boxes.first().data.post.id;
         string response = getUserFeed(lastId);
 
         List<MediaInfo> newList;
@@ -823,13 +790,12 @@ using Gdk;
         catch (Error e) 
         {
             error("Something wrong with parsing: %s", e.message);
-        }
+        }        
 
         newList.reverse();
 
         foreach (MediaInfo element in newList)
         {
-            feedPosts.prepend(element);
             Idle.add(() => {
                 feedList.append(element);
 

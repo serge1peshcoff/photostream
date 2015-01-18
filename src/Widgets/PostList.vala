@@ -41,7 +41,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 		this.moreButtonAlignment = new Gtk.Alignment (1,0,1,0);
         this.moreButtonAlignment.add(moreButton);
-        postList.prepend(this.moreButtonAlignment);
 
         this.moreButtonImages = new Gtk.Button.with_label("Load more...");	
 
@@ -89,7 +88,29 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		});
 	}
 
-	public void loadFeed(List<MediaInfo> posts)
+	public void loadFeed(string response)
+	{
+		List<MediaInfo> feedPosts;
+		try 
+        {
+            feedPosts = parseFeed(response);
+            this.olderFeedLink = parsePagination(response);
+        }
+        catch (Error e) // wrong token
+        {
+        	error("Something wrong with parsing: %s.", e.message);
+        }
+        Idle.add(() => {
+        	if (this.olderFeedLink != "")
+        		addMoreButton();
+        	loadFeedFromResponse(feedPosts);
+        	this.show_all();
+        	return false;
+        });
+        
+	}
+
+	private void loadFeedFromResponse(List<MediaInfo> posts)
 	{
 		this.clear();
 
@@ -112,7 +133,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
             feedList = parseFeed(response);
             this.olderFeedLink = parsePagination(response);
         }
-        catch (Error e) // wrong token
+        catch (Error e) 
         {
             error("Something wrong with parsing: " + e.message + ".\n");
         }
@@ -146,7 +167,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
         }
     }
 
-
+    public void addMoreButton()
+	{
+		if (!this.moreButtonAlignment.is_ancestor(this.postList))
+			this.postList.prepend(moreButtonAlignment);
+	}
 	public void deleteMoreButton()
 	{
 		if (this.moreButtonAlignment.is_ancestor(this.postList))

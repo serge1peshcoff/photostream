@@ -9,10 +9,14 @@ public List<MediaInfo> parseFeed(string message) throws Error
 
     var root_object = parser.get_root().get_object();
     checkErrors(root_object);
-    var response = root_object.get_array_member ("data");
 
-    foreach (var mediaPost in response.get_elements ())  	
-        list.append(parseMediaPostFromObject(mediaPost));
+    Json.Node response = root_object.get_member("data");
+
+    if (response.get_node_type() == Json.NodeType.ARRAY)
+        foreach (var mediaPost in response.get_array().get_elements())  	
+            list.append(parseMediaPostFromObject(mediaPost));
+    else
+        list.append(parseMediaPostFromObject(response));
 
     return list;
 }

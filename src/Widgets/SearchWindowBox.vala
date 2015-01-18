@@ -62,6 +62,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		});
 
 		spinner = new Gtk.Spinner();
+		spinner.set_halign(Gtk.Align.CENTER);
 		spinner.start();
 
 		((Gtk.RadioButton)(this.stackSwitcher.get_children().first().data)).toggled.connect((btn) => {
@@ -85,8 +86,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		// and this function is called in setFeedWidgets.
 		this.pack_start(searchQuery, false, true);
 		this.add(switcherBox);
-		//this.pack_end(stack, true, true);
-		//this.pack_end(spinner, true, true);
+		this.pack_end(stack, true, true);
 	}
 
 	private void switchView (Gtk.ToggleButton button, string label) 
@@ -94,7 +94,6 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		if (button.get_active() == false)
 			return; // to not execute 2 times, for untoggled and toggled button.
 
-		print("segfault2 start\n");
 		switch (label)
 		{
 			case "Hashtags":
