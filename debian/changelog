@@ -9,3 +9,9 @@ photostream (0.1) unstable; urgency=low
    * Editing debian/ directory
 
  -- Sergey Peshkov <stub@mail.com>  Sat, 14 jan 2015 18:23:07 +0300
+
+  photostream (0.1.2) unstable; urgency=low
+
+   * Editing debian/ directory
+
+ -- Sergey Peshkov <stub@mail.com>  Sun, 18 jan 2015 23:56:11 +0300

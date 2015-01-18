@@ -4,8 +4,8 @@ public class PhotoStream.MainWindow : Gtk.ApplicationWindow
 	{		    		
 		this.set_title ("PhotoStream");		
 
-        this.set_default_size (625, 700);
-        this.set_size_request (625, 700);  
+        this.set_default_size (-1, 700);
+        this.set_size_request (-1, 700);  
         
         //this.set_resizable(false);
 

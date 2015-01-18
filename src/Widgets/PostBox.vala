@@ -157,11 +157,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		titleLabel.set_line_wrap(true);
 		titleLabel.wrap_mode = Pango.WrapMode.WORD_CHAR;
 		titleLabel.set_justify(Gtk.Justification.LEFT);
-		//titleLabel.set_max_width_chars(40);
 		titleLabel.xalign = 0;
 
 		titleAlignment.add(titleLabel);
-		titleAlignment.set_size_request(625, -1);
 		box.add(titleAlignment);
 
 		if (post.taggedUsers.length() != 0)
@@ -250,7 +248,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         this.commentsAlignment.bottom_padding = 3;
         this.commentsAlignment.left_padding = 6;
 
-        this.commentList.set_halign(Gtk.Align.START);
+        this.commentList.set_halign(Gtk.Align.FILL);
         this.commentList.postId = post.id;
 
 		if(post.commentsCount !=  post.comments.length())
