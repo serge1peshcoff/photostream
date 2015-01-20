@@ -28,6 +28,9 @@ set(CLIENT_SOURCE
     Widgets/SearchWindowBox.vala
     Widgets/DateLabel.vala
     Widgets/StatusIcon.vala
+    Widgets/UserPrivateBox.vala
+    Widgets/EmptyUserList.vala
+    Widgets/EmptyTagList.vala
     Windows/LocationMapWindow.vala
     Windows/MediaWindow.vala
     Windows/MainWindow.vala

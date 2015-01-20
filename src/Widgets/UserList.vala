@@ -9,6 +9,8 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 	public Gtk.ScrolledWindow userListWindow;
 	public Gtk.ListBox userList;
 
+	public PhotoStream.App app;
+
 	public UserList()
 	{
 		boxes = new GLib.List<UserBox>();
@@ -23,6 +25,11 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 
 		this.userList.set_selection_mode (Gtk.SelectionMode.NONE);
 		this.userList.activate_on_single_click = false;
+
+		this.realize.connect(() => {
+			var window = (Gtk.Window)this.get_toplevel();
+			app = (PhotoStream.App) window.get_application();
+		});
 	}
 	public void addMoreButton()
 	{
@@ -31,7 +38,8 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 	}
 	public void deleteMoreButton()
 	{
-		this.userList.remove(this.get_children().last().data);
+		if(this.moreButton.is_ancestor(this))
+			this.userList.remove(this.get_children().last().data);
 	}
 	public bool contains(User user)
 	{
@@ -41,6 +49,110 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 
 		return false;
 	}
+
+	public void loadUsers(string response, string type)
+	{	
+		List<User> likees = new List<User>();
+		try
+        {
+            likees = parseUserList(response);
+        }
+        catch (Error e) // wrong token
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        } 
+        Idle.add(() => {
+        	this.loadUsersFromList(likees, type);
+        	return false;
+        });
+	}
+
+	public void loadUsersFromList(List<User> userList, string type)
+	{
+		this.clear();
+
+		if (userList.length() == 0)
+		{
+			stubEmptyList();
+			return;
+		}
+		else if (!this.userList.is_ancestor(this))
+		{
+			if (this.get_children().length() != 0)
+				this.remove(this.get_children().first().data);
+			this.pack_start(this.userListWindow, true, true);
+		}
+
+        foreach(User user in userList)
+            this.prepend(user);
+
+        new Thread<int>("", () => {                  
+            foreach(UserBox userBox in this.boxes)
+                userBox.loadAvatar();                    
+            return 0;
+        });     
+
+        foreach(UserBox userBox in this.boxes)
+        {
+            userBox.userNameLabel.activate_link.connect(app.handleUris);
+            userBox.avatarBox.button_release_event.connect(() => {
+                new Thread<int>("", () => {
+                    app.loadUser(userBox.user.id, userBox.user);
+                    return 0;
+                });
+                return false;
+            });  
+        }              
+
+        foreach(UserBox userBox in this.boxes)
+        {
+            if (userBox.user.id == PhotoStream.App.selfUser.id)
+                continue;
+
+            new Thread<int>("", () => {
+                Relationship usersRelationship;
+                if (type == "follows" && app.userWindowBox.user.id == PhotoStream.App.selfUser.id) // loading self followers
+                {   
+                    usersRelationship = new Relationship();  // don't need to actually load this from server, lol
+                    usersRelationship.outcoming = "follows"; // so make a stub Relationship object and load it into userBox
+                }
+                else
+                {
+                    string responseRelatioship = getUsersRelationship(userBox.user.id);
+                    usersRelationship = new Relationship();
+
+                    try
+                    {
+                        usersRelationship = parseRelationship(responseRelatioship);
+                    }
+                    catch (Error e) 
+                    {
+                        error("Something wrong with parsing: " + e.message + ".\n");
+                    }
+                }            
+
+                userBox.user.relationship = usersRelationship;
+                Idle.add(() => {
+                    userBox.loadRelationship();
+                    return false;
+                });
+
+                return 0;
+            }); 
+        }
+	}
+
+	public void stubEmptyList()
+	{
+		if (!userListWindow.is_ancestor(this) && this.get_children().length() != 0)
+			return;
+
+		EmptyUserList emptyUserList = new EmptyUserList();
+		this.remove(userListWindow);
+		this.pack_end(emptyUserList, true, true);
+		this.show_all();
+	}
+
 	public void append(User user)
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);

@@ -49,7 +49,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public Gtk.ScrolledWindow feedWindow;
 	public PhotoStream.Widgets.PostList userFeed;
 
-	public Box errorBox;
+	public UserPrivateBox errorBox;
 	public Label privateLabel;
 
 	public bool isPrivate = false;
@@ -197,11 +197,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		});
 		
 
-		this.errorBox = new Box(Gtk.Orientation.VERTICAL, 0);
-		this.privateLabel = new Label("");
-		this.privateLabel.set_markup("<b>This user is private.</b>");
-		this.errorBox.pack_start(privateLabel, true, true);
-
+		this.errorBox = new UserPrivateBox();
 		this.viewport = new Viewport(null, null);
 		
 

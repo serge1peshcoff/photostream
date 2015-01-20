@@ -179,26 +179,10 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
             return false;
         });
         string response = searchTags(tag);
-        List<Tag> tagListRequested = new List<Tag>();
-
-        try
-        {
-            tagListRequested = parseTagList(response);
-
-        }
-        catch (Error e) 
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }   
-
-            
+        this.tagList.loadTags(response);            
 
         Idle.add(() => { 
-        	tagsRequest = tag; 
-
-        	tagList.clear();
-	        foreach(Tag tagInList in tagListRequested)
-	            tagList.prepend(tagInList);  	
+        	tagsRequest = tag;        	 	
             
             this.remove(spinner);
             this.pack_end(stack, true, true);
@@ -222,63 +206,11 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
         });
 
         string response = searchUsers(username);
-        List<User> userListRequested = new List<User>();
-
-        try
-        {
-            userListRequested = parseUserList(response);
-
-        }
-        catch (Error e) 
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }       
+        this.userList.loadUsers(response, "");  
 
         Idle.add(() => {
-          	usersRequest = username;
-
-        	userList.clear();
-	        foreach(User userInList in userListRequested)
-	            userList.prepend(userInList);
 
 	        usersLoaded();
-
-	        new Thread<int>("", () => {                  
-	            foreach(UserBox userBox in userList.boxes)
-	            {
-	                userBox.loadAvatar();  
-	                userAvatarLoaded(userBox);                  
-	            }
-	            return 0;
-	        });
-	        new Thread<int>("", () => {                  
-	            foreach(UserBox userBox in userList.boxes)
-	            {
-	            	Relationship usersRelationship;
-                    if (userBox.user.id == PhotoStream.App.selfUser.id) // loading self followers
-                    	continue;
-
-                    string responseRelatioship = getUsersRelationship(userBox.user.id);
-                    usersRelationship = new Relationship();
-
-                    try
-                    {
-                        usersRelationship = parseRelationship(responseRelatioship);
-                    }
-                    catch (Error e) 
-                    {
-                        error("Something wrong with parsing: " + e.message + ".\n");
-                    }         
-
-                    userBox.user.relationship = usersRelationship;
-                    Idle.add(() => {
-                        userBox.loadRelationship();
-                        userRelationshipLoaded(userBox);
-                        return false;
-                    });                 
-	            }
-	            return 0;
-        	}); 
 
 			this.remove(spinner);
             this.pack_end(stack, true, true);

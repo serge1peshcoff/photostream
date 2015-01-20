@@ -552,23 +552,11 @@ using Gdk;
         else if (type == "followers")
             response = getUserFollowers(postId);  
         else
-            error("Should've not reach here."); 
-        List<User> likees = new List<User>();
+            error("Should've not reach here.");  
 
-        try
-        {
-            likees = parseUserList(response);
-        }
-        catch (Error e) // wrong token
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
+        userList.loadUsers(response, type);      
 
         Idle.add(() => {
-            userList.clear();
-            foreach(User user in likees)
-                userList.prepend(user);
-
             if (getActiveWindow() == "loading")
             {
 
@@ -577,61 +565,6 @@ using Gdk;
             
                 switchWindow("userList");
                 this.box.show_all();   
-            }
-
-            new Thread<int>("", () => {                  
-                foreach(UserBox userBox in userList.boxes)
-                    userBox.loadAvatar();                    
-                return 0;
-            });     
-
-            foreach(UserBox userBox in userList.boxes)
-            {
-                userBox.userNameLabel.activate_link.connect(handleUris);
-                userBox.avatarBox.button_release_event.connect(() => {
-                    new Thread<int>("", () => {
-                        loadUser(userBox.user.id, userBox.user);
-                        return 0;
-                    });
-                    return false;
-                });  
-            }              
-
-            foreach(UserBox userBox in userList.boxes)
-            {
-                if (userBox.user.id == selfUser.id)
-                    continue;
-
-                new Thread<int>("", () => {
-                    Relationship usersRelationship;
-                    if (type == "follows" && userWindowBox.user.id == selfUser.id) // loading self followers
-                    {   
-                        usersRelationship = new Relationship();  // don't need to actually load this from server, lol
-                        usersRelationship.outcoming = "follows"; // so make a stub Relationship object and load it into userBox
-                    }
-                    else
-                    {
-                        string responseRelatioship = getUsersRelationship(userBox.user.id);
-                        usersRelationship = new Relationship();
-
-                        try
-                        {
-                            usersRelationship = parseRelationship(responseRelatioship);
-                        }
-                        catch (Error e) 
-                        {
-                            error("Something wrong with parsing: " + e.message + ".\n");
-                        }
-                    }            
-
-                    userBox.user.relationship = usersRelationship;
-                    Idle.add(() => {
-                        userBox.loadRelationship();
-                        return false;
-                    });
-
-                    return 0;
-                }); 
             }
             return false; 
         });
