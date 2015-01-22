@@ -168,7 +168,6 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 
 	public int searchTag(string tag)
     {
-
         Idle.add(() => {
         	if (this.stack.is_ancestor(this))
         	{

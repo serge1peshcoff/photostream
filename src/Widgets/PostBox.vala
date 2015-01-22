@@ -22,11 +22,11 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 	public PhotoStream.Widgets.DateLabel dateLabel;
 	public Gtk.Label titleLabel;
 	public Gtk.Label likesLabel;
-	public Gtk.Image avatar;
+	public PhotoStream.Widgets.Image avatar;
 	public Gtk.EventBox avatarBox;
 	public Gtk.EventBox imageEventBox;
 	public Gtk.Fixed imageBox;
-	public Gtk.Image image;
+	public PhotoStream.Widgets.Image image;
 	public Gtk.Box likeToolbar;
 	public Gtk.EventBox likeBox;
 	public List<Gtk.Popover> usersOnPhoto;
@@ -79,8 +79,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
         this.avatarAlignment.left_padding = 6;
 
 		avatarBox = new Gtk.EventBox();
-		avatar = new Gtk.Image();
-		avatar.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
+		avatar = new PhotoStream.Widgets.Image(AVATAR_SIZE);
 		avatarBox.add(avatar);
 		avatarAlignment.add(avatarBox);
 		userToolbar.pack_start(avatarAlignment, false, true);
@@ -127,8 +126,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
         imageEventBox = new Gtk.EventBox();
 		imageBox = new Gtk.Fixed();
-		image = new Gtk.Image();
-		image.set_size_request(IMAGE_SIZE, IMAGE_SIZE);
+		image = new PhotoStream.Widgets.Image(IMAGE_SIZE);
 		imageBox.put(image, 0, 0);
 		imageEventBox.add(imageBox);
 		imageAlignment.add(imageEventBox);
@@ -452,84 +450,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 
 	public void loadAvatar()
 	{
-		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(post.postedUser.profilePicture);
-		File file = File.new_for_path(avatarFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(post.postedUser.profilePicture, avatarFileName);
-        	}
-        	catch (Error e)
-        	{
-        		return; // not loading avatar, to fix.
-        	}
-
-        Idle.add(() => {
-        	Pixbuf avatarPixbuf; 
-        	Pixbuf avatarMaskPixbuf;
-	        try 
-	        {
-	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-	        	avatarMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-			avatarMaskPixbuf = avatarMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-
-			avatarMaskPixbuf.composite(avatarPixbuf, 0, 0, 
-	        						AVATAR_SIZE, AVATAR_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-
-			avatar.set_from_pixbuf(avatarPixbuf);		
-			return false;
-        });
+		avatar.download(post.postedUser.profilePicture, PhotoStream.App.CACHE_IMAGES + "avatar-mask.png", true);
 	}
 
 	public void loadImage()
 	{
-		var imageFileName = PhotoStream.App.CACHE_URL + getFileName(post.type == PhotoStream.MediaType.VIDEO 
-																		? post.media.previewUrl 
-																		: post.media.url);
-
-		File file = File.new_for_path(imageFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl : post.media.url, imageFileName);
-        	}
-        	catch (Error e)
-        	{
-        		error("Some posts cannot be loaded.");
-        	}
-
-        imageLoaded(this.post);
-
-        Idle.add(() => {
-        	Pixbuf imagePixbuf; 
-        	Pixbuf videoPixbuf;
-	        try 
-	        {
-	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
-	        	imagePixbuf = imagePixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-	        	if (post.type == PhotoStream.MediaType.VIDEO)
-	        	{	        		
-	        		videoPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "video.png");
-	        		videoPixbuf = videoPixbuf.scale_simple(IMAGE_SIZE, IMAGE_SIZE, Gdk.InterpType.BILINEAR);
-	        		videoPixbuf.composite(imagePixbuf, 0, 0, 
-	        									IMAGE_SIZE, IMAGE_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-	        	}
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }	
-			
-			
-			image.set_from_pixbuf(imagePixbuf);
-			return false;
-        }); 				
+		image.download(post.type == PhotoStream.MediaType.VIDEO ? post.media.previewUrl: post.media.url, 
+					post.type == PhotoStream.MediaType.VIDEO ? PhotoStream.App.CACHE_IMAGES + "video.png" : "");
 	}
 
     public void loadLocation(Location location)

@@ -993,7 +993,7 @@ using Gdk;
     {
         foreach (PostBox postBox in feedList.boxes)
         {
-            if (postBox.avatar.pixbuf == null) //avatar not loaded, that means image was not added to PostList
+            if (!postBox.avatar.isLoaded) //avatar not loaded, that means image was not added to PostList
             {        
                 postBox.loadAvatar();
                 postBox.loadImage();

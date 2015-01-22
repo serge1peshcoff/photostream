@@ -68,7 +68,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userInfoBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatarBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.avatar = new Image();
+		this.avatar = new Image(-1);
 		this.userName = new Label("username");
 
 		try 
@@ -209,26 +209,14 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public void load(User user)
 	{
 		this.user = user;
-		string avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
-		File file = File.new_for_path(avatarFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(user.profilePicture, avatarFileName);
-        	}
-        	catch (Error e)
-        	{
-        		error("Can't load avatar.");
-        	}
-
-        this.avatar.set_from_file(avatarFileName);
+        this.avatar.download(user.profilePicture);
 
         string userNameString;
         if (user.fullName == "")
         	userNameString = "<i>@" +  GLib.Markup.escape_text(user.username) + "</i>";
         else
         	userNameString = "<span size=\"large\"><b>" + GLib.Markup.escape_text(user.fullName)
-        					 + "</b></span> (<i>@" + GLib.Markup.escape_text(user.username) + "</i>)";
+        					 + "</b>\n</span><i>@" + GLib.Markup.escape_text(user.username) + "</i>";
 
 		this.userName.set_markup(userNameString);
 
@@ -292,7 +280,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		clearPrivate();
 
 		if(!this.userFeed.is_ancestor(box))
-			box.add(userFeed);
+			box.pack_end(userFeed, true, true);
 
 		userFeed.clear();   
 
@@ -312,7 +300,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		clearFeed();
 
 		if(!this.errorBox.is_ancestor(box))
-			box.add(errorBox);
+			box.pack_end(errorBox, true, true);
 		this.show_all();
 	}
 	private void clearFeed()
@@ -342,7 +330,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
     {
         foreach (PostBox postBox in userFeed.boxes)
         {
-            if (postBox.avatar.pixbuf == null) // avatar not loaded, that means image was not added to PostList
+            if (!postBox.avatar.isLoaded) // avatar not loaded, that means image was not added to PostList
             {        
                 postBox.loadAvatar();
                 postBox.loadImage();

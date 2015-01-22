@@ -31,6 +31,7 @@ set(CLIENT_SOURCE
     Widgets/UserPrivateBox.vala
     Widgets/EmptyUserList.vala
     Widgets/EmptyTagList.vala
+    Widgets/Image.vala
     Windows/LocationMapWindow.vala
     Windows/MediaWindow.vala
     Windows/MainWindow.vala

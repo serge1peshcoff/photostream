@@ -159,7 +159,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
     {
         foreach (PostBox postBox in this.boxes)
         {
-            if (postBox.avatar.pixbuf == null) // avatar not loaded, that means image was not added to PostList
+            if (!postBox.avatar.isLoaded) // avatar not loaded, that means image was not added to PostList
             {        
                 postBox.loadAvatar();
                 postBox.loadImage();
@@ -249,7 +249,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		        }	        			
 
 		        EventBox tmpEventBox = new Gtk.EventBox();			
-				Image tmpImage = new Image();
+				Gtk.Image tmpImage = new Gtk.Image();
 				tmpEventBox.add(tmpImage);
 
 				tmpEventBox.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
@@ -332,7 +332,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		
 
 		Gtk.Bin container = (Bin)imagesGrid.get_child_at(index % 3, index / 3);
-		Gtk.Image image = (Image) container.get_child();
+		Gtk.Image image = (Gtk.Image) container.get_child();
 		image.set_from_pixbuf(imagePixbuf);
 	}
 
