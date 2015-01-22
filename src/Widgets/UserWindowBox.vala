@@ -60,6 +60,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public const int RELATIONSHIP_WIDTH = 100;
 	public const int RELATIONSHIP_HEIGHT = 20;
 
+	public int AVATAR_SIZE = 150;
+
 	public UserWindowBox()
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
@@ -68,7 +70,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userInfoBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatarBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.avatar = new Image(-1);
+		this.avatar = new Image(AVATAR_SIZE);
 		this.userName = new Label("username");
 
 		try 
