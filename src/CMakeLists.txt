@@ -2,6 +2,7 @@ set(CLIENT_SOURCE
     main.vala
     PhotoStream.vala    
     Networking.vala
+    Stacktrace.vala
     Utils/JsonParse.vala
     Utils/XmlParse.vala
     Utils/Debug.vala

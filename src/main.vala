@@ -1,4 +1,5 @@
 int main (string[] args) {
+	Stacktrace.register_handlers();
     Gtk.init (ref args);
     Gst.init (ref args);
     Xml.Parser.init ();
