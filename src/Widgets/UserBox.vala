@@ -1,4 +1,5 @@
 using PhotoStream.Utils;
+using PhotoStream.Widgets;
 using Gdk;
 
 public class PhotoStream.Widgets.UserBox : Gtk.EventBox
@@ -8,7 +9,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 	public Gtk.Box userToolbar;
 	public Gtk.Label userNameLabel;
 	public Gtk.Label titleLabel;
-	public Gtk.Image avatarImage;
+	public Image avatarImage;
 	public Gtk.EventBox avatarBox;
 	public const int AVATAR_SIZE = 70;
 
@@ -68,8 +69,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 
 		this.user = user;
 
-		this.avatarImage = new Gtk.Image();
-		this.avatarImage.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
+		this.avatarImage = new Image(AVATAR_SIZE);
 		this.avatarBox = new Gtk.EventBox();
 		avatarBox.add(avatarImage);
 		this.box.add(avatarBox);
@@ -85,40 +85,7 @@ public class PhotoStream.Widgets.UserBox : Gtk.EventBox
 
 	public void loadAvatar()
 	{
-		var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(user.profilePicture);
-		File file = File.new_for_path(avatarFileName);
-
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(user.profilePicture, avatarFileName);
-        	}
-        	catch (Error e)
-        	{
-        		return; // maybe fix this, maybe won't.
-        	}
-
-        Idle.add(() => {
-        	Pixbuf avatarPixbuf; 
-        	Pixbuf avatarMaskPixbuf;
-	        try 
-	        {
-	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-	        	avatarMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-			avatarMaskPixbuf = avatarMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-
-			avatarMaskPixbuf.composite(avatarPixbuf, 0, 0, 
-	        						AVATAR_SIZE, AVATAR_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-
-			avatarImage.set_from_pixbuf(avatarPixbuf);		
-			return false;
-        });
+		avatarImage.download(user.profilePicture, PhotoStream.App.CACHE_IMAGES + "avatar-mask.png", true);
 	}
 
     public void loadRelationship()

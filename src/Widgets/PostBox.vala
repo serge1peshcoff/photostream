@@ -1,7 +1,7 @@
 using PhotoStream.Utils;
 using Gdk;
 
-public class PhotoStream.Widgets.PostBox : Gtk.EventBox
+public class PhotoStream.Widgets.PostBox : Gtk.Box
 {
 	public Gtk.Box box;
 
@@ -55,9 +55,9 @@ public class PhotoStream.Widgets.PostBox : Gtk.EventBox
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(box);
 
-		set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
-		set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
-        set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
+		//set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
+		//set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
+        //set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
 
 		try 
         {

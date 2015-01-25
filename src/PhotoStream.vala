@@ -632,20 +632,9 @@ using Gdk;
         // if we got here, user it not private (apparently).
 
         string userFeed = getUserMedia(id);        
-        List<MediaInfo> userFeedList = new List<MediaInfo>();        
-
-        try
-        {            
-            userFeedList = parseFeed(userFeed);
-            this.userWindowBox.userFeed.olderFeedLink = parsePagination(userFeed);
-        }
-        catch (Error e)
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
-
+        userWindowBox.loadFeed(userFeed);     
         Idle.add(() => {
-            userWindowBox.loadFeed(userFeedList);
+            
             userWindowBox.load(user);
 
             if (getActiveWindow() == "loading")

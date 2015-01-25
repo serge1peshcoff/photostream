@@ -72,6 +72,8 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 		this.avatarBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatar = new Image(AVATAR_SIZE);
 		this.userName = new Label("username");
+		this.userName.set_line_wrap(true);
+		this.userName.xalign = 0;
 
 		try 
 		{
@@ -220,6 +222,9 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         	userNameString = "<span size=\"large\"><b>" + GLib.Markup.escape_text(user.fullName)
         					 + "</b>\n</span><i>@" + GLib.Markup.escape_text(user.username) + "</i>";
 
+       	if (user.bio != "")
+       		userNameString += "\n\n" + user.bio;
+
 		this.userName.set_markup(userNameString);
 
 		this.mediaCount.set_markup("<span size=\"large\"><b>" + (user.mediaCount == -1 ? "?" : user.mediaCount.to_string()) + "</b></span>");
@@ -228,8 +233,17 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.feedWindow.get_vadjustment().set_value(0);
 
-		this.loadRelationship();
-		
+		this.loadRelationship();		
+	}
+
+	public void loadFeed(string response)
+	{
+		this.userFeed.loadFeed(response);
+		clearPrivate();
+
+		if(!this.userFeed.is_ancestor(box))
+			box.pack_end(userFeed, true, true);
+		this.show_all();
 	}
 
 	public void loadRelationship()
@@ -276,26 +290,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	    else
 	    	relationshipImage.clear();
 	}
-	public void loadFeed(List<MediaInfo> feedList)
-	{
-		isPrivate = false;
-		clearPrivate();
 
-		if(!this.userFeed.is_ancestor(box))
-			box.pack_end(userFeed, true, true);
-
-		userFeed.clear();   
-
-        foreach (MediaInfo post in feedList)
-            userFeed.prepend(post);
-
-        if (this.userFeed.olderFeedLink == "")
-            this.userFeed.deleteMoreButton();
-
-        new Thread<int>("", loadImages);
-	        
-    	this.show_all();
-	}
 	public void loadPrivate()
 	{
 		isPrivate = true;
@@ -305,41 +300,18 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			box.pack_end(errorBox, true, true);
 		this.show_all();
 	}
+
 	private void clearFeed()
 	{
 		if(this.userFeed.is_ancestor(box))
-			box.remove(userFeed); // feedWindow -> GtkViewport -> box, that's why
+			box.remove(userFeed); 
 	}
+
 	public void clearPrivate()
 	{
 		if(this.errorBox.is_ancestor(box))
 			box.remove(errorBox);
 	}
-	public void loadOlderFeed(List<MediaInfo> feedList)
-	{      
-        foreach (MediaInfo post in feedList)
-            if (!userFeed.contains(post))
-                userFeed.prepend(post);
-
-        if (this.userFeed.olderFeedLink == "")
-            this.userFeed.deleteMoreButton();
-
-        new Thread<int>("", loadImages);
-        this.show_all();
-	}
-
-	public int loadImages()
-    {
-        foreach (PostBox postBox in userFeed.boxes)
-        {
-            if (!postBox.avatar.isLoaded) // avatar not loaded, that means image was not added to PostList
-            {        
-                postBox.loadAvatar();
-                postBox.loadImage();
-            }
-        }
-        return 0;
-    }
 
     private void onCountsHover(EventCrossing event)
     {
