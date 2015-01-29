@@ -104,6 +104,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
         	if (this.olderFeedLink != "")
         		addMoreButton();
         	loadFeedFromResponse(feedPosts);
+        	this.postsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
         	this.show_all();
         	return false;
         });

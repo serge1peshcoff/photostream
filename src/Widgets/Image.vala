@@ -72,8 +72,12 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 
 			image.set_from_pixbuf(imagePixbuf);	
 
-			this.remove(spinner);
-			this.pack_start(image, true, true);
+
+			if (spinner.is_ancestor(this))
+			{
+				this.remove(spinner);
+				this.pack_start(image, true, true);
+			}			
 			this.show_all();
 			this.isLoaded = true;	
 			return false;

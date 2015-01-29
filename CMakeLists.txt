@@ -18,6 +18,15 @@ set (IMAGES_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/images) # like /usr/share/photo
 set (HTML_DIR ${DATADIR}/${CMAKE_PROJECT_NAME}/html) # like /usr/share/photostream/html 
 set (APPLICATIONS_DIR ${DATADIR}/applications) # like /usr/share/applications
 
+
+set (BASIC_VALAC_OPTIONS
+  -X -rdynamic
+  --target-glib=2.32
+  --thread
+  # Remove it when vala bindings are no more experimental (see https://bugzilla.gnome.org/show_bug.cgi?id=719597)
+  --enable-experimental
+)
+
 add_definitions ("-DGETTEXT_PACKAGE=\"${GETTEXT_PACKAGE}\"") # that is added to the compiler
 
 # Comment this out to enable C compiler warnings
@@ -60,14 +69,6 @@ set (CORE_PKG
   libnotify
   libsoup-2.4
   gee-0.8
-)
-
-set (BASIC_VALAC_OPTIONS
-  -X -rdynamic
-  --target-glib=2.32
-  --thread
-  # Remove it when vala bindings are no more experimental (see https://bugzilla.gnome.org/show_bug.cgi?id=719597)
-  --enable-experimental
 )
 
 pkg_check_modules (GRANITE QUIET granite)
