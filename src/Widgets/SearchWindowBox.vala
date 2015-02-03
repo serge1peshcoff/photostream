@@ -39,12 +39,21 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
+		var rgba = Gdk.RGBA();
+		rgba.red = 1;
+		rgba.green = 1;
+		rgba.blue = 1;
+		rgba.alpha = 1;
+		this.override_background_color(Gtk.StateFlags.NORMAL, rgba);
+
 		this.searchQuery = new Gtk.Entry();	
 
 		this.stack = new Gtk.Stack();
 
 		stackSwitcher = new Gtk.StackSwitcher();
 		stackSwitcher.set_stack(stack);
+		stackSwitcher.set_homogeneous(true);
+		stackSwitcher.hexpand = true;
 
 		this.tagList = new HashTagList();
 		this.stack.add_titled(tagList, "tags", "Tags");
@@ -52,7 +61,7 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 		this.userList = new UserList();
 		this.stack.add_titled(userList, "users", "Users");
 
-		this.switcherBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		this.switcherBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);		
 		this.locationButton = new Gtk.Button.with_label("Locations");
 		this.switcherBox.pack_start(stackSwitcher, true, true);
 		this.stackSwitcher.add(locationButton);
