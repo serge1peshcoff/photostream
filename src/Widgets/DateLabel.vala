@@ -9,6 +9,8 @@ public class PhotoStream.Widgets.DateLabel : Gtk.EventBox
 
 	public DateLabel(DateTime time)
 	{
+		this.set_valign(Gtk.Align.CENTER);
+
 		this.time = time;
 		this.dateLabel = new Gtk.Label("");
 		this.dateLabel.set_halign(Gtk.Align.START);
