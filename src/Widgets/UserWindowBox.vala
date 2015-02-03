@@ -162,6 +162,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         this.relationshipAlignment.left_padding = 6;
 
 		this.relationshipBox = new Gtk.EventBox();
+		this.relationshipBox.set_valign(Gtk.Align.CENTER);
 		this.relationshipBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
 		this.relationshipBox.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
         this.relationshipBox.set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
@@ -223,7 +224,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
         					 + "</b>\n</span><i>@" + GLib.Markup.escape_text(user.username) + "</i>";
 
        	if (user.bio != "")
-       		userNameString += "\n\n" + user.bio;
+       		userNameString += "\n\n" + GLib.Markup.escape_text(user.bio);
 
 		this.userName.set_markup(userNameString);
 

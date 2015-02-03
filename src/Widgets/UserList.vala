@@ -17,7 +17,7 @@ public class PhotoStream.Widgets.UserList : Gtk.Box
 		this.moreButton = new Gtk.Button.with_label("Load more...");
 
 		this.userListWindow = new Gtk.ScrolledWindow(null, null);
-		this.userListWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);		
+		this.userListWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);		
 
 		this.userList = new Gtk.ListBox();
 		this.userListWindow.add_with_viewport(userList);

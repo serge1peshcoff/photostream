@@ -17,6 +17,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	public Gtk.ScrolledWindow imagesWindow;
 
 	public Gtk.Stack stack;
+	public Gtk.Box postsBox;
 	public Gtk.ListBox postList;
 	public Gtk.Box imagesBox;
 	public Gtk.Grid imagesGrid;
@@ -25,6 +26,8 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	private int prevWidth;
 	private bool cannotViewImages;
 
+	private int postsDisplayed = 0;
+
 	public PostList(bool cannotViewImages = false)
 	{
 		this.cannotViewImages = cannotViewImages;
@@ -32,6 +35,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		IMAGE_SIZE = 200;
 
 		this.stack = new Gtk.Stack();
+		this.postsBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.postList = new Gtk.ListBox();
 
 		boxes = new GLib.List<PostBox>();	
@@ -57,9 +61,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.imagesBox.add(imagesGrid);
 		this.imagesBox.pack_end(moreButtonImagesAlignment, false, false);
 
+		this.postsBox.add(postList);
+
 		this.postsWindow = new Gtk.ScrolledWindow(null, null);
 		this.postsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
-		this.postsWindow.add_with_viewport(postList);
+		this.postsWindow.add_with_viewport(postsBox);
 
 		this.imagesWindow = new Gtk.ScrolledWindow(null, null);
 		this.imagesWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
@@ -170,16 +176,12 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
     public void addMoreButton()
 	{
-		if (!this.moreButtonAlignment.is_ancestor(this.postList))
-			this.postList.prepend(moreButtonAlignment);
+		if (!this.moreButtonAlignment.is_ancestor(this.postsBox))
+			this.postsBox.pack_end(moreButtonAlignment, false, true);
 	}
 	public void deleteMoreButton()
 	{
-		if (this.moreButtonAlignment.is_ancestor(this.postList))
-		{
-			Gtk.ListBoxRow buttonRow = (Gtk.ListBoxRow)this.postList.get_children().last().data;
-			buttonRow.remove(moreButtonAlignment);
-		}
+		this.postsBox.remove(moreButtonAlignment);
 	}
 	public bool contains(MediaInfo post)
 	{
@@ -193,39 +195,39 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	{
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 		postList.prepend(separator);
+
+		postsDisplayed++;
+		
 		PostBox box = new PostBox(post);
 
 		var listBoxRow = new Gtk.ListBoxRow();
-		if (Gtk.get_major_version() > 3 && Gtk.get_minor_version() > 14)
-		{
-			listBoxRow.set_selectable(false);
-			listBoxRow.set_activatable(false);
-		}
 		listBoxRow.add(box);
 		postList.prepend(listBoxRow);
 		boxes.prepend(box);	
+
+		postsDisplayed++;
 
 		connectImageLoadingHandler(box);
 	}
 
 	public new void prepend(MediaInfo post)
 	{
-		if (boxes.length() != 0)
+		if (postsDisplayed != 0)
 		{
 			Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-			postList.insert (separator, (int) this.postList.get_children().length () - 1);
+			postList.insert (separator, postsDisplayed);
 		}
+
+		postsDisplayed++;
+
 		PostBox box = new PostBox(post);
 
 		var listBoxRow = new Gtk.ListBoxRow();
-		if (Gtk.get_major_version() > 3 && Gtk.get_minor_version() > 14)
-		{
-			listBoxRow.set_selectable(false);
-			listBoxRow.set_activatable(false);
-		}
 		listBoxRow.add(box);
-		postList.insert (listBoxRow, (int) this.postList.get_children().length () - 1);
+		postList.insert (listBoxRow, postsDisplayed);
 		boxes.append(box);	
+
+		postsDisplayed++;
 
 		connectImageLoadingHandler(box);
 	}
@@ -340,13 +342,9 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	public void clear()
 	{
 		foreach (var child in this.postList.get_children())
-			if (!(((Gtk.ListBoxRow) child).get_child() is Gtk.Alignment)) // we don't want to remove "add more" button, right?
-				this.postList.remove(child);
+			this.postList.remove(child);
 
 		this.boxes = new List<PostBox>();
-
-		if (!this.moreButtonAlignment.is_ancestor(this.postList) && this.olderFeedLink != "")
-			postList.prepend(this.moreButtonAlignment);	
 
 		foreach (var child in this.imagesGrid.get_children())
 			this.imagesGrid.remove(child);
