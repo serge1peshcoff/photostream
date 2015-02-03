@@ -52,7 +52,10 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
 
 	public PostBox(MediaInfo post)
 	{
+		this.set_halign(Gtk.Align.FILL);
+
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
+		this.box.expand = true;
 		this.add(box);
 
 		var rgba = Gdk.RGBA();

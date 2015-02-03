@@ -18,7 +18,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 	public CommentBox(Comment comment, bool withAvatar)
 	{
-		this.set_halign(Gtk.Align.START);
+		this.set_halign(Gtk.Align.FILL);
 
 		this.comment = comment;
 

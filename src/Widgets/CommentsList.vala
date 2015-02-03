@@ -3,13 +3,13 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 {
 	public GLib.List<CommentBox> comments;
 	public Gtk.LinkButton loadMoreButton;
-	public Gtk.Box moreBox;
 	public string postId;
 	public Gtk.Entry commentBox;
 	public Gtk.Alignment commentsBoxAlignment;
 
+	public Gtk.Box containerBox;
 	public Gtk.ScrolledWindow commentsWindow;
-	public Gtk.ListBox commentsList;
+	public Gtk.Grid commentsList;
 
 	public int commentsPosted = 0;
 
@@ -28,6 +28,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	private void initFields()
 	{
+		this.containerBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.comments = new GLib.List<CommentBox>();
 
 		this.commentsBoxAlignment = new Gtk.Alignment (1,0,1,1);
@@ -45,26 +46,27 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 			});		
 		});
 
-		this.commentsList = new Gtk.ListBox();
-		this.commentsList.set_selection_mode (Gtk.SelectionMode.NONE);
+		this.commentsList = new Gtk.Grid();
 
 		if (loadAvatars)
 		{
 			this.commentsWindow = new Gtk.ScrolledWindow(null, null);
 			commentsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
-			
+					
 			this.commentsWindow.add_with_viewport(commentsList);
-			this.pack_start(commentsWindow, true, true);
-		}
+			this.containerBox.pack_start(commentsWindow, true, true);	
+		}	
 		else
-			this.pack_start(commentsList, true, true);
+		{
+			this.containerBox.pack_start(commentsList, true, true);	
+		}		
 
-		
+		this.pack_start(containerBox, true, true);
 
 		Idle.add(() => {
 			this.commentBox.set_size_request(625, -1);
 			this.commentsBoxAlignment.add(commentBox);
-			commentsList.insert(commentsBoxAlignment, -1);
+			this.containerBox.pack_end(commentsBoxAlignment, false, true);
 			this.show_all();
 			return false;
 		});		
@@ -72,11 +74,9 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	public void addMoreButton(int64 commentsCount)
 	{
-		this.moreBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.loadMoreButton = new Gtk.LinkButton("Load all " + commentsCount.to_string() + " comments");
-
-		this.moreBox.add(loadMoreButton);
-		commentsList.prepend(moreBox);
+		containerBox.pack_start(loadMoreButton, false, true);
+		containerBox.reorder_child(loadMoreButton, 0);
 	}
 
 	public void append(Comment post)
@@ -85,7 +85,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		box.removeCommentButton.clicked.connect(() => {
 			removeComment(box);		
 		});
-		commentsList.prepend(box);
+		commentsList.insert_row(0);
+		commentsList.attach(box, 0, 0, 1, 1);
 		comments.append(box);
 		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
@@ -100,7 +101,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		box.removeCommentButton.clicked.connect(() => {
 			removeComment(box);		
 		});
-		commentsList.insert (box, commentsPosted);
+		commentsList.attach(box, 0, commentsPosted, 1, 1);
 		comments.append(box);
 		commentsPosted++;
 		box.textEventBox.button_release_event.connect(() => {
@@ -118,12 +119,11 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	public void clear()
 	{
-		foreach (var child in this.commentsList.get_children())
-			if (((Gtk.ListBoxRow) child).get_child() is CommentBox)
-				Idle.add (() => {
-					this.commentsList.remove(child);
-					return false;
-				});
+		foreach (var child in comments)
+			Idle.add (() => {
+				this.commentsList.remove(child);
+				return false;
+			});
 
 		this.comments = new List<CommentBox>();	
 	}
