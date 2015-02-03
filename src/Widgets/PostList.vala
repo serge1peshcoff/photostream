@@ -18,7 +18,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 	public Gtk.Stack stack;
 	public Gtk.Box postsBox;
-	public Gtk.ListBox postList;
+	public Gtk.Grid postList;
 	public Gtk.Box imagesBox;
 	public Gtk.Grid imagesGrid;
 
@@ -36,7 +36,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 		this.stack = new Gtk.Stack();
 		this.postsBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
-		this.postList = new Gtk.ListBox();
+		this.postList = new Gtk.Grid();
 
 		boxes = new GLib.List<PostBox>();	
 		srcImages = new GLib.List<Pixbuf>();
@@ -50,9 +50,6 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 		this.moreButtonImagesAlignment = new Gtk.Alignment (1,0,1,0);
         this.moreButtonImagesAlignment.add(moreButtonImages);
-
-		this.postList.set_selection_mode (Gtk.SelectionMode.NONE);
-		this.postList.activate_on_single_click = false;
 
 		this.imagesBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.imagesGrid = new Gtk.Grid();
@@ -193,16 +190,15 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	}
 	public void append(MediaInfo post)
 	{
+		postList.insert_row(0);
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		postList.prepend(separator);
+		postList.attach(separator, 0, postsDisplayed, 1, 1);
 
 		postsDisplayed++;
-		
-		PostBox box = new PostBox(post);
 
-		var listBoxRow = new Gtk.ListBoxRow();
-		listBoxRow.add(box);
-		postList.prepend(listBoxRow);
+		postList.insert_row(0);
+		PostBox box = new PostBox(post);
+		postList.attach(box, 0, postsDisplayed, 1, 1);
 		boxes.prepend(box);	
 
 		postsDisplayed++;
@@ -215,16 +211,13 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		if (postsDisplayed != 0)
 		{
 			Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-			postList.insert (separator, postsDisplayed);
+			postList.attach(separator, 0, postsDisplayed, 1, 1);
 		}
 
 		postsDisplayed++;
 
 		PostBox box = new PostBox(post);
-
-		var listBoxRow = new Gtk.ListBoxRow();
-		listBoxRow.add(box);
-		postList.insert (listBoxRow, postsDisplayed);
+		postList.attach(box, 0, postsDisplayed, 1, 1);
 		boxes.append(box);	
 
 		postsDisplayed++;

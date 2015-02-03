@@ -55,6 +55,13 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
 		box = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.add(box);
 
+		var rgba = Gdk.RGBA();
+		rgba.red = 1;
+		rgba.green = 1;
+		rgba.blue = 1;
+		rgba.alpha = 1;
+		this.override_background_color(Gtk.StateFlags.NORMAL, rgba);
+
 		//set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
 		//set_events(Gdk.EventMask.ENTER_NOTIFY_MASK);
         //set_events(Gdk.EventMask.LEAVE_NOTIFY_MASK);
