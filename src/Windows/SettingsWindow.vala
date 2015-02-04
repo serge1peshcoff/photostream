@@ -2,8 +2,8 @@ using Gtk;
 
 public class PhotoStream.SettingsWindow : Gtk.Window
 {
+	public Gtk.Paned pane;
 #if HAVE_GRANITE
-	public Granite.Widgets.ThinPaned pane;
 	public Granite.Widgets.SourceList sourceList;
 	public Granite.Widgets.SourceList.Item editProfileItem;
 	public Granite.Widgets.SourceList.Item changePasswordItem;
@@ -11,7 +11,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 	public Granite.Widgets.SourceList.Item appSettingsItem;
 	public Granite.Widgets.SourceList.Item logOutItem;
 #else
-	public Gtk.Paned pane;
 	public Gtk.Box sourceList;
 	public Gtk.Button editProfileItem;
 	public Gtk.Button changePasswordItem;
@@ -89,6 +88,8 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 
 		this.settingsStack = new Gtk.Stack();
 
+		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
+
 #if HAVE_GRANITE 
 		this.editProfileItem = new Granite.Widgets.SourceList.Item("Profile Settings");
 		this.changePasswordItem = new Granite.Widgets.SourceList.Item("Change password");
@@ -96,7 +97,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.appSettingsItem = new Granite.Widgets.SourceList.Item("Application settings");
 		this.logOutItem = new Granite.Widgets.SourceList.Item("Log out");
 
-		pane = new Granite.Widgets.ThinPaned();
 		sourceList = new Granite.Widgets.SourceList();
 		var root = sourceList.root;
 		root.add(editProfileItem);
@@ -114,7 +114,6 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.appSettingsItem = new Gtk.Button.with_label("Application settings");
 		this.logOutItem = new Gtk.Button.with_label("Log out");
 
-		pane = new Gtk.Paned(Gtk.Orientation.HORIZONTAL);
 		sourceList = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		sourceList.add(editProfileItem);
 		sourceList.add(changePasswordItem);
@@ -285,6 +284,7 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 		this.clearCacheButton.clicked.connect(clearCache);
 
 		this.spinner = new Gtk.Spinner();
+		this.spinner.set_halign(Gtk.Align.CENTER);
 		this.spinner.start();	
 		this.settingsStack.add_named(spinner, "loading");
 

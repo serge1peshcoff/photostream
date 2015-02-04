@@ -35,6 +35,8 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 	private string selectedFolder;
 	private string savedPostsType = "all";
 
+	private bool exited = false;
+
 	public BulkDownloadWindow(string id)
 	{
         this.set_resizable(false);
@@ -55,6 +57,10 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 		this.saveFolderEntry = new Gtk.Entry();
 		this.saveFolderEntry.set_text(selectedFolder);
 		this.saveFolderEntry.set_size_request(400, -1);
+
+		this.saveFolderEntry.changed.connect(() => {
+			selectedFolder = this.saveFolderEntry.get_text();
+		});
 
 		this.saveFolderButton = new Gtk.Button.from_icon_name("document-open", Gtk.IconSize.BUTTON);
 
@@ -86,7 +92,8 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 %y% - year, %m% - month, %d% - day, %h% - hour, %m% - minute, %s% - second.
 %title% - post title (post doesn't have to have a title).
 %user% - posted user.
-%number% - post number.
+%number% - post number (the newest one is first).
+%revnumber% - post number (the oldest one is first).
 ";
 
 		this.patternExplanation = new Gtk.Label("");
@@ -128,14 +135,11 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
         this.progressBarAlignment.left_padding = 6;
         
         this.progressBar = new Gtk.ProgressBar();
-        this.statusLabel = new Gtk.Label("Doing nothing");
+        this.statusLabel = new Gtk.Label("Getting user posts (already got 0)...");
         this.statusLabel.set_halign(Gtk.Align.START);
 
         this.statusAlignment.add(statusLabel);
         this.progressBarAlignment.add(this.progressBar);
-        
-        this.box.add(progressBarAlignment);
-        this.box.add(statusAlignment);
 
         this.add(box);
 
@@ -162,6 +166,11 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
         	this.allPosts.set_sensitive(false);
         	this.onlyImages.set_sensitive(false);
         	this.onlyVideos.set_sensitive(false);
+
+        	this.box.add(progressBarAlignment);
+        	this.box.add(statusAlignment);
+
+        	this.show_all();
 
         	posts = new List<MediaInfo>();
 
@@ -225,10 +234,17 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 		downloadPosts();
 	} 
 
+	public override void destroy()
+	{
+		exited = true;
+	}
+
 	private void downloadPosts()
 	{
 		foreach (MediaInfo post in posts)
 		{
+			if (exited)
+				return;
 			bool isDownloaded = true;
 			if ((post.type == PhotoStream.MediaType.VIDEO && savedPostsType == "images")
 				|| (post.type == PhotoStream.MediaType.IMAGE && savedPostsType == "videos"))
@@ -253,6 +269,7 @@ public class PhotoStream.BulkDownloadWindow : Gtk.Window
 				fileName = fileName.replace("%title%", post.title);
 				fileName = fileName.replace("%user%", post.postedUser.username);
 				fileName = fileName.replace("%number%", (posts.index(post) + 1).to_string());
+				fileName = fileName.replace("%revnumber%", (posts.length() - posts.index(post)).to_string());
 
 				if (fileName.length >= 255 - 4)
 					fileName = fileName.substring(0, 255 - 4); // - ".jpg"
