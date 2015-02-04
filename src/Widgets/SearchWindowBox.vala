@@ -39,13 +39,6 @@ public class PhotoStream.Widgets.SearchWindowBox: Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
-		var rgba = Gdk.RGBA();
-		rgba.red = 1;
-		rgba.green = 1;
-		rgba.blue = 1;
-		rgba.alpha = 1;
-		this.override_background_color(Gtk.StateFlags.NORMAL, rgba);
-
 		this.searchQuery = new Gtk.Entry();	
 
 		this.stack = new Gtk.Stack();
