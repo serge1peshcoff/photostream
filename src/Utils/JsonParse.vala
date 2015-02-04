@@ -266,8 +266,13 @@ public string parsePagination(string message) throws Error
     var root_object = parser.get_root().get_object();
     checkErrors(root_object);
 
-    var paginationObject = root_object.get_member("pagination") .get_object();
-    return paginationObject.has_member("next_url") ? paginationObject.get_string_member("next_url") : "";  
+    var paginationObject = root_object.get_member("pagination");
+    if (paginationObject == null)
+        return "";
+    else
+        return paginationObject.get_object().has_member("next_url") 
+             ? paginationObject.get_object().get_string_member("next_url") 
+             : "";  
 } 
 
 public List<User> parseUserList(string message) throws Error
