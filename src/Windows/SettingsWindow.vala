@@ -354,8 +354,8 @@ public class PhotoStream.SettingsWindow : Gtk.Window
 				submitSettingsConfirm();
 			});
 
-
-        	settingsStack.set_visible_child_name("editProfile");
+        	if (settingsStack.get_visible_child_name() == "loading")
+        		settingsStack.set_visible_child_name("editProfile");
         	return false;
         });
 	}

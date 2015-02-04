@@ -724,13 +724,11 @@ using Gdk;
                 new Thread<int>("", () => {
                     feedList.boxes.first().data.loadAvatar();
                     feedList.boxes.first().data.loadImage();
-                    Idle.add(() => {
-                        if (isMainWindowShown)
-                            this.mainWindow.show_all();
-                        return false;
-                    });
                     return 0;
-                });               
+                }); 
+
+                if (isMainWindowShown)
+                    this.mainWindow.show_all();              
 
                 return false;
             });

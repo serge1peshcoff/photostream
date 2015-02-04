@@ -198,12 +198,14 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 
 		postList.insert_row(0);
 		PostBox box = new PostBox(post);
-		postList.attach(box, 0, postsDisplayed, 1, 1);
+		postList.attach(box, 0, 0, 1, 1);
 		boxes.prepend(box);	
 
 		postsDisplayed++;
 
 		connectImageLoadingHandler(box);
+
+		this.show_all();
 	}
 
 	public new void prepend(MediaInfo post)
@@ -223,6 +225,8 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		postsDisplayed++;
 
 		connectImageLoadingHandler(box);
+
+		this.show_all();
 	}
 
 	private void connectImageLoadingHandler(PostBox box)

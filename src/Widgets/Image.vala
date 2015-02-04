@@ -59,7 +59,7 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 				Pixbuf imageMaskPixbuf;
 				try 
 		        {
-		        	imageMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
+		        	imageMaskPixbuf = new Pixbuf.from_file(maskImage);
 		        }	
 		        catch (Error e)
 		        {
