@@ -503,30 +503,13 @@ using Gdk;
             stubLoading();            
             return false;
         });
-        string response = getComments(postId);
-        List<Comment> commentsListRequested = new List<Comment>();
-
-        try
-        {
-            commentsListRequested = parseComments(response);
-
-        }
-        catch (Error e)
-        {
-            error("Something wrong with parsing: " + e.message + ".\n");
-        }
+        
+        commentsList.loadComments(postId);
 
         Idle.add(() => {
-            commentsList.clear();
-            foreach(Comment comment in commentsListRequested)
-                commentsList.prepend(comment);
-
             if (getActiveWindow() == "loading")
             {
-
-                addHistoryEntry("comments", postId);
-
-                commentsList.postId = postId;
+                addHistoryEntry("comments", postId);                
                 switchWindow("comments");
             }
             return false;

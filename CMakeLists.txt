@@ -23,6 +23,7 @@ set (BASIC_VALAC_OPTIONS
   -X -rdynamic
   --target-glib=2.32
   --thread
+  --pkg linux
   # Remove it when vala bindings are no more experimental (see https://bugzilla.gnome.org/show_bug.cgi?id=719597)
   --enable-experimental
 )
@@ -56,7 +57,6 @@ find_package (PkgConfig)
 message(STATUS "PKG_CONFIG_PATH: \"" ${PKG_CONFIG_PATH}\")
 
 set (CORE_PKG
-  linux
   gstreamer-1.0
   gtk+-3.0
   glib-2.0>=2.32

@@ -28,6 +28,13 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	private void initFields()
 	{
+		var rgba = Gdk.RGBA();
+		rgba.red = 1;
+		rgba.green = 1;
+		rgba.blue = 1;
+		rgba.alpha = 1;
+		this.override_background_color(Gtk.StateFlags.NORMAL, rgba);
+
 		this.containerBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.comments = new GLib.List<CommentBox>();
 
@@ -70,6 +77,35 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 			this.show_all();
 			return false;
 		});		
+	}
+
+	public void loadComments(string postId)
+	{
+		this.postId = postId;
+
+		string response = getComments(postId);
+        List<Comment> commentsListRequested = new List<Comment>();
+
+        try
+        {
+            commentsListRequested = parseComments(response);
+
+        }
+        catch (Error e)
+        {
+            error("Something wrong with parsing: " + e.message + ".\n");
+        }
+        Idle.add(() => {
+        	loadCommentsFromList(commentsListRequested);
+        	return false;
+        });        
+	}
+
+	public void loadCommentsFromList(List<Comment> commentsListRequested)
+	{
+		this.clear();
+        foreach(Comment comment in commentsListRequested)
+            this.prepend(comment);
 	}
 
 	public void addMoreButton(int64 commentsCount)
