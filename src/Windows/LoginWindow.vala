@@ -30,6 +30,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
 		this.webView = new WebView ();
 		this.webView.web_context.get_cookie_manager().set_persistent_storage(PhotoStream.App.CACHE_URL + "cookie.txt", 
 										CookiePersistentStorage.TEXT);
+		this.webView.web_context.set_cache_model(CacheModel.DOCUMENT_VIEWER);
 		this.webView.get_settings().set_enable_accelerated_2d_canvas(true);
 		this.webView.get_settings().set_enable_webgl(true);
 		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);	
@@ -58,6 +59,7 @@ public class PhotoStream.LoginWindow : Gtk.ApplicationWindow
             if (host == this.HOST)
             {
             	this.spinner = new Gtk.Spinner();
+            	spinner.set_halign(Gtk.Align.CENTER);
             	spinner.start();            	
 
             	box.remove(scrolledWindow);

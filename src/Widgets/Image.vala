@@ -40,7 +40,7 @@ public class PhotoStream.Widgets.Image: Gtk.Box
         	{
         		return; // not loading avatar, to fix.
         	}
-
+        	
         Idle.add(() => {
         	Pixbuf imagePixbuf; 
 	        try 

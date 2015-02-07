@@ -61,11 +61,11 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 		this.postsBox.add(postList);
 
 		this.postsWindow = new Gtk.ScrolledWindow(null, null);
-		this.postsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+		this.postsWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
 		this.postsWindow.add_with_viewport(postsBox);
 
 		this.imagesWindow = new Gtk.ScrolledWindow(null, null);
-		this.imagesWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.ALWAYS);
+		this.imagesWindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
 		this.imagesWindow.add_with_viewport(imagesBox);
 		this.stack.add_named(postsWindow, "posts");
 		if (!cannotViewImages)
@@ -275,21 +275,21 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 					return false;
 				});
 
-				/*this.parentWindow.size_allocate.connect((allocation) => {
-					if (allocation.width != prevWidth)
-					{
-						print("%d\n", allocation.width);
-						prevWidth = allocation.width;					
+				this.parentWindow.size_allocate.connect((allocation) => {
+					//if (allocation.width != prevWidth)
+					//{
+					//	print("%d\n", allocation.width);
+					//	prevWidth = allocation.width;					
 						resizeAllImages(allocation.width);
-					}
-				});*/
+					//}
+				});
 
 				imagesGrid.attach(tmpEventBox, index % 3, index / 3, 1, 1);
 
 				loadImageToFeed(index, box.post.type == PhotoStream.MediaType.VIDEO);
 				if (loadPostsOrImages())
 					this.stack.set_visible_child_name("images");
-				this.show_all();
+				this.imagesGrid.show_all();
 			});	
 		}
 	}

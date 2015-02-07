@@ -13,6 +13,9 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	public int commentsPosted = 0;
 
+	public const int REFRESH_INTERVAL = 10;
+	private bool isActive = false;
+
 	public bool loadAvatars;
 
 	public CommentsList()
@@ -106,6 +109,56 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		this.clear();
         foreach(Comment comment in commentsListRequested)
             this.prepend(comment);
+
+        new Thread<int>("", () => {
+        	foreach (CommentBox box in comments)
+        		box.loadAvatar();
+
+        	return 0;
+        });
+        
+
+        /*if (!isActive)
+        {
+        	GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+	            new Thread<int>("", () => {
+	                refreshComments();
+	                return 0;
+	            });                
+	            return false;
+	        });
+	        isActive = false;
+        }*/
+
+	}
+
+	public void refreshComments()
+	{
+		string newComments = getComments(this.postId);
+		List<Comment> commentsList;
+		try
+		{
+			commentsList = parseComments(newComments);
+		}
+		catch (Error e)
+		{
+			error("Something wrong with JSON parsing: %s.\n", e.message);
+		}
+		commentsList.reverse();
+
+		foreach (Comment comment in commentsList)
+		{
+			this.append(comment);
+			this.show_all();
+		}
+
+		GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
+            new Thread<int>("", () => {
+                refreshComments();
+                return 0;
+            });                
+            return false;
+       });
 	}
 
 	public void addMoreButton(int64 commentsCount)

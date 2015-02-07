@@ -12,7 +12,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	public Gtk.Label textLabel;
 	public Gtk.EventBox avatarBox;
 	public Gtk.EventBox textEventBox;
-	public Gtk.Image avatar;
+	public PhotoStream.Widgets.Image avatar;
 	public Gtk.ToolButton removeCommentButton;
 	public int AVATAR_SIZE = 35;
 
@@ -28,12 +28,6 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
         this.textAlignment.right_padding = 0;
         this.textAlignment.bottom_padding = 1;
         this.textAlignment.left_padding = 0;
-
-        this.avatarAlignment = new Gtk.Alignment (0,1,1,1);
-        this.avatarAlignment.top_padding = 1;
-        this.avatarAlignment.right_padding = 6;
-        this.avatarAlignment.bottom_padding = 1;
-        this.avatarAlignment.left_padding = 0;
 
         this.textBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
         this.textEventBox = new Gtk.EventBox();
@@ -52,47 +46,27 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 		if (withAvatar)
 		{
-			bool isImageLoaded = true;
-			var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(comment.user.profilePicture);
-			File file = File.new_for_path(avatarFileName);
-	        if (!file.query_exists()) // avatar not downloaded, download
-	        	try {
-	        		downloadFile(comment.user.profilePicture, avatarFileName);
-	        	}
-	        	catch (Error e) // broken download
-	        	{
-	        		isImageLoaded = false;
-	        	}	        	
+			this.avatarAlignment = new Gtk.Alignment (0,1,1,1);
+	        this.avatarAlignment.top_padding = 1;
+	        this.avatarAlignment.right_padding = 6;
+	        this.avatarAlignment.bottom_padding = 1;
+	        this.avatarAlignment.left_padding = 0;
 
-	        if (isImageLoaded)
-	        {
-	        	avatar = new Gtk.Image();
-	        	avatar.set_size_request(AVATAR_SIZE, AVATAR_SIZE);
-	        	avatarBox = new Gtk.EventBox();
-	        	avatarBox.add(avatar);
-	        	Pixbuf avatarPixbuf; 
-		        try 
-		        {
-		        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-		        }	
-		        catch (Error e)
-		        {
-		        	GLib.error("Something wrong with file loading.\n");
-		        }
-				avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
+			avatar = new PhotoStream.Widgets.Image(AVATAR_SIZE);
 
-				avatar.set_from_pixbuf(avatarPixbuf);	
+			avatarBox = new Gtk.EventBox();
+		    avatarBox.add(avatar);
+			avatarAlignment.add(avatarBox);
+			this.pack_start(avatarAlignment, false, true);	
 
-				avatarAlignment.add(avatarBox);
-				this.pack_start(avatarAlignment, false, true);	
+			avatarBox.enter_notify_event.connect((event) => {
+				event.window.set_cursor (
+	                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+	            );
+	            return false;
+			});
 
-				avatarBox.enter_notify_event.connect((event) => {
-					event.window.set_cursor (
-		                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-		            );
-		            return false;
-				});
-			}
+			this.show_all();
 		}
 
 		this.removeCommentButton = new Gtk.ToolButton(new Gtk.Image.from_icon_name ("dialog-cancel", Gtk.IconSize.LARGE_TOOLBAR), "Go back");
@@ -123,5 +97,10 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 	            });
 		});
 		
+	}
+
+	public void loadAvatar()
+	{
+		avatar.download(comment.user.profilePicture, "", true);	
 	}
 }

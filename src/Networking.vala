@@ -245,18 +245,24 @@ public void downloadFile(string url, string filename) throws Error
     {
 	    file = File.new_for_path(filename);
 	    if (file.query_exists())  
-	    	//file.delete();
-            return;
+	    	file.delete();
 
-	    stream = file.create_readwrite(FileCreateFlags.PRIVATE);
-	    FileOutputStream os = stream.output_stream as FileOutputStream;
-
-    	os.write_all(message.response_body.data, out bytes);
+	    stream = file.create_readwrite(FileCreateFlags.PRIVATE);	    
 	}
 	catch (Error e)
 	{
-		GLib.error("Something wrong with file writing: \"%s\". Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n", e.message);
+		GLib.error("Error creating file: \"%s\". Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n", e.message);
     }
+    try 
+    {
+        FileOutputStream os = stream.output_stream as FileOutputStream;
+        os.write_all(message.response_body.data, out bytes);
+    }
+    catch (Error e)
+    {
+        GLib.error("Error writing to file: \"%s\". Do the ~/.cache/ and ~/.cache/photostream directories belong to you?\n", e.message);
+    }
+
 }
 
 

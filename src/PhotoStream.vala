@@ -112,7 +112,7 @@ using Gdk;
             REFRESH_INTERVAL = loadRefreshInterval();
 
 
-            CACHE_URL = Environment.get_home_dir() + "/.cache/photostream/";
+            CACHE_URL = Environment.get_home_dir() + "/.cache/photostream-images/";
             CACHE_AVATARS = CACHE_URL + "avatars/";
 
             mainWindow = new MainWindow ();
@@ -181,11 +181,11 @@ using Gdk;
         {
             File file = File.new_for_path(CACHE_URL);
             if (!file.query_exists())
-                file.make_directory_with_parents ();
+                file.make_directory();
 
             file = File.new_for_path(CACHE_AVATARS);
             if (!file.query_exists())
-                file.make_directory_with_parents ();
+                file.make_directory();
 
         } 
         catch (Error e) 

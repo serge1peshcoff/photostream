@@ -244,6 +244,17 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		if(!this.userFeed.is_ancestor(box))
 			box.pack_end(userFeed, true, true);
+
+		this.followsCountEventBox.enter_notify_event.connect((event) => {
+			onCountsHover(event);
+			return false;
+		});
+		this.followersCountEventBox.enter_notify_event.connect((event) => {
+			onCountsHover(event);
+			return false;
+		});
+
+
 		this.show_all();
 	}
 
