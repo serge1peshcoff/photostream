@@ -62,9 +62,16 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 	public int AVATAR_SIZE = 150;
 
+	public PhotoStream.App app;
+
 	public UserWindowBox()
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
+
+		this.realize.connect(() => {
+			var window = (Gtk.Window)this.get_toplevel();
+			app = (PhotoStream.App)window.get_application();
+		});
 
 		box = new Box(Gtk.Orientation.VERTICAL, 0);
 
@@ -200,6 +207,24 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 			onCountsHover(event);
 			return false;
 		});
+
+		this.followersCountEventBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                if (!this.isPrivate)
+                    app.loadUsers(this.user.id, "followers");
+                return 0;
+            }); 
+            return false;
+        });
+
+        this.followsCountEventBox.button_release_event.connect(() => {
+            new Thread<int>("", () => {
+                if (!this.isPrivate)
+                    app.loadUsers(this.user.id, "follows");
+                return 0;
+            }); 
+            return false;
+        });
 		
 
 		this.errorBox = new UserPrivateBox();
@@ -214,6 +239,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	public void load(User user)
 	{
 		this.user = user;
+		this.isPrivate = false;
         this.avatar.download(user.profilePicture);
 
         string userNameString;

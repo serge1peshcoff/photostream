@@ -118,7 +118,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
         });
         
 
-        /*if (!isActive)
+        if (!isActive)
         {
         	GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
 	            new Thread<int>("", () => {
@@ -127,8 +127,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 	            });                
 	            return false;
 	        });
-	        isActive = false;
-        }*/
+	        isActive = true;
+        }
 
 	}
 
@@ -144,13 +144,26 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		{
 			error("Something wrong with JSON parsing: %s.\n", e.message);
 		}
-		commentsList.reverse();
 
-		foreach (Comment comment in commentsList)
-		{
-			this.append(comment);
-			this.show_all();
-		}
+		Idle.add(() => {
+			foreach (Comment comment in commentsList)
+			{
+				if (!this.contains(comment))
+				{
+					this.prepend(comment);
+					this.show_all();
+				}
+				
+			}
+			new Thread<int>("", () => {
+	        	foreach (CommentBox box in comments)
+	        		box.loadAvatar();
+
+	        	return 0;
+	        });
+	        return false;
+		});
+		
 
 		GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
             new Thread<int>("", () => {
@@ -240,6 +253,15 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 			this.show_all();
 			return false;
 		});
+	}
+
+	private bool contains(Comment comment)
+	{
+		foreach (CommentBox box in comments)
+			if (box.comment.id == comment.id)
+				return true;
+
+		return false;
 	}
 
 	private void removeComment(CommentBox box)

@@ -199,24 +199,6 @@ using Gdk;
         this.userWindowBox = new UserWindowBox();
         stack.add_named(userWindowBox, "user");
 
-        userWindowBox.followersCountEventBox.button_release_event.connect(() => {
-            new Thread<int>("", () => {
-                if (!userWindowBox.isPrivate)
-                    loadUsers(userWindowBox.user.id, "followers");
-                return 0;
-            }); 
-            return false;
-        });
-
-        userWindowBox.followsCountEventBox.button_release_event.connect(() => {
-            new Thread<int>("", () => {
-                if (!userWindowBox.isPrivate)
-                    loadUsers(userWindowBox.user.id, "follows");
-                return 0;
-            }); 
-            return false;
-        });
-
         this.commentsList = new CommentsList.withAvatars();
         stack.add_named(commentsList, "comments");
 

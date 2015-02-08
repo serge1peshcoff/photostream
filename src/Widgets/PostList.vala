@@ -192,7 +192,7 @@ public class PhotoStream.Widgets.PostList : Gtk.Box
 	{
 		postList.insert_row(0);
 		Gtk.Separator separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
-		postList.attach(separator, 0, postsDisplayed, 1, 1);
+		postList.attach(separator, 0, 0, 1, 1);
 
 		postsDisplayed++;
 

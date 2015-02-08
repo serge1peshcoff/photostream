@@ -24,6 +24,10 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 
 	public void download(string downloadUrl, string maskImage = "", bool isAvatar = false)
 	{
+		if (image.get_pixbuf() != null)
+			return;
+
+
 		string imageFileName;
 		if (!isAvatar)
 			imageFileName = PhotoStream.App.CACHE_URL + getFileName(downloadUrl);
