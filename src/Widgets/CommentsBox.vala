@@ -1,12 +1,14 @@
 using PhotoStream.Utils;
 using Gdk;
 
-public class PhotoStream.Widgets.CommentBox : Gtk.Box
+public class PhotoStream.Widgets.CommentBox : Gtk.EventBox
 {
 	public Comment comment;
 
 	public Gtk.Alignment avatarAlignment;
 	public Gtk.Alignment textAlignment;
+
+	public Gtk.Box overallBox;
 
 	public Gtk.Box textBox;
 	public Gtk.Label textLabel;
@@ -18,6 +20,10 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 	public CommentBox(Comment comment, bool withAvatar)
 	{
+		this.set_events(Gdk.EventMask.BUTTON_RELEASE_MASK);
+		this.overallBox = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
+		this.add(overallBox);
+
 		this.set_halign(Gtk.Align.FILL);
 		this.hexpand = true;
 
@@ -57,7 +63,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 			avatarBox = new Gtk.EventBox();
 		    avatarBox.add(avatar);
 			avatarAlignment.add(avatarBox);
-			this.pack_start(avatarAlignment, false, true);	
+			this.overallBox.pack_start(avatarAlignment, false, true);	
 
 			avatarBox.enter_notify_event.connect((event) => {
 				event.window.set_cursor (
@@ -75,9 +81,9 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 		textBox.add(textLabel);
 		textEventBox.add(textBox);
 		textAlignment.add(textEventBox);		
-		this.add(textAlignment);
+		this.overallBox.add(textAlignment);
 		if (PhotoStream.App.selfUser.id == comment.user.id)
-			this.pack_end(removeCommentButton, false, true);
+			this.overallBox.pack_end(removeCommentButton, false, true);
 			
 		this.show_all();		
 
@@ -85,8 +91,7 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 			Gtk.Window parentWindow = (Gtk.Window) this.get_toplevel();
 			PhotoStream.App app = (PhotoStream.App)parentWindow.get_application();
-
-			this.textLabel.activate_link.connect(app.handleUris);
+			
 	        if(this.avatarBox != null)
 	            this.avatarBox.button_release_event.connect(() => {
 	                new Thread<int>("", () => {
@@ -101,6 +106,6 @@ public class PhotoStream.Widgets.CommentBox : Gtk.Box
 
 	public void loadAvatar()
 	{
-		avatar.download(comment.user.profilePicture, "", true);	
+		avatar.download(comment.user.profilePicture, PhotoStream.App.CACHE_IMAGES + "avatar-mask.png", true);	
 	}
 }

@@ -259,7 +259,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
         this.commentList.set_halign(Gtk.Align.FILL);
         this.commentList.postId = post.id;
 
-		if(post.commentsCount !=  post.comments.length())
+		//if(post.commentsCount !=  post.comments.length())
 			commentList.addMoreButton(post.commentsCount);
 		foreach(Comment comment in post.comments)
 			commentList.prepend(comment);
@@ -292,8 +292,6 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
             else
                 return app.handleUris(uri);
         });
-        foreach(CommentBox commentBox in this.commentList.comments)
-            commentBox.textLabel.activate_link.connect(app.handleUris);
 
         // for not crashing when using loadMissingLocation
         string tmpLocationId = (this.post.location == null) ? "0" : this.post.location.id; 

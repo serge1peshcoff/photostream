@@ -77,7 +77,7 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 
 		this.userInfoBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.avatarBox = new Box(Gtk.Orientation.HORIZONTAL, 0);
-		this.avatar = new Image(AVATAR_SIZE);
+		this.avatar = new Image.single(AVATAR_SIZE);
 		this.userName = new Label("username");
 		this.userName.set_line_wrap(true);
 		this.userName.xalign = 0;

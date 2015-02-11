@@ -16,6 +16,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 	public const int REFRESH_INTERVAL = 10;
 	private bool isActive = false;
 
+	private PhotoStream.App app;
+
 	public bool loadAvatars;
 
 	public CommentsList()
@@ -73,6 +75,11 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 		this.pack_start(containerBox, true, true);
 
+		this.realize.connect(() => {
+			var window = (Gtk.Window)this.get_toplevel();
+			app = (PhotoStream.App)window.get_application();
+		});
+
 		Idle.add(() => {
 			this.commentBox.set_size_request(625, -1);
 			this.commentsBoxAlignment.add(commentBox);
@@ -116,6 +123,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
         	return 0;
         });
+
+        commentsWindow.get_vadjustment().set_value(commentsWindow.get_vadjustment().get_upper());
         
 
         if (!isActive)
@@ -152,15 +161,19 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 				{
 					this.prepend(comment);
 					this.show_all();
-				}
-				
+				}	
 			}
 			new Thread<int>("", () => {
 	        	foreach (CommentBox box in comments)
 	        		box.loadAvatar();
 
+	        	Idle.add(() => {
+	        		commentsWindow.get_vadjustment().set_value(commentsWindow.get_vadjustment().get_upper());
+	        		return false;
+	        	});
 	        	return 0;
 	        });
+
 	        return false;
 		});
 		
@@ -176,7 +189,7 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 
 	public void addMoreButton(int64 commentsCount)
 	{
-		this.loadMoreButton = new Gtk.LinkButton("Load all " + commentsCount.to_string() + " comments");
+		this.loadMoreButton = new Gtk.LinkButton("Load all comments");
 		containerBox.pack_start(loadMoreButton, false, true);
 		containerBox.reorder_child(loadMoreButton, 0);
 	}
@@ -191,10 +204,8 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		commentsList.attach(box, 0, 0, 1, 1);
 		comments.append(box);
 		commentsPosted++;
-		box.textEventBox.button_release_event.connect(() => {
-			mentionUser(box.comment.user.username);
-			return false;
-		});		
+		
+		connectHandlers(box);	
 	}
 
 	public new void prepend(Comment post)
@@ -206,17 +217,63 @@ public class PhotoStream.Widgets.CommentsList : Gtk.Box
 		commentsList.attach(box, 0, commentsPosted, 1, 1);
 		comments.append(box);
 		commentsPosted++;
-		box.textEventBox.button_release_event.connect(() => {
-			mentionUser(box.comment.user.username);
+		
+		connectHandlers(box);
+	}
+
+	private void connectHandlers(CommentBox box)
+	{
+		box.textLabel.activate_link.connect(() => {
+			mentionUser(box.textLabel.get_current_uri());
+			return true;
+		});
+		box.button_release_event.connect((event) => {
+			if (event.button != Gdk.BUTTON_SECONDARY)
+				return false;
+
+			var menu = new Gtk.Menu();
+			menu.attach_to_widget(box, null);
+
+			addPopupLabels(menu, box);
+
 			return false;
 		});
-		this.show_all();
+
+		box.textLabel.populate_popup.connect((menu) => {
+			foreach (var child in menu.get_children())
+				menu.remove(child);
+
+			addPopupLabels(menu, box);
+		});
+
+		this.show_all();		
+	}
+
+	private void addPopupLabels(Gtk.Menu menu, CommentBox box)
+	{
+
+		Gtk.MenuItem userItem;
+		if (box.textLabel.get_current_uri() == "")
+			userItem = new Gtk.MenuItem.with_label("@" + box.comment.user.username);
+		else
+			userItem = new Gtk.MenuItem.with_label(box.textLabel.get_current_uri());
+		menu.add(userItem);
+
+		userItem.activate.connect(() => {
+			app.handleUris(userItem.get_label());
+		});
+
+		menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+		menu.show_all();
 	}
 
 	public void mentionUser(string username)
 	{
 		if (this.commentBox.get_text().index_of(username) == -1)
-			commentBox.set_text(commentBox.get_text() + "@" + username + " ");
+			commentBox.set_text(commentBox.get_text() + username + " ");
+
+		if (this.commentsWindow != null)
+			commentsWindow.get_vadjustment().set_value(commentsWindow.get_vadjustment().get_upper());
 	}
 
 	public void clear()

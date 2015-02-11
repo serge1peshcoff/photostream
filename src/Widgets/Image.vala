@@ -5,9 +5,21 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 	public Gtk.Image image;
 	public Gtk.Spinner spinner;
 	public bool isLoaded = false;
+	private bool isSingle = false;
 	public int size;
 
 	public Image(int size)
+	{		
+		initFields(size);	
+	}
+
+	public Image.single(int size)
+	{
+		this.isSingle = true;
+		initFields(size);
+	}
+
+	private void initFields(int size)
 	{
 		this.size = size;
 
@@ -24,7 +36,7 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 
 	public void download(string downloadUrl, string maskImage = "", bool isAvatar = false)
 	{
-		if (image.get_pixbuf() != null)
+		if (image.get_pixbuf() != null && !isSingle)
 			return;
 
 
