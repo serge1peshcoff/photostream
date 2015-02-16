@@ -58,7 +58,7 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 
 		this.set_default_size (800, 700);
-        this.set_size_request (800, 700);
+		this.set_size_request (800, 700);
 		this.resizable = false;
 
 		this.webView = new WebKit.WebView ();
@@ -73,50 +73,50 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		this.webView.get_settings().set_enable_webgl(true);
 		this.webView.get_settings().set_enable_write_console_messages_to_stdout(true);		
 
-        this.show.connect (() => {
-            loadHtml();
-        });			
+		this.show.connect (() => {
+			loadHtml();
+		});			
 
 		var scrolled_window = new ScrolledWindow (null, null);
 		scrolled_window.set_policy (PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
-        scrolled_window.add (this.webView);
+		scrolled_window.add (this.webView);
 
-        var box = new Box (Gtk.Orientation.VERTICAL, 0); 
-       	box.pack_start(scaleBox, false, true);   
+		var box = new Box (Gtk.Orientation.VERTICAL, 0); 
+		box.pack_start(scaleBox, false, true);   
 		box.pack_end (scrolled_window, true, true);
-        add (box); 
+		add (box); 
 
-        this.scale.value_changed.connect(() => {
-        	redrawCircle();
-        });
+		this.scale.value_changed.connect(() => {
+			redrawCircle();
+		});
 
-        checkTitle();
+		checkTitle();
 	}
 
 	private void loadHtml()
 	{		
 		var file = File.new_for_path (PhotoStream.App.CACHE_HTML + "maps.html");
 		string html = "";
-        try 
-        {
-        	string line;
-        	var dis = new DataInputStream (file.read ());
-	        
-	        while ((line = dis.read_line (null)) != null)
-	            html += line;
-	    } 
-	    catch (Error e) 
-	    {
-	        error ("Something wrong with file loading: %s", e.message);
-	    }
-	    html = html.replace("YOUR_API_KEY", MAPS_API_KEY);
-	    this.webView.load_html(html, null);
-	    this.webView.load_changed.connect((loadEvent) => 
-	    {
-	    	if (loadEvent == LoadEvent.FINISHED)
-	    		loadMapsJavascript();
+		try 
+		{
+			string line;
+			var dis = new DataInputStream (file.read ());
+			
+			while ((line = dis.read_line (null)) != null)
+				html += line;
+		} 
+		catch (Error e) 
+		{
+			error ("Something wrong with file loading: %s", e.message);
+		}
+		html = html.replace("YOUR_API_KEY", MAPS_API_KEY);
+		this.webView.load_html(html, null);
+		this.webView.load_changed.connect((loadEvent) => 
+		{
+			if (loadEvent == LoadEvent.FINISHED)
+				loadMapsJavascript();
 
-	    });
+		});
 	}
 	private void loadMapsJavascript()
 	{
@@ -141,17 +141,17 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 					mapsJs += "
 
 					var rangeOptions = {
-				    	strokeColor: '#FF0000',
-				    	strokeOpacity: 0.8,
-				    	strokeWeight: 2,
-				    	fillColor: '#FF0000',
-				    	fillOpacity: 0.35,
-				    	map: map,
-				     	center: userMarkerLocation, 
-				    	radius: %d
-				    };
+						strokeColor: '#FF0000',
+						strokeOpacity: 0.8,
+						strokeWeight: 2,
+						fillColor: '#FF0000',
+						fillOpacity: 0.35,
+						map: map,
+					 	center: userMarkerLocation, 
+						radius: %d
+					};
 
-				    var rangeCircle = new google.maps.Circle(rangeOptions);
+					var rangeCircle = new google.maps.Circle(rangeOptions);
 
 					google.maps.event.addListener(userMarker, 'dragend', function() 
 					{
@@ -170,12 +170,12 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		string mapsJs = "
 
 		var mapOptions = {
-          zoom: %d,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
-            mapOptions);".printf(ZOOM_INITIAL);
-        this.webView.run_javascript.begin(mapsJs, null, (obj, res) => {
+			zoom: %d,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
+		var map = new google.maps.Map(document.getElementById(\"map_canvas\"),
+			mapOptions);".printf(ZOOM_INITIAL);
+		this.webView.run_javascript.begin(mapsJs, null, (obj, res) => {
 			try
 			{
 				this.webView.run_javascript.end(res);
@@ -194,22 +194,26 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 		var userMarkerLocation = new google.maps.LatLng(%f, %f);
 
+		".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
+				  this.location == null ? LONGITUDE_INITIAL : this.location.longitude);
+
+		if (location == null)
+			loadGeoJs += "
 		if(navigator.geolocation) 
 		{
-		    navigator.geolocation.getCurrentPosition(function(position) 
-		    {
-		        userMarkerLocation = new google.maps.LatLng(position.coords.latitude,
-		                                         position.coords.longitude);
+			navigator.geolocation.getCurrentPosition(function(position) 
+			{
+				userMarkerLocation = new google.maps.LatLng(position.coords.latitude,
+														position.coords.longitude);
 				userMarker.setPosition(userMarkerLocation);
 				map.setCenter(userMarkerLocation);
 			}, function() {
-		      // stub, not doing anything and using (0, 0) as coords
-		      alert(\"Cannot load location, using the default one.\");
-		      userMarker.setPosition(userMarkerLocation);
-			  map.setCenter(userMarkerLocation);
+				// stub, not doing anything and using (0, 0) as coords
+				alert(\"Cannot load location, using the default one.\");
+				userMarker.setPosition(userMarkerLocation);
+				map.setCenter(userMarkerLocation);
 		    });
-		}".printf(this.location == null ? LATITUDE_INITIAL : this.location.latitude, 
-				  this.location == null ? LONGITUDE_INITIAL : this.location.longitude);	
+		}";	
 
 		this.webView.run_javascript.begin(loadGeoJs, null, (obj, res) => {
 			try
@@ -232,14 +236,14 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 
 		var marker = new google.maps.Marker({
 			position: markerLocation,
-		    map: map,
-		    draggable: %s,
-		    title: \"%s\"
+			map: map,
+			draggable: %s,
+			title: \"%s\"
 		});	
 
 		google.maps.event.addListener(marker, \"dblclick\", function (e) { 
-               document.title = \"open \" +  %d;
-            });
+			document.title = \"open \" +  %d;
+		});
 
 		markers.push(marker);	
 
@@ -312,7 +316,7 @@ public class PhotoStream.LocationMapWindow : Gtk.Window
 		Idle.add(() => {
 			string clearJs = "
 			for (var i = 0; i < markers.length; i++) 
-			    markers[i].setMap(null);
+				markers[i].setMap(null);
 
 			markers = [];
 			";

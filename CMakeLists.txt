@@ -20,7 +20,6 @@ set (APPLICATIONS_DIR ${DATADIR}/applications) # like /usr/share/applications
 
 
 set (BASIC_VALAC_OPTIONS
-  -X -rdynamic
   --target-glib=2.32
   --thread
   --pkg linux

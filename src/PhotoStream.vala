@@ -460,14 +460,11 @@ using Gdk;
 
 
         Idle.add(() => {
-            locationFeedBox.loadLocation(receivedLocation);
-            
+            locationFeedBox.loadLocation(receivedLocation);            
 
             if (getActiveWindow() == "loading")
             {
-
                 addHistoryEntry("location", locationId.to_string());
-
                 switchWindow("location");
                 this.stack.show_all();
             }
@@ -655,6 +652,16 @@ using Gdk;
             foreach(NewsActivity activity in userNews)
                 newsList.prepend(activity);
 
+            new Thread<int>("", () => {
+                foreach (NewsBox box in newsList.boxes)
+                {
+                    box.loadAvatar();
+                    if (box.activity.activityType != "follow" && box.activity.activityType != "fb-contact-joined")
+                        box.loadImage();
+                }
+                return 0;
+            });
+
             isPageLoaded["news"] = true;
 
             if (isMainWindowShown)
@@ -681,24 +688,19 @@ using Gdk;
 
         newList.reverse();
 
-        foreach (MediaInfo element in newList)
-        {
-            Idle.add(() => {
+        
+        Idle.add(() => {
+            foreach (MediaInfo element in newList)
                 feedList.append(element);
 
-                new Thread<int>("", () => {
-                    feedList.boxes.first().data.loadAvatar();
-                    feedList.boxes.first().data.loadImage();
-                    return 0;
-                }); 
+            feedList.loadImages();
 
-                if (isMainWindowShown)
-                    this.mainWindow.show_all();              
+            if (isMainWindowShown)
+                this.mainWindow.show_all(); 
 
-                return false;
-            });
-            
-        }
+            return false;
+
+        });
 
         GLib.Timeout.add_seconds(REFRESH_INTERVAL, () => {
             new Thread<int>("", () => {
@@ -724,9 +726,19 @@ using Gdk;
 
                 newsList.append(element);
 
+
                 if (isMainWindowShown)
                     this.mainWindow.show_all();               
             }     
+            new Thread<int>("", () => {
+                foreach (NewsBox box in newsList.boxes)
+                {
+                    box.loadAvatar();
+                    if (box.activity.activityType != "follow" && box.activity.activityType != "fb-contact-joined")
+                        box.loadImage();
+                }
+                return 0;
+            });
             newList.reverse();
             displayNewsNotifications(newList);
             return false;            
@@ -939,20 +951,6 @@ using Gdk;
             newsButton.set_active(notUncheck == "news");
             return false;
         });
-    }
-
-    public int loadImages()
-    {
-        foreach (PostBox postBox in feedList.boxes)
-        {
-            if (!postBox.avatar.isLoaded) //avatar not loaded, that means image was not added to PostList
-            {        
-                postBox.loadAvatar();
-                postBox.loadImage();
-            }
-        }
-        //feedList.resizeAllImages(this.mainWindow.get_allocated_width());
-        return 0;
     }
 
     public void switchWindow(string window)

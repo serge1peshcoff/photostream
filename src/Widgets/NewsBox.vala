@@ -5,8 +5,8 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 {
 	public Gtk.Box box;
 
-	public Gtk.Image avatarImage;
-	public Gtk.Image postImage;
+	public PhotoStream.Widgets.Image avatarImage;
+	public PhotoStream.Widgets.Image postImage;
 	public Gtk.Box textBox;
 	public Gtk.Label commentLabel;
 	public PhotoStream.Widgets.DateLabel dateLabel;
@@ -44,7 +44,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
         this.avatarAlignment.bottom_padding = 5;
         this.avatarAlignment.left_padding = 5;	
 
-		this.avatarImage = new Gtk.Image();
+		this.avatarImage = new PhotoStream.Widgets.Image(AVATAR_SIZE);
 		this.avatarBox = new Gtk.EventBox();
 		this.avatarBox.add(avatarImage);
 		this.avatarAlignment.add(avatarBox);
@@ -53,10 +53,10 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		this.textBox = new Gtk.Box(Gtk.Orientation.VERTICAL, 0);
 		this.box.add(textBox);		
 
-		new Thread<int>("", () => {
+		/*new Thread<int>("", () => {
 			this.loadAvatar();
 			return 0;
-		});
+		});*/
 
 		string commentString = "<b>" + wrapInTags("@" + activity.username) + "</b> " + actions[activity.activityType];
 
@@ -89,7 +89,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		this.textBox.add(commentAlignment);
 		this.textBox.add(dateAlignment);
 
-		this.postImage = new Gtk.Image();
+		this.postImage = new PhotoStream.Widgets.Image(AVATAR_SIZE);
 		this.postImageBox = new Gtk.EventBox();
 		this.postImageAlignment = new Gtk.Alignment (0,0,0,0);
         this.postImageAlignment.top_padding = 5;
@@ -103,10 +103,10 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 			postImageBox.add(postImage);
 			postImageAlignment.add(postImageBox);
 			this.box.pack_end(postImageAlignment, false, true);
-			new Thread<int>("", () => {
+			/*new Thread<int>("", () => {
 				this.loadImage();
 				return 0;
-			});
+			});*/
 		} 
 
 		this.avatarBox.set_events (Gdk.EventMask.BUTTON_RELEASE_MASK);
@@ -148,78 +148,13 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		});
     }
 
-    private void loadAvatar()
+    public void loadAvatar()
     {
-    	var avatarFileName = PhotoStream.App.CACHE_AVATARS + getFileName(activity.userProfilePicture);
-		File file = File.new_for_path(avatarFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(activity.userProfilePicture, avatarFileName);
-        	}
-        	catch (Error e)
-        	{
-        		return; // not loading avatar, to fix.
-        	}
-
-        Idle.add(() => {
-			Pixbuf avatarPixbuf; 
-        	Pixbuf avatarMaskPixbuf;
-	        try 
-	        {
-	        	avatarPixbuf = new Pixbuf.from_file(avatarFileName);
-	        	avatarMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading.\n");
-	        }
-			avatarPixbuf = avatarPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-			avatarMaskPixbuf = avatarMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-
-			avatarMaskPixbuf.composite(avatarPixbuf, 0, 0, 
-	        						AVATAR_SIZE, AVATAR_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-
-			avatarImage.set_from_pixbuf(avatarPixbuf);
-			return false;
-        });
+    	avatarImage.download(activity.userProfilePicture, PhotoStream.App.CACHE_IMAGES + "avatar-mask.png", true);
     }
 
-    private void loadImage()
+    public void loadImage()
     {
-    	var imageFileName = PhotoStream.App.CACHE_AVATARS + getFileName(activity.imagePicture);
-		File file = File.new_for_path(imageFileName);
-        if (!file.query_exists()) // avatar not downloaded, download
-        	try
-        	{
-        		downloadFile(activity.imagePicture, imageFileName);
-        	}
-        	catch (Error e)
-        	{
-        		return; // not loading avatar, to fix.
-        	}
-
-        Idle.add(() => {
-			Pixbuf imagePixbuf; 
-        	Pixbuf imageMaskPixbuf;
-	        try 
-	        {
-	        	imagePixbuf = new Pixbuf.from_file(imageFileName);
-	        	imageMaskPixbuf = new Pixbuf.from_file(PhotoStream.App.CACHE_IMAGES + "avatar-mask.png");
-	        }	
-	        catch (Error e)
-	        {
-	        	GLib.error("Something wrong with file loading: %s.\n", e.message);
-	        }
-			imagePixbuf = imagePixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-			imageMaskPixbuf = imageMaskPixbuf.scale_simple(AVATAR_SIZE, AVATAR_SIZE, Gdk.InterpType.BILINEAR);
-
-			imageMaskPixbuf.composite(imagePixbuf, 0, 0, 
-	        						AVATAR_SIZE, AVATAR_SIZE, 0, 0, 1.0, 1.0, Gdk.InterpType.BILINEAR, 255);
-
-			postImage.set_from_pixbuf(imagePixbuf);
-			return false;
-        });
+    	postImage.download(activity.imagePicture);
     }
-
 }
