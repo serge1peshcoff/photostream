@@ -141,19 +141,7 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
 		imageEventBox.add(imageBox);
 		imageAlignment.add(imageEventBox);
 		box.add(imageAlignment);	
-
-		imageEventBox.enter_notify_event.connect((event) => {
-			event.window.set_cursor (
-                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
-            );
-            return false;
-		});
-		imageEventBox.button_release_event.connect(() => {
-			if (!windowOpened)
-				openMedia();
-			return false;
-		});
-
+		
 		this.titleAlignment = new Gtk.Alignment (0,0,1,0);
         this.titleAlignment.top_padding = 6;
         this.titleAlignment.right_padding = 6;
@@ -292,6 +280,63 @@ public class PhotoStream.Widgets.PostBox : Gtk.Box
             else
                 return app.handleUris(uri);
         });
+
+        imageEventBox.enter_notify_event.connect((event) => {
+			event.window.set_cursor (
+                new Gdk.Cursor.from_name (Gdk.Display.get_default(), "hand2")
+            );
+            return false;
+		});
+		imageEventBox.button_release_event.connect((event) => {
+			if (event.button == Gdk.BUTTON_PRIMARY)
+			{
+				if (!windowOpened)
+					openMedia();				
+			}
+			else if (event.button == Gdk.BUTTON_SECONDARY)
+			{
+				string titleString = "Save %s ...".printf(this.post.type == PhotoStream.MediaType.VIDEO ? "video" : "image");
+				var menu = new Gtk.Menu();
+                menu.attach_to_widget(this.avatarBox, null);
+
+                var saveImageItem = new Gtk.MenuItem.with_label(titleString);
+                menu.add(saveImageItem);
+
+                saveImageItem.activate.connect (() => {
+                	var fileChooser = new Gtk.FileChooserDialog(titleString, 
+                						(Gtk.Window)(this.get_toplevel().get_toplevel()),
+	                                      Gtk.FileChooserAction.SAVE,
+	                                      "Cancel", Gtk.ResponseType.CANCEL,
+	                                      "Save", Gtk.ResponseType.ACCEPT);
+
+                	Gtk.FileFilter filter = new Gtk.FileFilter ();
+					filter.set_filter_name(this.post.type == PhotoStream.MediaType.IMAGE ? "JPG" : "MP4");
+					filter.add_pattern(this.post.type == PhotoStream.MediaType.IMAGE ? "*.jpg" : "*.mp4");
+					fileChooser.add_filter(filter);
+
+			        if (fileChooser.run () == Gtk.ResponseType.ACCEPT)
+		        	{
+		        		File origin = File.new_for_path(PhotoStream.App.CACHE_URL + getFileName(this.post.media.url));
+		        		File destination = File.new_for_path(fileChooser.get_filename());
+		        		try
+		        		{
+		        			origin.copy(destination, GLib.FileCopyFlags.OVERWRITE);
+		        		}
+		        		catch (Error e)
+		        		{
+		        			error("Something wrong with file writing: %s.", e.message);
+		        		}
+		        	}
+
+		        	fileChooser.destroy (); 
+		        });
+
+                menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+                menu.show_all();
+			}
+			return false;
+		});
+
 
         // for not crashing when using loadMissingLocation
         string tmpLocationId = (this.post.location == null) ? "0" : this.post.location.id; 

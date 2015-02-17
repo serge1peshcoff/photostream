@@ -37,6 +37,13 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
 		{
 			image = new Gtk.Image.from_file(PhotoStream.App.CACHE_URL + getFileName(fileName));
 			windowBox.add(image);
+
+			this.eventBox.button_release_event.connect((event) => {
+	        	if (event.button == Gdk.BUTTON_SECONDARY)
+	        		saveCallback(fileName);
+
+	        	return false;
+	        });
 		}
 	}
 
@@ -109,14 +116,57 @@ public class PhotoStream.Widgets.MediaWindow: Gtk.Window
         this.show_all();
 
         this.eventBox.button_release_event.connect((event) => {
-        	if (event.button == 1)
+        	if (event.button == Gdk.BUTTON_PRIMARY)
         		switchVideoPlayback();
+        	else if (event.button == Gdk.BUTTON_SECONDARY)
+        		saveCallback(fileName);
 
         	return false;
         });
 
         this.pipeline.set_state (State.PLAYING); 
         videoPlaying = true;       
+	}
+
+	private void saveCallback(string fileName)
+	{
+		string titleString = "Save %s ...".printf(video ? "video" : "image");
+		var menu = new Gtk.Menu();
+        menu.attach_to_widget(this, null);
+
+        var saveImageItem = new Gtk.MenuItem.with_label(titleString);
+        menu.add(saveImageItem);
+
+        saveImageItem.activate.connect (() => {
+        	var fileChooser = new Gtk.FileChooserDialog(titleString, this,
+                                  Gtk.FileChooserAction.SAVE,
+                                  "Cancel", Gtk.ResponseType.CANCEL,
+                                  "Save", Gtk.ResponseType.ACCEPT);
+
+        	Gtk.FileFilter filter = new Gtk.FileFilter ();
+			filter.set_filter_name(!video ? "JPG" : "MP4");
+			filter.add_pattern(!video ? "*.jpg" : "*.mp4");
+			fileChooser.add_filter(filter);
+
+	        if (fileChooser.run () == Gtk.ResponseType.ACCEPT)
+        	{
+        		File origin = File.new_for_path(PhotoStream.App.CACHE_URL + getFileName(fileName));
+        		File destination = File.new_for_path(fileChooser.get_filename());
+        		try
+        		{
+        			origin.copy(destination, GLib.FileCopyFlags.OVERWRITE);
+        		}
+        		catch (Error e)
+        		{
+        			error("Something wrong with file writing: %s.", e.message);
+        		}
+        	}
+
+        	fileChooser.destroy (); 
+        });
+
+        menu.popup(null, null, null, Gdk.BUTTON_SECONDARY, Gtk.get_current_event_time());
+        menu.show_all();
 	}
 
 	private void padAddedHandler(Gst.Element src, Gst.Pad new_pad)
