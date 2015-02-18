@@ -65,7 +65,7 @@ public class PhotoStream.Widgets.Image: Gtk.Box
 	        }	
 	        catch (Error e)
 	        {
-	        	GLib.error("Something wrong with file loading.\n");
+	        	GLib.error("Something wrong with file loading: %s.\n", e.message);
 	        }
 			imagePixbuf = imagePixbuf.scale_simple(size, size, Gdk.InterpType.BILINEAR);
 			
