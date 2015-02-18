@@ -32,6 +32,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 		actions["comment"] = "left a comment on your photo:";
 		actions["tagged-in-photo"] = "took a picture of you.";
 		actions["fb-contact-joined"] = "";
+		actions["vkontakte-contact-joined"] = "";
 
 		this.box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, 0);
 		this.add(box);
@@ -62,7 +63,7 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
 
 		if (activity.activityType == "mention" || activity.activityType == "comment")
 			commentString += "\n" + wrapInTags(activity.comment);
-		if (activity.activityType == "fb-contact-joined")
+		if (activity.activityType == "fb-contact-joined" || activity.activityType == "vkontakte-contact-joined")
 			commentString = wrapInTags(activity.comment);
 
 		this.commentAlignment = new Gtk.Alignment (0,1,1,1);
@@ -97,8 +98,9 @@ public class PhotoStream.Widgets.NewsBox : Gtk.EventBox
         this.postImageAlignment.bottom_padding = 5;
         this.postImageAlignment.left_padding = 5;	
 
-
-		if (activity.activityType != "follow" && activity.activityType != "fb-contact-joined")
+		if (activity.activityType != "follow" 
+			&& activity.activityType != "fb-contact-joined" 
+			&& activity.activityType != "vkontakte-contact-joined")
 		{
 			postImageBox.add(postImage);
 			postImageAlignment.add(postImageBox);

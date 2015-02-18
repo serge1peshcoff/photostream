@@ -68,6 +68,13 @@ public class PhotoStream.Widgets.UserWindowBox : Gtk.Box
 	{
 		GLib.Object (orientation: Gtk.Orientation.VERTICAL);
 
+		var rgba = Gdk.RGBA();
+		rgba.red = 1;
+		rgba.green = 1;
+		rgba.blue = 1;
+		rgba.alpha = 1;
+		this.override_background_color(Gtk.StateFlags.NORMAL, rgba);
+
 		this.realize.connect(() => {
 			var window = (Gtk.Window)this.get_toplevel();
 			app = (PhotoStream.App)window.get_application();

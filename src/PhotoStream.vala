@@ -656,7 +656,9 @@ using Gdk;
                 foreach (NewsBox box in newsList.boxes)
                 {
                     box.loadAvatar();
-                    if (box.activity.activityType != "follow" && box.activity.activityType != "fb-contact-joined")
+                    if (box.activity.activityType != "follow" 
+                        && box.activity.activityType != "fb-contact-joined"
+                        && box.activity.activityType != "vkontakte-contact-joined")
                         box.loadImage();
                 }
                 return 0;
@@ -734,7 +736,9 @@ using Gdk;
                 foreach (NewsBox box in newsList.boxes)
                 {
                     box.loadAvatar();
-                    if (box.activity.activityType != "follow" && box.activity.activityType != "fb-contact-joined")
+                    if (box.activity.activityType != "follow" 
+                        && box.activity.activityType != "fb-contact-joined"
+                        && box.activity.activityType != "vkontakte-contact-joined")
                         box.loadImage();
                 }
                 return 0;

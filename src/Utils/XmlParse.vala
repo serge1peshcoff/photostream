@@ -44,6 +44,8 @@ public NewsActivity parseActivity(Xml.Node* liElement)
 		activity.activityType = "tagged-in-photo";
 	else if (liElement->get_prop("class").index_of("fb-contact-joined") != -1) // "facebook friend joined Instagram" activity
 		activity.activityType = "fb-contact-joined";
+	else if (liElement->get_prop("class").index_of("vkontakte-contact-joined") != -1) // "facebook friend joined Instagram" activity
+		activity.activityType = "vkontakte-contact-joined";
 	else
 		error("Should've not reached here: %s.", liElement->get_prop("class"));
 
@@ -59,7 +61,7 @@ public NewsActivity parseActivity(Xml.Node* liElement)
 
 	if (activity.activityType == "follow") // haven't got a post, return as it
 		return activity;
-	if (activity.activityType == "fb-contact-joined")
+	if (activity.activityType == "fb-contact-joined" || activity.activityType == "vkontakte-contact-joined" )
 	{
 		var pElement = divWrapperElement->children->next;
 		var username = getChildWithName(pElement, "a")->get_content();
